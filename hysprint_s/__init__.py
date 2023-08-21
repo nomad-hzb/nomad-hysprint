@@ -30,10 +30,9 @@ from nomad.metainfo import (
 
 from nomad.datamodel.data import EntryData
 from nomad.datamodel.results import Results, Properties, Material, ELN
-from nomad.datamodel.metainfo.eln import SampleID
 
 from baseclasses import (
-    ProcessOnSample, MeasurementOnSample, LayerDeposition, Batch
+    BaseProcess, BaseMeasurement, LayerDeposition, Batch, ReadableIdentifiersCustom
 )
 
 from baseclasses.chemical import (
@@ -187,7 +186,7 @@ class Hysprint_ElectroChemicalCell(ElectroChemicalCell, EntryData):
     )
 
     ecc_id = SubSection(
-        section_def=SampleID)
+        section_def=ReadableIdentifiersCustom)
 
 
 class HySprint_ElectroChemicalSetup(ElectroChemicalSetup, EntryData):
@@ -205,7 +204,7 @@ class HySprint_ElectroChemicalSetup(ElectroChemicalSetup, EntryData):
     )
 
     setup_id = SubSection(
-        section_def=SampleID)
+        section_def=ReadableIdentifiersCustom)
 
 
 class HySprint_Environment(Environment, EntryData):
@@ -225,7 +224,7 @@ class HySprint_Environment(Environment, EntryData):
                     "solvent"])))
 
     environment_id = SubSection(
-        section_def=SampleID)
+        section_def=ReadableIdentifiersCustom)
 
 
 class HySprint_Substrate(Substrate, EntryData):
@@ -312,59 +311,59 @@ class HySprint_Batch(Batch, EntryData):
                     "csv_export_file"])))
 
 
-class HySprint_BasicBatch(Batch, EntryData):
-    m_def = Section(
-        a_eln=dict(
-            hide=['users'],
-            properties=dict(
-                order=[
-                    "name",
-                    "samples",
-                    "number_of_samples",
-                    "create_samples",
-                    "export_batch_ids",
-                    "csv_export_file"])))
+# class HySprint_BasicBatch(Batch, EntryData):
+#     m_def = Section(
+#         a_eln=dict(
+#             hide=['users'],
+#             properties=dict(
+#                 order=[
+#                     "name",
+#                     "samples",
+#                     "number_of_samples",
+#                     "create_samples",
+#                     "export_batch_ids",
+#                     "csv_export_file"])))
 
-    number_of_samples = Quantity(
-        type=np.dtype(np.int64),
-        default=0,
-        a_eln=dict(
-            component='NumberEditQuantity'
-        ))
+#     number_of_samples = Quantity(
+#         type=np.dtype(np.int64),
+#         default=0,
+#         a_eln=dict(
+#             component='NumberEditQuantity'
+#         ))
 
-    create_samples = Quantity(
-        type=bool,
-        default=False,
-        a_eln=dict(component='BoolEditQuantity')
-    )
+#     create_samples = Quantity(
+#         type=bool,
+#         default=False,
+#         a_eln=dict(component='BoolEditQuantity')
+#     )
 
-    def normalize(self, archive, logger):
-        super(HySprint_BasicBatch, self).normalize(archive, logger)
+#     def normalize(self, archive, logger):
+#         super(HySprint_BasicBatch, self).normalize(archive, logger)
 
-        if self.number_of_samples > 0 and self.create_samples:
-            self.create_samples = False
-            samples = []
-            from baseclasses.helper.execute_solar_sample_plan import create_archive, get_entry_id_from_file_name, get_reference
-            sample_name_id = self.batch_id.sample_short_name if self.batch_id is not None else None
-            for sample_idx in range(self.number_of_samples):
-                hysprint_basicsample = HySprint_BasicSample(
-                    sample_id=self.batch_id if self.batch_id is not None else None,
-                    datetime=self.datetime if self.datetime is not None else None,
-                    description=self.description if self.description is not None else None,
-                    name=f'{self.name} {sample_idx}' if self.name is not None else None,
-                )
-                hysprint_basicsample.sample_id.sample_short_name = f'{sample_name_id}_{sample_idx}'
+#         if self.number_of_samples > 0 and self.create_samples:
+#             self.create_samples = False
+#             samples = []
+#             from baseclasses.helper.execute_solar_sample_plan import create_archive, get_entry_id_from_file_name, get_reference
+#             sample_name_id = self.batch_id.sample_short_name if self.batch_id is not None else None
+#             for sample_idx in range(self.number_of_samples):
+#                 hysprint_basicsample = HySprint_BasicSample(
+#                     sample_id=self.batch_id if self.batch_id is not None else None,
+#                     datetime=self.datetime if self.datetime is not None else None,
+#                     description=self.description if self.description is not None else None,
+#                     name=f'{self.name} {sample_idx}' if self.name is not None else None,
+#                 )
+#                 hysprint_basicsample.sample_id.sample_short_name = f'{sample_name_id}_{sample_idx}'
 
-                file_name = f'{self.name.replace(" ","_")}_{sample_idx}.archive.json'
-                create_archive(hysprint_basicsample, archive, file_name)
-                if sample_name_id is not None:
-                    self.batch_id.sample_short_name = sample_name_id
-                entry_id = get_entry_id_from_file_name(file_name, archive)
+#                 file_name = f'{self.name.replace(" ","_")}_{sample_idx}.archive.json'
+#                 create_archive(hysprint_basicsample, archive, file_name)
+#                 if sample_name_id is not None:
+#                     self.batch_id.sample_short_name = sample_name_id
+#                 entry_id = get_entry_id_from_file_name(file_name, archive)
 
-                samples.append(get_reference(
-                    archive.metadata.upload_id, entry_id))
-            self.samples = []
-            self.samples = samples
+#                 samples.append(get_reference(
+#                     archive.metadata.upload_id, entry_id))
+#             self.samples = []
+#             self.samples = samples
 
 # %% ####################### Cleaning
 
@@ -1043,6 +1042,9 @@ class HySprint_104_ProtoVap_MPPTracking(MPPTrackingHsprintCustom, EntryData):
     def normalize(self, archive, logger):
         if self.data_file and self.load_data_from_file:
             self.load_data_from_file = False
+            from baseclasses.helper.utilities import rewrite_json
+            rewrite_json(["data", "load_data_from_file"], archive, False)
+
             # from baseclasses.helper.utilities import get_encoding
             # with archive.m_context.raw_file(self.data_file, "br") as f:
             #     encoding = get_encoding(f)
@@ -1305,7 +1307,7 @@ class IRIS_2038_HZBGloveBoxes_Pero2Spincoater_UVvis(
 # %%####################################### Generic Entries
 
 
-class HySprint_Process(ProcessOnSample, EntryData):
+class HySprint_Process(BaseProcess, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=[
@@ -1380,7 +1382,7 @@ class HySprint_Deposition(LayerDeposition, EntryData):
         a_browser=dict(adaptor='RawFileAdaptor'))
 
 
-class HySprint_Measurement(MeasurementOnSample, EntryData):
+class HySprint_Measurement(BaseMeasurement, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=[
