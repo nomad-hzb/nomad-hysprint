@@ -302,11 +302,10 @@ class HySprint_BasicSample(BasicSampleWithID, EntryData):
 class HySprint_Batch(Batch, EntryData):
     m_def = Section(
         a_eln=dict(
-            hide=['users'],
+            hide=['users', 'samples'],
             properties=dict(
                 order=[
                     "name",
-                    "samples",
                     "export_batch_ids",
                     "csv_export_file"])))
 
@@ -375,7 +374,7 @@ class HySprint_114_SolventFumeHood_Cleaning(Cleaning, EntryData):
                 'lab_id',
                 'users',
                 'location',
-                'end_time'],
+                'end_time',  'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name",
@@ -395,7 +394,7 @@ class IRIS_2031_Printerlab_SolutionCleaning(Cleaning, EntryData):
                 'lab_id',
                 'users',
                 'location',
-                'end_time'],
+                'end_time',  'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name",
@@ -415,7 +414,7 @@ class IRIS_2135_Preparationlab_SolutionCleaning(Cleaning, EntryData):
                 'lab_id',
                 'users',
                 'location',
-                'end_time'],
+                'end_time',  'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name",
@@ -435,7 +434,7 @@ class HySprint_114_HyFlowBox_Cleaning_UV(Cleaning, EntryData):
                 'lab_id',
                 'users',
                 'location',
-                'end_time'],
+                'end_time',  'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name",
@@ -455,7 +454,7 @@ class IRIS_2031_Printerlab_Cleaning_UV(Cleaning, EntryData):
                 'lab_id',
                 'users',
                 'location',
-                'end_time'],
+                'end_time',  'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name",
@@ -475,7 +474,7 @@ class HySprint_114_HyFlowBox_Cleaning_Plasma(Cleaning, EntryData):
                 'lab_id',
                 'users',
                 'location',
-                'end_time'],
+                'end_time',  'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name",
@@ -495,7 +494,7 @@ class IRIS_2135_Preparationlab_Cleaning_Plasma(Cleaning, EntryData):
                 'lab_id',
                 'users',
                 'location',
-                'end_time'],
+                'end_time',  'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name",
@@ -518,7 +517,7 @@ class HySprint_114_HTFumeHood_SprayPyrolysis(SprayPyrolysis, EntryData):
                 'lab_id',
                 'users',
                 'location',
-                'end_time'],
+                'end_time',  'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name",
@@ -543,7 +542,7 @@ class HySprint_VaporizationAndDropCasting(
                 'lab_id',
                 'users',
                 'location',
-                'end_time',
+                'end_time',  'steps', 'instruments', 'results',
                 'previous_process'],
             properties=dict(
                 order=[
@@ -572,7 +571,7 @@ class IRIS_2038_HZBGloveBoxes_Pero3Inkjet_Inkjet_Printing(
                 'lab_id',
                 'users',
                 'location',
-                'end_time'],
+                'end_time',  'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name",
@@ -602,7 +601,7 @@ class HySprint_114_HyFlowBox_SpinCoating(SpinCoating, EntryData):
                 'lab_id',
                 'users',
                 'location',
-                'end_time'],
+                'end_time',  'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name",
@@ -627,7 +626,7 @@ class HySprint_108_HyPeroSpin_SpinCoating(SpinCoating, EntryData):
                 'lab_id',
                 'users',
                 'location',
-                'end_time'],
+                'end_time',  'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name",
@@ -653,7 +652,7 @@ class IRIS_2038_HZBGloveBoxes_Pero2Spincoater_SpinCoating(
                 'lab_id',
                 'users',
                 'location',
-                'end_time'],
+                'end_time',  'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name",
@@ -679,7 +678,7 @@ class HySprint_108_HySpin_SpinCoating(SpinCoating, EntryData):
                 'lab_id',
                 'users',
                 'location',
-                'end_time'],
+                'end_time',  'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name",
@@ -701,7 +700,7 @@ class HySprint_104_ProtoVap_SpinCoating(SpinCoating, EntryData):
                 'lab_id',
                 'users',
                 'author',
-                'end_time'],
+                'end_time',  'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name",
@@ -727,7 +726,7 @@ class HySprint_108_HySDC_SlotDieCoating(SlotDieCoating, EntryData):
                 'lab_id',
                 'users',
                 'author',
-                'end_time'],
+                'end_time',  'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name",
@@ -754,7 +753,7 @@ class HySprint_108_HySDC_SlotDieCoating(SlotDieCoating, EntryData):
 #                 'lab_id',
 #                 'users',
 #                 'location',
-#                 'end_time',
+#                 'end_time',  'steps', 'instruments', 'results',
 #                 'humidity'],
 #             properties=dict(
 #                 order=[
@@ -775,7 +774,7 @@ class HySprint_108_HySDC_SlotDieCoating(SlotDieCoating, EntryData):
 #                 'lab_id',
 #                 'users',
 #                 'location',
-#                 'end_time',
+#                 'end_time',  'steps', 'instruments', 'results',
 #                 'humidity'],
 #             properties=dict(
 #                 order=[
@@ -796,7 +795,7 @@ class HySprint_108_HySDC_SlotDieCoating(SlotDieCoating, EntryData):
 #                 'lab_id',
 #                 'users',
 #                 'location',
-#                 'end_time'],
+#                 'end_time',  'steps', 'instruments', 'results'],
 #             properties=dict(
 #                 order=[
 #                     "name",
@@ -816,7 +815,7 @@ class HySprint_108_HySDC_SlotDieCoating(SlotDieCoating, EntryData):
 #                 'lab_id',
 #                 'users',
 #                 'location',
-#                 'end_time',
+#                 'end_time',  'steps', 'instruments', 'results',
 #                 'humidity'],
 #             properties=dict(
 #                 order=[
@@ -837,7 +836,7 @@ class HySprint_108_HySDC_SlotDieCoating(SlotDieCoating, EntryData):
 #                 'lab_id',
 #                 'users',
 #                 'location',
-#                 'end_time',
+#                 'end_time',  'steps', 'instruments', 'results',
 #                 'humidity'],
 #             properties=dict(
 #                 order=[
@@ -861,7 +860,7 @@ class IRIS_2038_HZBGloveBoxes_Pero5Evaporation_Evaporation(
                 'lab_id',
                 'users',
                 'location',
-                'end_time'],
+                'end_time',  'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name",
@@ -878,7 +877,7 @@ class HySprint_108_HyVap_Evaporation(Evaporations, EntryData):
                 'lab_id',
                 'users',
                 'location',
-                'end_time'],
+                'end_time',  'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name",
@@ -895,7 +894,7 @@ class HySprint_108_HyPeroVap_Evaporation(Evaporations, EntryData):
                 'lab_id',
                 'users',
                 'location',
-                'end_time'],
+                'end_time',  'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name",
@@ -912,7 +911,7 @@ class HySprint_104_ProtoVap_Evaporation(Evaporations, EntryData):
                 'lab_id',
                 'users',
                 'location',
-                'end_time'],
+                'end_time',  'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name",
@@ -930,7 +929,7 @@ class HySprint_108_HyDryAir_Storage(Storage, EntryData):
                 'lab_id',
                 'users',
                 'location',
-                'end_time'],
+                'end_time',  'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name",
@@ -952,7 +951,7 @@ class HySprint_108_HyVap_JVmeasurement(JVMeasurement, EntryData):
                 'author',
                 'certified_values',
                 'certification_institute',
-                'end_time',
+                'end_time',  'steps', 'instruments', 'results',
                 'location'],
             properties=dict(
                 order=[
@@ -1002,7 +1001,7 @@ class HySprint_104_ProtoVap_MPPTracking(MPPTrackingHsprintCustom, EntryData):
                 'lab_id', 'solution',
                 'users',
                 'author',
-                'end_time',
+                'end_time',  'steps', 'instruments', 'results',
                 'location'],
             properties=dict(
                 order=[
@@ -1071,7 +1070,7 @@ class IRIS_2038_HZBGloveBoxes_Pero4SOSIMStorage_JVmeasurement(
                 'author',
                 'certified_values',
                 'certification_institute',
-                'end_time',
+                'end_time',  'steps', 'instruments', 'results',
                 'location'],
             properties=dict(
                 order=[
@@ -1108,7 +1107,7 @@ class HySprint_TimeResolvedPhotoluminescence(
                 'certified_values',
                 'certification_institute',
                 'location',
-                'end_time'],
+                'end_time',  'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name",
@@ -1163,7 +1162,7 @@ class HySprint_OpticalMicroscope(
                 'detector_data_folder',
                 'external_sample_url',
                 'location',
-                'end_time'],
+                'end_time',  'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name",
@@ -1179,7 +1178,7 @@ class HySprint_108_HyVap_EQEmeasurement(EQEMeasurement, EntryData):
                 'lab_id', 'solution',
                 'users',
                 'location',
-                'end_time'],
+                'end_time',  'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name",
@@ -1205,7 +1204,7 @@ class HySprint_108_HyPrint_PLmeasurement(PLMeasurement, EntryData):
                 'lab_id',
                 'users',
                 'location',
-                'end_time'],
+                'end_time',  'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name",
@@ -1221,7 +1220,7 @@ class IRIS_2038_HZBGloveBoxes_Pero2Spincoater_PLMeasurment(
                 'lab_id',
                 'users',
                 'location',
-                'end_time'],
+                'end_time',  'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name",
@@ -1236,7 +1235,7 @@ class HySprint_1xx_nobox_UVvismeasurement(UVvisMeasurement, EntryData):
                 'lab_id',
                 'users',
                 'location',
-                'end_time'],
+                'end_time',  'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name",
@@ -1274,7 +1273,7 @@ class IRIS_2038_HZBGloveBoxes_Pero2Spincoater_UVvis(
                 'lab_id',
                 'users',
                 'location',
-                'end_time'],
+                'end_time',  'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name",
@@ -1314,7 +1313,7 @@ class HySprint_Process(BaseProcess, EntryData):
                 'lab_id',
                 'users',
                 'location',
-                'end_time'],
+                'end_time',  'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name",
@@ -1337,7 +1336,7 @@ class HySprint_WetChemicalDepoistion(WetChemicalDeposition, EntryData):
                 'lab_id',
                 'users',
                 'location',
-                'end_time'],
+                'end_time',  'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name",
@@ -1364,7 +1363,7 @@ class HySprint_Deposition(LayerDeposition, EntryData):
                 'lab_id',
                 'users',
                 'location',
-                'end_time'],
+                'end_time',  'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name",
@@ -1389,7 +1388,7 @@ class HySprint_Measurement(BaseMeasurement, EntryData):
                 'lab_id',
                 'users',
                 'location',
-                'end_time'],
+                'end_time',  'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name",
