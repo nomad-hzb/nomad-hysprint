@@ -151,7 +151,7 @@ class HySprint_Chemical(Chemical, EntryData):
 
 class Hysprint_Electrode(Electrode, EntryData):
     m_def = Section(
-        a_eln=dict(hide=['users', 'origin'],
+        a_eln=dict(hide=['users', 'components', 'elemental_composition', 'origin'],
                    properties=dict(
             order=[
                 "name", "lab_id",
@@ -160,38 +160,38 @@ class Hysprint_Electrode(Electrode, EntryData):
     )
 
 
-class Hysprint_Electrolyte(Electrolyte, EntryData):
-    m_def = Section(
-        a_eln=dict(hide=['users', 'origin'],
-                   properties=dict(
-            order=[
-                "name", "lab_id", "chemical_composition_or_formulas"
-            ]))
-    )
+# class Hysprint_Electrolyte(Electrolyte, EntryData):
+#     m_def = Section(
+#         a_eln=dict(hide=['users', 'origin'],
+#                    properties=dict(
+#             order=[
+#                 "name", "lab_id", "chemical_composition_or_formulas"
+#             ]))
+#     )
 
 
-class Hysprint_ElectroChemicalCell(ElectroChemicalCell, EntryData):
-    m_def = Section(
-        a_eln=dict(hide=['users', 'origin'],
-                   properties=dict(
-            order=[
-                "name",
-                "lab_id",
-                "chemical_composition_or_formulas",
-                "working_electrode",
-                "reference_electrode",
-                "counter_electrode",
-                "electrolyte"
-            ])),
-    )
+# class Hysprint_ElectroChemicalCell(ElectroChemicalCell, EntryData):
+#     m_def = Section(
+#         a_eln=dict(hide=['users', 'components', 'elemental_composition', 'origin'],
+#                    properties=dict(
+#             order=[
+#                 "name",
+#                 "lab_id",
+#                 "chemical_composition_or_formulas",
+#                 "working_electrode",
+#                 "reference_electrode",
+#                 "counter_electrode",
+#                 "electrolyte"
+#             ])),
+#     )
 
-    ecc_id = SubSection(
-        section_def=ReadableIdentifiersCustom)
+#     ecc_id = SubSection(
+#         section_def=ReadableIdentifiersCustom)
 
 
 class HySprint_ElectroChemicalSetup(ElectroChemicalSetup, EntryData):
     m_def = Section(
-        a_eln=dict(hide=['users', 'origin'],
+        a_eln=dict(hide=['users', 'components', 'elemental_composition', 'origin'],
                    properties=dict(
             order=[
                 "name",
@@ -211,7 +211,7 @@ class HySprint_Environment(Environment, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=[
-                'users',
+                'users', 'components', 'elemental_composition',
                 'origin'],
             properties=dict(
                 editable=dict(
@@ -232,7 +232,7 @@ class HySprint_Substrate(Substrate, EntryData):
         a_eln=dict(
             hide=[
                 'lab_id',
-                'users'],
+                'users', 'components', 'elemental_composition'],
             properties=dict(
                 order=[
                     "name",
@@ -247,7 +247,7 @@ class HySprint_Solution(Solution, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=[
-                'users'],
+                'users', 'components', 'elemental_composition'],
             properties=dict(
                 order=[
                     "name",
@@ -266,7 +266,7 @@ class HySprint_Ink(Ink, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=[
-                'users',
+                'users', 'components', 'elemental_composition',
                 'chemical_formula'],
             properties=dict(
                 order=[
@@ -284,7 +284,7 @@ class HySprint_Ink(Ink, EntryData):
 
 class HySprint_Sample(SolcarCellSample, EntryData):
     m_def = Section(
-        a_eln=dict(hide=['users'], properties=dict(
+        a_eln=dict(hide=['users', 'components', 'elemental_composition'], properties=dict(
             order=["name", "substrate", "architecture"])),
         a_template=dict(institute="HZB_Hysprint"),
         label_quantity='sample_id'
@@ -293,7 +293,7 @@ class HySprint_Sample(SolcarCellSample, EntryData):
 
 class HySprint_BasicSample(BasicSampleWithID, EntryData):
     m_def = Section(
-        a_eln=dict(hide=['users']),
+        a_eln=dict(hide=['users', 'components', 'elemental_composition']),
         a_template=dict(institute="HZB_Hysprint"),
         label_quantity='sample_id'
     )
