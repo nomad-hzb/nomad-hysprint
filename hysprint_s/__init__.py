@@ -382,8 +382,6 @@ class HySprint_BasicCrystallization(Crystallization, EntryData):
                     "datetime",
                     "samples"])))
 
-    cleaning = SubSection(
-        section_def=SolutionCleaning, repeats=True)
 
 # %% ####################### Cleaning
 
