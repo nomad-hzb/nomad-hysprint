@@ -50,7 +50,8 @@ from baseclasses.wet_chemical_deposition import (
     LP50InkjetPrinting,
     VaporizationAndDropCasting,
     SprayPyrolysis,
-    WetChemicalDeposition)
+    WetChemicalDeposition,
+    Crystallization)
 
 from baseclasses.vapour_based_deposition import (
     Evaporations)
@@ -363,6 +364,26 @@ class HySprint_Batch(Batch, EntryData):
 #                     archive.metadata.upload_id, entry_id))
 #             self.samples = []
 #             self.samples = samples
+
+# %% ####################### Cleaning
+
+
+class HySprint_BasicCrystallization(Crystallization, EntryData):
+    m_def = Section(
+        a_eln=dict(
+            hide=[
+                'lab_id',
+                'users',
+                'location',
+                'end_time',  'steps', 'instruments', 'results', 'batch', "present", "positon_in_experimental_plan"],
+            properties=dict(
+                order=[
+                    "name",
+                    "datetime",
+                    "samples"])))
+
+    cleaning = SubSection(
+        section_def=SolutionCleaning, repeats=True)
 
 # %% ####################### Cleaning
 
