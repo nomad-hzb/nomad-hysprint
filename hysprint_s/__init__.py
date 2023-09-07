@@ -69,6 +69,7 @@ from baseclasses.solar_energy import (
     Substrate,
     TimeResolvedPhotoluminescence,
     JVMeasurement,
+    trSPVMeasurement, trSPVVoltage, trSPVData,
     PLMeasurement,
     UVvisMeasurement,
     EQEMeasurement,
@@ -959,6 +960,52 @@ class HySprint_108_HyDryAir_Storage(Storage, EntryData):
 
 
 # %%####################################### Measurements
+class HySprint_trSPVmeasurement(trSPVMeasurement, EntryData):
+    m_def = Section(
+        a_eln=dict(
+            hide=[
+                'lab_id', 'solution',
+                'users',
+                'author',
+                'certified_values',
+                'certification_institute',
+                'end_time',  'steps', 'instruments', 'results',
+                'location'],
+            properties=dict(
+                order=[
+                    "name",
+                    "data_file",
+                    "active_area",
+                    "intensity",
+                    "integration_time",
+                    "settling_time",
+                    "averaging",
+                    "compliance",
+                    "samples"])),
+        a_plot=[
+            {
+                "label": "Voltage", 'x': 'data/time', 'y': 'data/voltages/:/voltage', 'layout': {
+                    'yaxis': {
+                        "fixedrange": False}, 'xaxis': {
+                        "fixedrange": False, 'type': 'log'}}, "config": {
+                    "editable": True, "scrollZoom": True}}]
+    )
+
+    def normalize(self, archive, logger):
+        if self.data_file and self.data is None and self.properties is None:
+            # todo detect file format
+            from baseclasses.helper.utilities import get_encoding
+            with archive.m_context.raw_file(self.data_file, "br") as f:
+                encoding = get_encoding(f)
+
+            with archive.m_context.raw_file(self.data_file, encoding=encoding) as f:
+                from baseclasses.helper.file_parser.spv_parser import get_spv_data
+                from baseclasses.helper.archive_builder.spv_archive import get_spv_archive
+
+                spv_dict, spv_data = get_spv_data(f.name, encoding)
+                get_spv_archive(spv_dict, spv_data, self.data_file, self)
+        super(HySprint_trSPVmeasurement,
+              self).normalize(archive, logger)
 
 
 class HySprint_108_HyVap_JVmeasurement(JVMeasurement, EntryData):
