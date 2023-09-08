@@ -1003,7 +1003,7 @@ class HySprint_trSPVmeasurement(trSPVMeasurement, EntryData):
                 from baseclasses.helper.archive_builder.spv_archive import get_spv_archive
 
                 spv_dict, spv_data = get_spv_data(f.name, encoding)
-                get_spv_archive(spv_dict, spv_data, self.data_file, self)
+                get_spv_archive(spv_dict, spv_data, f.name, self)
         super(HySprint_trSPVmeasurement,
               self).normalize(archive, logger)
 
