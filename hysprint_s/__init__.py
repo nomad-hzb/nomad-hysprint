@@ -65,11 +65,11 @@ from baseclasses.material_processes_misc import (
     Storage)
 
 from baseclasses.solar_energy import (
-    StandardSampleSolarCell,
+    StandardSampleSolarCell, SolarCellProperties,
     Substrate,
     TimeResolvedPhotoluminescence,
     JVMeasurement,
-    trSPVMeasurement, trSPVVoltage, trSPVData,
+    trSPVMeasurement,
     PLMeasurement,
     UVvisMeasurement,
     EQEMeasurement,
@@ -79,7 +79,7 @@ from baseclasses.solar_energy import (
 )
 
 from baseclasses.chemical_energy import (
-    Electrode, Electrolyte, ElectroChemicalCell,
+    Electrode,
     ElectroChemicalSetup, Environment
 )
 
@@ -108,12 +108,11 @@ class HySprint_ExperimentalPlan(ExperimentalPlan, EntryData):
             ])),
         a_template=dict(institute="HZB_Hysprint"))
 
+    solar_cell_properties = SubSection(
+        section_def=SolarCellProperties)
+
     def normalize(self, archive, logger):
         super(HySprint_ExperimentalPlan, self).normalize(archive, logger)
-        if not (self.standard_plan and self.number_of_substrates > 0
-                and self.number_of_substrates % self.substrates_per_subbatch == 0
-                and self.plan and self.standard_plan.processes):
-            return
 
         from baseclasses.helper.execute_solar_sample_plan import execute_solar_sample_plan
         execute_solar_sample_plan(
