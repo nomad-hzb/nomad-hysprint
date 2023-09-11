@@ -620,7 +620,7 @@ class HySprint_114_HyFlowBox_SpinCoating(SpinCoating, EntryData):
                 'lab_id',
                 'users',
                 'location',
-                'end_time',  'steps', 'instruments', 'results'],
+                'end_time',  'steps', 'instruments', 'results', 'recipe'],
             properties=dict(
                 order=[
                     "name",
@@ -645,7 +645,7 @@ class HySprint_108_HyPeroSpin_SpinCoating(SpinCoating, EntryData):
                 'lab_id',
                 'users',
                 'location',
-                'end_time',  'steps', 'instruments', 'results'],
+                'end_time',  'steps', 'instruments', 'results', 'recipe'],
             properties=dict(
                 order=[
                     "name",
@@ -671,7 +671,7 @@ class IRIS_2038_HZBGloveBoxes_Pero2Spincoater_SpinCoating(
                 'lab_id',
                 'users',
                 'location',
-                'end_time',  'steps', 'instruments', 'results'],
+                'end_time',  'steps', 'instruments', 'results', 'recipe'],
             properties=dict(
                 order=[
                     "name",
@@ -697,7 +697,7 @@ class HySprint_108_HySpin_SpinCoating(SpinCoating, EntryData):
                 'lab_id',
                 'users',
                 'location',
-                'end_time',  'steps', 'instruments', 'results'],
+                'end_time',  'steps', 'instruments', 'results', 'recipe'],
             properties=dict(
                 order=[
                     "name",
@@ -719,7 +719,7 @@ class HySprint_104_ProtoVap_SpinCoating(SpinCoating, EntryData):
                 'lab_id',
                 'users',
                 'author',
-                'end_time',  'steps', 'instruments', 'results'],
+                'end_time',  'steps', 'instruments', 'results', 'recipe'],
             properties=dict(
                 order=[
                     "name",
