@@ -388,10 +388,10 @@ class HySprint_Cleaning(Cleaning, EntryData):
     cleaning = SubSection(
         section_def=SolutionCleaning, repeats=True)
 
-    cleaning = SubSection(
+    cleaning_uv = SubSection(
         section_def=UVCleaning, repeats=True)
 
-    cleaning = SubSection(
+    cleaning_plasma = SubSection(
         section_def=PlasmaCleaning, repeats=True)
 
 
