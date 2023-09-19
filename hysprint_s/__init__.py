@@ -84,6 +84,10 @@ from baseclasses.chemical_energy import (
 )
 
 
+from nomad.datamodel.metainfo.annotations import (
+    ELNAnnotation,
+)
+
 m_package0 = Package(name='HySprint')
 
 # %% ####################### Entities
@@ -161,35 +165,6 @@ class Hysprint_Electrode(Electrode, EntryData):
     )
 
 
-# class Hysprint_Electrolyte(Electrolyte, EntryData):
-#     m_def = Section(
-#         a_eln=dict(hide=['users', 'origin'],
-#                    properties=dict(
-#             order=[
-#                 "name", "lab_id", "chemical_composition_or_formulas"
-#             ]))
-#     )
-
-
-# class Hysprint_ElectroChemicalCell(ElectroChemicalCell, EntryData):
-#     m_def = Section(
-#         a_eln=dict(hide=['users', 'components', 'elemental_composition', 'origin'],
-#                    properties=dict(
-#             order=[
-#                 "name",
-#                 "lab_id",
-#                 "chemical_composition_or_formulas",
-#                 "working_electrode",
-#                 "reference_electrode",
-#                 "counter_electrode",
-#                 "electrolyte"
-#             ])),
-#     )
-
-#     ecc_id = SubSection(
-#         section_def=ReadableIdentifiersCustom)
-
-
 class HySprint_ElectroChemicalSetup(ElectroChemicalSetup, EntryData):
     m_def = Section(
         a_eln=dict(hide=['users', 'components', 'elemental_composition', 'origin'],
@@ -256,11 +231,15 @@ class HySprint_Solution(Solution, EntryData):
                     "temperature",
                     "time",
                     "speed",
-                    "solvent_ratio"])),
+                    "solvent_ratio"],
+            )),
         a_template=dict(
             temperature=45,
             time=15,
             method='Shaker'))
+
+    solute = Solution.solute.m_copy()
+    solute.m_def.m_annotations['eln'] = ELNAnnotation(hide=["chemical"])
 
 
 class HySprint_Ink(Ink, EntryData):
@@ -374,172 +353,59 @@ class HySprint_BasicCrystallization(Crystallization, EntryData):
             hide=[
                 'lab_id',
                 'users',
-                'location',
                 'end_time',  'steps', 'instruments', 'results', 'batch', "present", "positon_in_experimental_plan"],
             properties=dict(
                 order=[
-                    "name",
+                    "name", "location",
                     "datetime",
                     "samples"])))
 
 
 # %% ####################### Cleaning
-
-
-class HySprint_114_SolventFumeHood_Cleaning(Cleaning, EntryData):
+class HySprint_Cleaning(Cleaning, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=[
                 'lab_id',
                 'users',
-                'location',
                 'end_time',  'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
-                    "name",
+                    "name", "location",
                     "present",
                     "datetime", "previous_process",
                     "batch",
                     "samples"])))
+
+    location = Quantity(
+        type=str,
+        a_eln=dict(
+            component='EnumEditQuantity',
+            props=dict(
+                suggestions=['HySprint', 'IRIS Printerlab', 'IRIS Preparationlab'])
+        ))
 
     cleaning = SubSection(
         section_def=SolutionCleaning, repeats=True)
-
-
-class IRIS_2031_Printerlab_SolutionCleaning(Cleaning, EntryData):
-    m_def = Section(
-        a_eln=dict(
-            hide=[
-                'lab_id',
-                'users',
-                'location',
-                'end_time',  'steps', 'instruments', 'results'],
-            properties=dict(
-                order=[
-                    "name",
-                    "present",
-                    "datetime", "previous_process",
-                    "batch",
-                    "samples"])))
-
-    cleaning = SubSection(
-        section_def=SolutionCleaning, repeats=True)
-
-
-class IRIS_2135_Preparationlab_SolutionCleaning(Cleaning, EntryData):
-    m_def = Section(
-        a_eln=dict(
-            hide=[
-                'lab_id',
-                'users',
-                'location',
-                'end_time',  'steps', 'instruments', 'results'],
-            properties=dict(
-                order=[
-                    "name",
-                    "present",
-                    "datetime", "previous_process",
-                    "batch",
-                    "samples"])))
-
-    cleaning = SubSection(
-        section_def=SolutionCleaning, repeats=True)
-
-
-class HySprint_114_HyFlowBox_Cleaning_UV(Cleaning, EntryData):
-    m_def = Section(
-        a_eln=dict(
-            hide=[
-                'lab_id',
-                'users',
-                'location',
-                'end_time',  'steps', 'instruments', 'results'],
-            properties=dict(
-                order=[
-                    "name",
-                    "present",
-                    "datetime", "previous_process",
-                    "batch",
-                    "samples"])))
 
     cleaning = SubSection(
         section_def=UVCleaning, repeats=True)
-
-
-class IRIS_2031_Printerlab_Cleaning_UV(Cleaning, EntryData):
-    m_def = Section(
-        a_eln=dict(
-            hide=[
-                'lab_id',
-                'users',
-                'location',
-                'end_time',  'steps', 'instruments', 'results'],
-            properties=dict(
-                order=[
-                    "name",
-                    "present",
-                    "datetime", "previous_process",
-                    "batch",
-                    "samples"])))
-
-    cleaning = SubSection(
-        section_def=UVCleaning, repeats=True)
-
-
-class HySprint_114_HyFlowBox_Cleaning_Plasma(Cleaning, EntryData):
-    m_def = Section(
-        a_eln=dict(
-            hide=[
-                'lab_id',
-                'users',
-                'location',
-                'end_time',  'steps', 'instruments', 'results'],
-            properties=dict(
-                order=[
-                    "name",
-                    "present",
-                    "datetime", "previous_process",
-                    "batch",
-                    "samples"])))
-
-    cleaning = SubSection(
-        section_def=PlasmaCleaning, repeats=True)
-
-
-class IRIS_2135_Preparationlab_Cleaning_Plasma(Cleaning, EntryData):
-    m_def = Section(
-        a_eln=dict(
-            hide=[
-                'lab_id',
-                'users',
-                'location',
-                'end_time',  'steps', 'instruments', 'results'],
-            properties=dict(
-                order=[
-                    "name",
-                    "present",
-                    "datetime", "previous_process",
-                    "batch",
-                    "samples"])))
 
     cleaning = SubSection(
         section_def=PlasmaCleaning, repeats=True)
 
 
 # %% ##################### Layer Deposition
-
-
-class HySprint_114_HTFumeHood_SprayPyrolysis(SprayPyrolysis, EntryData):
+class HySprint_SprayPyrolysis(SprayPyrolysis, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=[
                 'lab_id',
                 'users',
-                'location',
                 'end_time',  'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
-                    "name",
+                    "name", "location",
                     "present",
                     "datetime", "previous_process",
                     "batch",
@@ -549,6 +415,15 @@ class HySprint_114_HTFumeHood_SprayPyrolysis(SprayPyrolysis, EntryData):
                     "properties",
                     "quenching",
                     "annealing"])))
+
+    location = Quantity(
+        type=str,
+        a_eln=dict(
+            component='EnumEditQuantity',
+            props=dict(
+                suggestions=['HySprint HTFumeHood'])
+        ))
+
 
 # %% ### Dropcasting
 
@@ -560,12 +435,11 @@ class HySprint_VaporizationAndDropCasting(
             hide=[
                 'lab_id',
                 'users',
-                'location',
                 'end_time',  'steps', 'instruments', 'results',
                 'previous_process'],
             properties=dict(
                 order=[
-                    "name",
+                    "name", "location",
                     "present",
                     "datetime", "previous_process",
                     "batch",
@@ -582,18 +456,17 @@ class HySprint_VaporizationAndDropCasting(
 # %% ### Printing
 
 
-class IRIS_2038_HZBGloveBoxes_Pero3Inkjet_Inkjet_Printing(
+class HySprint_Inkjet_Printing(
         LP50InkjetPrinting, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=[
                 'lab_id',
                 'users',
-                'location',
                 'end_time',  'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
-                    "name",
+                    "name", "location",
                     "present",
                     "recipe_used", "print_head_used",
                     "datetime", "previous_process",
@@ -610,20 +483,26 @@ class IRIS_2038_HZBGloveBoxes_Pero3Inkjet_Inkjet_Printing(
             layer_type="Absorber Layer",
         ))
 
+    location = Quantity(
+        type=str,
+        a_eln=dict(
+            component='EnumEditQuantity',
+            props=dict(
+                suggestions=['IRIS HZBGloveBoxes Pero3Inkjet'])
+        ))
+
 
 # %% ### Spin Coating
-
-class HySprint_114_HyFlowBox_SpinCoating(SpinCoating, EntryData):
+class HySprint_SpinCoating(SpinCoating, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=[
                 'lab_id',
                 'users',
-                'location',
                 'end_time',  'steps', 'instruments', 'results', 'recipe'],
             properties=dict(
                 order=[
-                    "name",
+                    "name", "location",
                     "present",
                     "recipe"
                     "datetime", "previous_process",
@@ -637,108 +516,19 @@ class HySprint_114_HyFlowBox_SpinCoating(SpinCoating, EntryData):
             layer_type="Absorber Layer",
         ))
 
-
-class HySprint_108_HyPeroSpin_SpinCoating(SpinCoating, EntryData):
-    m_def = Section(
+    location = Quantity(
+        type=str,
         a_eln=dict(
-            hide=[
-                'lab_id',
-                'users',
-                'location',
-                'end_time',  'steps', 'instruments', 'results', 'recipe'],
-            properties=dict(
-                order=[
-                    "name",
-                    "present",
-                    "recipe"
-                    "datetime", "previous_process",
-                    "batch",
-                    "samples",
-                    "solution",
-                    "layer",
-                    "quenching",
-                    "annealing"])),
-        a_template=dict(
-            layer_type="Absorber Layer",
+            component='EnumEditQuantity',
+            props=dict(
+                suggestions=['HySprint HyFlowBox', 'HySprint HyPeroSpin', 'HySprint HySpin', 'HySprint ProtoVap', 'IRIS HZBGloveBoxes Pero2Spincoater'])
         ))
 
-
-class IRIS_2038_HZBGloveBoxes_Pero2Spincoater_SpinCoating(
-        SpinCoating, EntryData):
-    m_def = Section(
-        a_eln=dict(
-            hide=[
-                'lab_id',
-                'users',
-                'location',
-                'end_time',  'steps', 'instruments', 'results', 'recipe'],
-            properties=dict(
-                order=[
-                    "name",
-                    "present",
-                    "recipe"
-                    "datetime", "previous_process",
-                    "batch",
-                    "samples",
-                    "solution",
-                    "layer",
-                    "quenching",
-                    "annealing"])),
-        a_template=dict(
-            layer_type="Absorber Layer",
-        ))
-
-
-class HySprint_108_HySpin_SpinCoating(SpinCoating, EntryData):
-
-    m_def = Section(
-        a_eln=dict(
-            hide=[
-                'lab_id',
-                'users',
-                'location',
-                'end_time',  'steps', 'instruments', 'results', 'recipe'],
-            properties=dict(
-                order=[
-                    "name",
-                    "present",
-                    "recipe"
-                    "datetime", "previous_process",
-                    "batch",
-                    "samples",
-                    "solution",
-                    "layer",
-                    "quenching",
-                    "annealing"])))
-
-
-class HySprint_104_ProtoVap_SpinCoating(SpinCoating, EntryData):
-    m_def = Section(
-        a_eln=dict(
-            hide=[
-                'lab_id',
-                'users',
-                'author',
-                'end_time',  'steps', 'instruments', 'results', 'recipe'],
-            properties=dict(
-                order=[
-                    "name",
-                    "present",
-                    "recipe"
-                    "datetime", "previous_process",
-                    "batch",
-                    "samples",
-                    "solution",
-                    "layer",
-                    "quenching",
-                    "annealing"])),
-        a_template=dict(
-            layer_type="Absorber Layer"))
 
 # %% ### Slot Die Coating
 
 
-class HySprint_108_HySDC_SlotDieCoating(SlotDieCoating, EntryData):
+class HySprint_SlotDieCoating(SlotDieCoating, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=[
@@ -748,7 +538,7 @@ class HySprint_108_HySDC_SlotDieCoating(SlotDieCoating, EntryData):
                 'end_time',  'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
-                    "name",
+                    "name", "location",
                     "present",
                     "datetime", "previous_process",
                     "batch",
@@ -762,186 +552,45 @@ class HySprint_108_HySDC_SlotDieCoating(SlotDieCoating, EntryData):
         a_template=dict(
             layer_type="Absorber Layer"))
 
+    location = Quantity(
+        type=str,
+        a_eln=dict(
+            component='EnumEditQuantity',
+            props=dict(
+                suggestions=['HySprint HySDC'])
+        ))
 
-# # %% ### Annealing
-
-# class HySprint_108_HyPeroSpin_ThermalAnnealing(ThermalAnnealing, EntryData):
-#     m_def = Section(
-#         a_eln=dict(
-#             hide=[
-#                 'lab_id',
-#                 'users',
-#                 'location',
-#                 'end_time',  'steps', 'instruments', 'results',
-#                 'humidity'],
-#             properties=dict(
-#                 order=[
-#                     "name",
-#                      "present",
-#                     "temperature",
-#                     "time",
-#                     "function",
-#                     "datetime", "previous_process",
-#                     "batch",
-#                     "samples"])))
-
-
-# class HySprint_108_HySpin_ThermalAnnealing(ThermalAnnealing, EntryData):
-#     m_def = Section(
-#         a_eln=dict(
-#             hide=[
-#                 'lab_id',
-#                 'users',
-#                 'location',
-#                 'end_time',  'steps', 'instruments', 'results',
-#                 'humidity'],
-#             properties=dict(
-#                 order=[
-#                     "name",
-#                      "present",
-#                     "temperature",
-#                     "time",
-#                     "function",
-#                     "datetime", "previous_process",
-#                     "batch",
-#                     "samples"])))
-
-
-# class HySprint_108_HyCDABox_ThermalAnnealing(ThermalAnnealing, EntryData):
-#     m_def = Section(
-#         a_eln=dict(
-#             hide=[
-#                 'lab_id',
-#                 'users',
-#                 'location',
-#                 'end_time',  'steps', 'instruments', 'results'],
-#             properties=dict(
-#                 order=[
-#                     "name",
-#                      "present",
-#                     "temperature",
-#                     "time",
-#                     "function",
-#                     "datetime", "previous_process",
-#                     "batch",
-#                     "samples"])))
-
-
-# class HySprint_108_HySDC_ThermalAnnealing(ThermalAnnealing, EntryData):
-#     m_def = Section(
-#         a_eln=dict(
-#             hide=[
-#                 'lab_id',
-#                 'users',
-#                 'location',
-#                 'end_time',  'steps', 'instruments', 'results',
-#                 'humidity'],
-#             properties=dict(
-#                 order=[
-#                     "name",
-#                      "present",
-#                     "temperature",
-#                     "time",
-#                     "function",
-#                     "datetime", "previous_process",
-#                     "batch",
-#                     "samples"])))
-
-
-# class HySprint_104_ProtoVap_ThermalAnnealing(ThermalAnnealing, EntryData):
-#     m_def = Section(
-#         a_eln=dict(
-#             hide=[
-#                 'lab_id',
-#                 'users',
-#                 'location',
-#                 'end_time',  'steps', 'instruments', 'results',
-#                 'humidity'],
-#             properties=dict(
-#                 order=[
-#                     "name",
-#                      "present",
-#                     "temperature",
-#                     "time",
-#                     "function",
-#                     "datetime", "previous_process",
-#                     "batch",
-#                     "samples"])))
 
 # %% ### Evaporation
-
-
-class IRIS_2038_HZBGloveBoxes_Pero5Evaporation_Evaporation(
+class HySprint_Evaporation(
         Evaporations, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=[
                 'lab_id',
                 'users',
-                'location',
                 'end_time',  'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
-                    "name",
+                    "name", "location",
                     "present",
                     "datetime", "previous_process",
                     "batch",
                     "samples", "layer"])))
 
-
-class HySprint_108_HyVap_Evaporation(Evaporations, EntryData):
-    m_def = Section(
+    location = Quantity(
+        type=str,
         a_eln=dict(
-            hide=[
-                'lab_id',
-                'users',
-                'location',
-                'end_time',  'steps', 'instruments', 'results'],
-            properties=dict(
-                order=[
-                    "name",
-                    "present",
-                    "datetime", "previous_process",
-                    "batch",
-                    "samples", "layer"])))
+            component='EnumEditQuantity',
+            props=dict(
+                suggestions=['IRIS HZBGloveBoxes Pero5Evaporation', 'HySprint HyVap', 'HySprint HyPeroVap', 'HySprint ProtoVap'])
+        ))
 
 
-class HySprint_108_HyPeroVap_Evaporation(Evaporations, EntryData):
-    m_def = Section(
-        a_eln=dict(
-            hide=[
-                'lab_id',
-                'users',
-                'location',
-                'end_time',  'steps', 'instruments', 'results'],
-            properties=dict(
-                order=[
-                    "name",
-                    "present",
-                    "datetime", "previous_process",
-                    "batch",
-                    "samples", "layer"])))
-
-
-class HySprint_104_ProtoVap_Evaporation(Evaporations, EntryData):
-    m_def = Section(
-        a_eln=dict(
-            hide=[
-                'lab_id',
-                'users',
-                'location',
-                'end_time',  'steps', 'instruments', 'results'],
-            properties=dict(
-                order=[
-                    "name",
-                    "present",
-                    "datetime", "previous_process",
-                    "batch",
-                    "samples", "layer"])))
 # %% ## Storage
 
 
-class HySprint_108_HyDryAir_Storage(Storage, EntryData):
+class HySprint_Storage(Storage, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=[
@@ -951,7 +600,7 @@ class HySprint_108_HyDryAir_Storage(Storage, EntryData):
                 'end_time',  'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
-                    "name",
+                    "name", "location",
                     "present",
                     "datetime", "previous_process",
                     "batch",
@@ -1007,7 +656,7 @@ class HySprint_trSPVmeasurement(trSPVMeasurement, EntryData):
               self).normalize(archive, logger)
 
 
-class HySprint_108_HyVap_JVmeasurement(JVMeasurement, EntryData):
+class HySprint_JVmeasurement(JVMeasurement, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=[
@@ -1055,11 +704,11 @@ class HySprint_108_HyVap_JVmeasurement(JVMeasurement, EntryData):
                 jv_dict = get_jv_data(f.name, encoding)
                 get_jv_archive(jv_dict, self.data_file, self)
 
-        super(HySprint_108_HyVap_JVmeasurement,
+        super(HySprint_JVmeasurement,
               self).normalize(archive, logger)
 
 
-class HySprint_104_ProtoVap_MPPTracking(MPPTrackingHsprintCustom, EntryData):
+class HySprint_MPPTracking(MPPTrackingHsprintCustom, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=[
@@ -1121,44 +770,8 @@ class HySprint_104_ProtoVap_MPPTracking(MPPTrackingHsprintCustom, EntryData):
 
             from baseclasses.helper.archive_builder.mpp_hysprint_archive import get_mpp_hysprint_samples
             self.samples = get_mpp_hysprint_samples(self, data)
-        super(HySprint_104_ProtoVap_MPPTracking,
+        super(HySprint_MPPTracking,
               self).normalize(archive, logger)
-
-
-class IRIS_2038_HZBGloveBoxes_Pero4SOSIMStorage_JVmeasurement(
-        JVMeasurement, EntryData):
-    m_def = Section(
-        a_eln=dict(
-            hide=[
-                'lab_id', 'solution',
-                'users',
-                'author',
-                'certified_values',
-                'certification_institute',
-                'end_time',  'steps', 'instruments', 'results',
-                'location'],
-            properties=dict(
-                order=[
-                    "name",
-                    "data_file",
-                    "active_area",
-                    "intensity",
-                    "integration_time",
-                    "settling_time",
-                    "averaging",
-                    "compliance",
-                    "samples"])),
-        a_plot=[
-            {
-                'x': 'jv_curve/:/voltage',
-                'y': 'jv_curve/:/current_density',
-                'layout': {
-                    "showlegend": True,
-                    'yaxis': {
-                        "fixedrange": False},
-                    'xaxis': {
-                        "fixedrange": False}},
-            }])
 
 
 class HySprint_TimeResolvedPhotoluminescence(
@@ -1236,7 +849,7 @@ class HySprint_OpticalMicroscope(
     )
 
 
-class HySprint_108_HyVap_EQEmeasurement(EQEMeasurement, EntryData):
+class HySprint_EQEmeasurement(EQEMeasurement, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=[
@@ -1262,7 +875,7 @@ class HySprint_108_HyVap_EQEmeasurement(EQEMeasurement, EntryData):
             }])
 
 
-class HySprint_108_HyPrint_PLmeasurement(PLMeasurement, EntryData):
+class HySprint_PLmeasurement(PLMeasurement, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=[
@@ -1277,23 +890,7 @@ class HySprint_108_HyPrint_PLmeasurement(PLMeasurement, EntryData):
                     "samples", "solution"])))
 
 
-class IRIS_2038_HZBGloveBoxes_Pero2Spincoater_PLMeasurment(
-        PLMeasurement, EntryData):
-    m_def = Section(
-        a_eln=dict(
-            hide=[
-                'lab_id',
-                'users',
-                'location',
-                'end_time',  'steps', 'instruments', 'results'],
-            properties=dict(
-                order=[
-                    "name",
-                    "data_file",
-                    "samples", "solution"])))
-
-
-class HySprint_1xx_nobox_UVvismeasurement(UVvisMeasurement, EntryData):
+class HySprint_UVvismeasurement(UVvisMeasurement, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=[
@@ -1326,45 +923,7 @@ class HySprint_1xx_nobox_UVvismeasurement(UVvisMeasurement, EntryData):
                 data, datetime_object, data_file))
         self.measurements = measurements
 
-        super(HySprint_1xx_nobox_UVvismeasurement,
-              self).normalize(archive, logger)
-
-
-class IRIS_2038_HZBGloveBoxes_Pero2Spincoater_UVvis(
-        UVvisMeasurement, EntryData):
-    m_def = Section(
-        a_eln=dict(
-            hide=[
-                'lab_id',
-                'users',
-                'location',
-                'end_time',  'steps', 'instruments', 'results'],
-            properties=dict(
-                order=[
-                    "name",
-                    "data_file",
-                    "samples", "solution"])))
-
-    def normalize(self, archive, logger):
-        measurements = []
-        for data_file in self.data_file:
-            if os.path.splitext(data_file)[-1] not in [".txt", ".csv"]:
-                continue
-            with archive.m_context.raw_file(data_file) as f:
-                if os.path.splitext(data_file)[-1] == ".txt":
-                    from baseclasses.helper.file_parser.uvvis_parser import get_uvvis_measurement_txt
-                    data, datetime_object = get_uvvis_measurement_txt(f)
-
-                if os.path.splitext(data_file)[-1] == ".csv":
-                    from baseclasses.helper.file_parser.uvvis_parser import get_uvvis_measurement_csv
-                    data, datetime_object = get_uvvis_measurement_csv(f)
-
-            from baseclasses.helper.archive_builder.uvvis_archive import get_uvvis_archive
-            measurements.append(get_uvvis_archive(
-                data, datetime_object, data_file))
-        self.measurements = measurements
-
-        super(IRIS_2038_HZBGloveBoxes_Pero2Spincoater_UVvis,
+        super(HySprint_UVvismeasurement,
               self).normalize(archive, logger)
 
 
