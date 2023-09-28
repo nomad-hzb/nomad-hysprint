@@ -666,7 +666,7 @@ class HySprint_JVmeasurement(JVMeasurement, EntryData):
                 'certified_values',
                 'certification_institute',
                 'end_time',  'steps', 'instruments', 'results',
-                'location'],
+            ],
             properties=dict(
                 order=[
                     "name",
@@ -701,7 +701,8 @@ class HySprint_JVmeasurement(JVMeasurement, EntryData):
                 from baseclasses.helper.file_parser.jv_parser import get_jv_data
                 from baseclasses.helper.archive_builder.jv_archive import get_jv_archive
 
-                jv_dict = get_jv_data(f.name, encoding)
+                jv_dict, location = get_jv_data(f.name, encoding)
+                self.location = location
                 get_jv_archive(jv_dict, self.data_file, self)
 
         super(HySprint_JVmeasurement,
