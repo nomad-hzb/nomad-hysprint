@@ -46,7 +46,7 @@ from baseclasses.experimental_plan import ExperimentalPlan
 from baseclasses.wet_chemical_deposition import (
     SpinCoating,
     SpinCoatingRecipe,
-    SlotDieCoating,
+    SlotDieCoating, DipCoating,
     LP50InkjetPrinting,
     VaporizationAndDropCasting,
     SprayPyrolysis,
@@ -524,6 +524,38 @@ class HySprint_SpinCoating(SpinCoating, EntryData):
                 suggestions=['HySprint HyFlowBox', 'HySprint HyPeroSpin', 'HySprint HySpin', 'HySprint ProtoVap', 'IRIS HZBGloveBoxes Pero2Spincoater'])
         ))
 
+# %% ### Dip Coating
+
+
+class HySprint_DipCoating(DipCoating, EntryData):
+    m_def = Section(
+        a_eln=dict(
+            hide=[
+                'lab_id',
+                'users',
+                'end_time',  'steps', 'instruments', 'results'],
+            properties=dict(
+                order=[
+                    "name", "location",
+                    "present",
+                    "datetime",
+                    "batch",
+                    "samples",
+                    "solution",
+                    "layer",
+                    "quenching",
+                    "annealing"])),
+        a_template=dict(
+            layer_type="Absorber Layer",
+        ))
+
+    location = Quantity(
+        type=str,
+        a_eln=dict(
+            component='EnumEditQuantity',
+            props=dict(
+                suggestions=['HySprint'])
+        ))
 
 # %% ### Slot Die Coating
 
