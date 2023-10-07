@@ -119,8 +119,7 @@ class HySprint_ExperimentalPlan(ExperimentalPlan, EntryData):
         super(HySprint_ExperimentalPlan, self).normalize(archive, logger)
 
         from baseclasses.helper.execute_solar_sample_plan import execute_solar_sample_plan
-        execute_solar_sample_plan(
-            self, archive, HySprint_Sample, HySprint_Batch)
+        execute_solar_sample_plan(self, archive, HySprint_Sample, HySprint_Batch, logger)
 
         # actual normalization!!
         archive.results = Results()
