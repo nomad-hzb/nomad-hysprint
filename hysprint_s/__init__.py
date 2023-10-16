@@ -40,7 +40,7 @@ from baseclasses.chemical import (
 )
 
 
-from baseclasses.solution import Solution, Ink
+from baseclasses.solution import Solution, Ink, SolutionPreparationStandard
 from baseclasses.experimental_plan import ExperimentalPlan
 
 from baseclasses.wet_chemical_deposition import (
@@ -222,23 +222,21 @@ class HySprint_Solution(Solution, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=[
-                'users', 'components', 'elemental_composition'],
+                'users', 'components', 'elemental_composition',  "method", "temperature", "time", "speed", "solvent_ratio", "washing"],
             properties=dict(
                 order=[
                     "name",
-                    "method",
-                    "temperature",
-                    "time",
-                    "speed",
-                    "solvent_ratio"],
+                    "datetime",
+                    "lab_id",
+                    "description", "preparation", "solute", "solvent", "other_solution", "additive", "storage"
+                ],
             )),
         a_template=dict(
             temperature=45,
             time=15,
             method='Shaker'))
 
-    solute = Solution.solute.m_copy()
-    solute.m_def.m_annotations['eln'] = ELNAnnotation(hide=["chemical"])
+    properties = SubSection(section_def=SolutionPreparationStandard)
 
 
 class HySprint_Ink(Ink, EntryData):
