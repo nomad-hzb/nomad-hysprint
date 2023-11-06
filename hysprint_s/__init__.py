@@ -931,7 +931,11 @@ class HySprint_PLmeasurement(PLMeasurement, EntryData):
             }])
 
     def normalize(self, archive, logger):
-        if self.data_file:
+
+        with archive.m_context.raw_file(archive.metadata.mainfile) as f:
+            path = os.path.dirname(f.name)
+
+        if self.data_file and os.path.getsize(os.path.join(path, self.data_file)) < 1e7:
             # todo detect file format
             from baseclasses.helper.utilities import get_encoding
             with archive.m_context.raw_file(self.data_file, "br") as f:
@@ -943,7 +947,8 @@ class HySprint_PLmeasurement(PLMeasurement, EntryData):
 
                 pl_dict, location = get_pl_data(f.name, encoding)
                 self.location = location
-                get_pl_archive(pl_dict, self.data_file, self)
+                if pl_dict is not None:
+                    get_pl_archive(pl_dict, self.data_file, self)
 
         super(HySprint_PLmeasurement, self).normalize(archive, logger)
 
