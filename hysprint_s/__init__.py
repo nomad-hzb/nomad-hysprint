@@ -917,7 +917,35 @@ class HySprint_PLmeasurement(PLMeasurement, EntryData):
                 order=[
                     "name",
                     "data_file",
-                    "samples", "solution"])))
+                    "samples", "solution"])),
+        a_plot=[
+            {
+                'x': 'data/wavelength',
+                'y': 'data/intensity',
+                'layout': {
+                    "showlegend": True,
+                    'yaxis': {
+                        "fixedrange": False},
+                    'xaxis': {
+                        "fixedrange": False}},
+            }])
+
+    def normalize(self, archive, logger):
+        if self.data_file:
+            # todo detect file format
+            from baseclasses.helper.utilities import get_encoding
+            with archive.m_context.raw_file(self.data_file, "br") as f:
+                encoding = get_encoding(f)
+
+            with archive.m_context.raw_file(self.data_file, encoding=encoding) as f:
+                from baseclasses.helper.file_parser.pl_parser import get_pl_data
+                from baseclasses.helper.archive_builder.pl_archive import get_pl_archive
+
+                pl_dict, location = get_pl_data(f.name, encoding)
+                self.location = location
+                get_pl_archive(pl_dict, self.data_file, self)
+
+        super(HySprint_PLmeasurement, self).normalize(archive, logger)
 
 
 class HySprint_UVvismeasurement(UVvisMeasurement, EntryData):
