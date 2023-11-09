@@ -236,7 +236,7 @@ class HySprint_Solution(Solution, EntryData):
             time=15,
             method='Shaker'))
 
-    properties = SubSection(section_def=SolutionPreparationStandard)
+    preparation = SubSection(section_def=SolutionPreparationStandard)
 
 
 class HySprint_Ink(Ink, EntryData):
