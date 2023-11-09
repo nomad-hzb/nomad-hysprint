@@ -6,5 +6,6 @@
 4. Select `CREATE FROM SCHEMA` button ![grafik](https://github.com/RoteKekse/nomad-hysprint/assets/36420750/d1054291-a5eb-4402-ab44-f61e2c4623e8)
 5. Enter a name in the `name` field
 6. Select a `built-in schema` whcih starts with `HySprint_` or `IRIS_`
+7. Clcik `create`
 
 
