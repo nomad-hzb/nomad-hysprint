@@ -54,15 +54,21 @@ from baseclasses.wet_chemical_deposition import (
     Crystallization)
 
 from baseclasses.vapour_based_deposition import (
-    Evaporations)
+    Evaporations,
+    AtomicLayerDeposition,
+    Sputtering)
 
 from baseclasses.material_processes_misc import (
     Cleaning,
     SolutionCleaning,
     PlasmaCleaning,
     UVCleaning,
-    # ThermalAnnealing,
+    LaserScribing,
     Storage)
+
+from baseclasses.assays import (
+    EnvironmentMeasurement,
+)
 
 from baseclasses.solar_energy import (
     StandardSampleSolarCell, SolarCellProperties,
@@ -237,6 +243,10 @@ class HySprint_Solution(Solution, EntryData):
             method='Shaker'))
 
     preparation = SubSection(section_def=SolutionPreparationStandard)
+
+    # def normalize(self, archive, logger):
+    #     super(HySprint_Solution, self).normalize(archive, logger)
+    #     print(Solution.schema())
 
 
 class HySprint_Ink(Ink, EntryData):
@@ -590,6 +600,58 @@ class HySprint_SlotDieCoating(SlotDieCoating, EntryData):
         ))
 
 
+# %% ### Sputterring
+class HySprint_Sputtering(
+        Sputtering, EntryData):
+    m_def = Section(
+        a_eln=dict(
+            hide=[
+                'lab_id',
+                'users',
+                'end_time',  'steps', 'instruments', 'results'],
+            properties=dict(
+                order=[
+                    "name", "location",
+                    "present",
+                    "datetime",
+                    "batch",
+                    "samples", "layer"])))
+
+    location = Quantity(
+        type=str,
+        a_eln=dict(
+            component='EnumEditQuantity',
+            props=dict(
+                suggestions=['IRIS', 'HySprint'])
+        ))
+
+
+# %% ### AtomicLayerDepositio
+class HySprint_AtomicLayerDeposition(
+        AtomicLayerDeposition, EntryData):
+    m_def = Section(
+        a_eln=dict(
+            hide=[
+                'lab_id',
+                'users',
+                'end_time',  'steps', 'instruments', 'results'],
+            properties=dict(
+                order=[
+                    "name", "location",
+                    "present",
+                    "datetime",
+                    "batch",
+                    "samples", "layer"])))
+
+    location = Quantity(
+        type=str,
+        a_eln=dict(
+            component='EnumEditQuantity',
+            props=dict(
+                suggestions=['IRIS', 'HySprint'])
+        ))
+
+
 # %% ### Evaporation
 class HySprint_Evaporation(
         Evaporations, EntryData):
@@ -603,7 +665,7 @@ class HySprint_Evaporation(
                 order=[
                     "name", "location",
                     "present",
-                    "datetime", "previous_process",
+                    "datetime",
                     "batch",
                     "samples", "layer"])))
 
@@ -615,6 +677,22 @@ class HySprint_Evaporation(
                 suggestions=['IRIS HZBGloveBoxes Pero5Evaporation', 'HySprint HyVap', 'HySprint HyPeroVap', 'HySprint ProtoVap'])
         ))
 
+
+# %% ## Laser Scribing
+class HySprint_LaserScribing(LaserScribing, EntryData):
+    m_def = Section(
+        a_eln=dict(
+            hide=[
+                'lab_id',
+                'users',
+                'end_time',  'steps', 'instruments', 'results'],
+            properties=dict(
+                order=[
+                    "name", "location",
+                    "present",
+                    "datetime",
+                    "batch",
+                    "samples"])))
 
 # %% ## Storage
 
@@ -637,6 +715,44 @@ class HySprint_Storage(Storage, EntryData):
 
 
 # %%####################################### Measurements
+class HZB_EnvironmentMeasurement(EnvironmentMeasurement, EntryData):
+    m_def = Section(
+        a_eln=dict(
+            hide=[
+                'lab_id',
+                'users',
+                'author',
+                'end_time',  'steps', 'instruments', 'results',
+                'location'],
+            properties=dict(
+                order=[
+                    "name",
+                    "data_file",
+                    "samples"])),
+        a_plot=[
+            {
+                "label": "Environment", 'x': 'data/time', 'y': ['data/humidity', 'data/temperature'], 'layout': {
+                    'yaxis': {
+                        "fixedrange": False}, 'xaxis': {
+                        "fixedrange": False, 'type': 'log'}}, "config": {
+                    "editable": True, "scrollZoom": True}}]
+    )
+
+    def normalize(self, archive, logger):
+        if self.data_file and self.data is None:  # and self.properties is None:
+            from baseclasses.helper.utilities import get_encoding
+            with archive.m_context.raw_file(self.data_file, "br") as f:
+                encoding = get_encoding(f)
+
+            with archive.m_context.raw_file(self.data_file, encoding=encoding) as f:
+                from baseclasses.helper.file_parser.environment_parser import get_environment_data
+                from baseclasses.helper.archive_builder.environment_archive import get_environment_archive
+
+                env_data = get_environment_data(f.name, encoding)
+                get_environment_archive(env_data, self)
+        super(HZB_EnvironmentMeasurement, self).normalize(archive, logger)
+
+
 class HySprint_trSPVmeasurement(trSPVMeasurement, EntryData):
     m_def = Section(
         a_eln=dict(
