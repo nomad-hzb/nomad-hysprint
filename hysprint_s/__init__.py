@@ -731,6 +731,12 @@ class HZB_EnvironmentMeasurement(EnvironmentMeasurement, EntryData):
                     "samples"])),
         a_plot=[
             {
+                "label": "Temperature Sensors", 'x': 'data/time', 'y': 'data/temperature_sensors/:/temperature', 'layout': {
+                    'yaxis': {
+                        "fixedrange": False}, 'xaxis': {
+                        "fixedrange": False, 'type': 'log'}}, "config": {
+                    "editable": True, "scrollZoom": True}},
+            {
                 "label": "Environment", 'x': 'data/time', 'y': ['data/humidity', 'data/temperature'], 'layout': {
                     'yaxis': {
                         "fixedrange": False}, 'xaxis': {
