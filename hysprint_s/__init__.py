@@ -16,48 +16,25 @@
 # limitations under the License.
 #
 
+import os
 import random
 import string
-import numpy as np
-import os
-
-# from nomad.units import ureg
-from nomad.metainfo import (
-    Package,
-    Quantity,
-    SubSection,
-    Section)
-
-from nomad.datamodel.data import EntryData
-from nomad.datamodel.results import Results, Properties, Material, ELN
 
 from baseclasses import (
     BaseProcess, BaseMeasurement, LayerDeposition, Batch, ReadableIdentifiersCustom
 )
-
+from baseclasses.assays import (
+    EnvironmentMeasurement,
+)
 from baseclasses.chemical import (
     Chemical
 )
-
-
-from baseclasses.solution import Solution, Ink, SolutionPreparationStandard
+from baseclasses.chemical_energy import (
+    Electrode,
+    ElectroChemicalSetup, Environment
+)
+from baseclasses.data_transformations import nkDataAnalysis, nkDataAnalysisResult
 from baseclasses.experimental_plan import ExperimentalPlan
-
-from baseclasses.wet_chemical_deposition import (
-    SpinCoating,
-    SpinCoatingRecipe,
-    SlotDieCoating, DipCoating,
-    LP50InkjetPrinting,
-    VaporizationAndDropCasting,
-    SprayPyrolysis,
-    WetChemicalDeposition,
-    Crystallization)
-
-from baseclasses.vapour_based_deposition import (
-    Evaporations,
-    AtomicLayerDeposition,
-    Sputtering)
-
 from baseclasses.material_processes_misc import (
     Cleaning,
     SolutionCleaning,
@@ -65,11 +42,6 @@ from baseclasses.material_processes_misc import (
     UVCleaning,
     LaserScribing,
     Storage)
-
-from baseclasses.assays import (
-    EnvironmentMeasurement,
-)
-
 from baseclasses.solar_energy import (
     StandardSampleSolarCell, SolarCellProperties,
     Substrate,
@@ -83,18 +55,31 @@ from baseclasses.solar_energy import (
     SolcarCellSample, BasicSampleWithID,
     MPPTrackingHsprintCustom
 )
-
-from baseclasses.chemical_energy import (
-    Electrode,
-    ElectroChemicalSetup, Environment
-)
-
-
-from nomad.datamodel.metainfo.annotations import (
-    ELNAnnotation,
-)
+from baseclasses.solution import Solution, Ink, SolutionPreparationStandard
+from baseclasses.vapour_based_deposition import (
+    Evaporations,
+    AtomicLayerDeposition,
+    Sputtering)
+from baseclasses.wet_chemical_deposition import (
+    SpinCoating,
+    SpinCoatingRecipe,
+    SlotDieCoating, DipCoating,
+    LP50InkjetPrinting,
+    VaporizationAndDropCasting,
+    SprayPyrolysis,
+    WetChemicalDeposition,
+    Crystallization)
+from nomad.datamodel.data import EntryData
+from nomad.datamodel.results import Results, Properties, Material, ELN
+# from nomad.units import ureg
+from nomad.metainfo import (
+    Package,
+    Quantity,
+    SubSection,
+    Section)
 
 m_package0 = Package(name='HySprint')
+
 
 # %% ####################### Entities
 
@@ -107,15 +92,15 @@ class HySprint_ExperimentalPlan(ExperimentalPlan, EntryData):
     m_def = Section(
         a_eln=dict(hide=['users'],
                    properties=dict(
-            order=[
-                "name",
-                "standard_plan",
-                "load_standard_processes",
-                "create_samples_and_processes",
-                "number_of_substrates",
-                "substrates_per_subbatch",
-                "lab_id"
-            ])),
+                       order=[
+                           "name",
+                           "standard_plan",
+                           "load_standard_processes",
+                           "create_samples_and_processes",
+                           "number_of_substrates",
+                           "substrates_per_subbatch",
+                           "lab_id"
+                       ])),
         a_template=dict(institute="HZB_Hysprint"))
 
     solar_cell_properties = SubSection(
@@ -163,10 +148,10 @@ class Hysprint_Electrode(Electrode, EntryData):
     m_def = Section(
         a_eln=dict(hide=['users', 'components', 'elemental_composition', 'origin'],
                    properties=dict(
-            order=[
-                "name", "lab_id",
-                "chemical_composition_or_formulas"
-            ]))
+                       order=[
+                           "name", "lab_id",
+                           "chemical_composition_or_formulas"
+                       ]))
     )
 
 
@@ -174,14 +159,14 @@ class HySprint_ElectroChemicalSetup(ElectroChemicalSetup, EntryData):
     m_def = Section(
         a_eln=dict(hide=['users', 'components', 'elemental_composition', 'origin'],
                    properties=dict(
-            order=[
-                "name",
-                "lab_id",
-                "chemical_composition_or_formulas",
-                "setup",
-                "reference_electrode",
-                "counter_electrode",
-            ])),
+                       order=[
+                           "name",
+                           "lab_id",
+                           "chemical_composition_or_formulas",
+                           "setup",
+                           "reference_electrode",
+                           "counter_electrode",
+                       ])),
     )
 
     setup_id = SubSection(
@@ -228,7 +213,8 @@ class HySprint_Solution(Solution, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=[
-                'users', 'components', 'elemental_composition',  "method", "temperature", "time", "speed", "solvent_ratio", "washing"],
+                'users', 'components', 'elemental_composition', "method", "temperature", "time", "speed",
+                "solvent_ratio", "washing"],
             properties=dict(
                 order=[
                     "name",
@@ -360,7 +346,7 @@ class HySprint_BasicCrystallization(Crystallization, EntryData):
             hide=[
                 'lab_id',
                 'users',
-                'end_time',  'steps', 'instruments', 'results', 'batch', "present", "positon_in_experimental_plan"],
+                'end_time', 'steps', 'instruments', 'results', 'batch', "present", "positon_in_experimental_plan"],
             properties=dict(
                 order=[
                     "name", "location",
@@ -375,7 +361,7 @@ class HySprint_Cleaning(Cleaning, EntryData):
             hide=[
                 'lab_id',
                 'users',
-                'end_time',  'steps', 'instruments', 'results'],
+                'end_time', 'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name", "location",
@@ -409,7 +395,7 @@ class HySprint_SprayPyrolysis(SprayPyrolysis, EntryData):
             hide=[
                 'lab_id',
                 'users',
-                'end_time',  'steps', 'instruments', 'results'],
+                'end_time', 'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name", "location",
@@ -436,13 +422,13 @@ class HySprint_SprayPyrolysis(SprayPyrolysis, EntryData):
 
 
 class HySprint_VaporizationAndDropCasting(
-        VaporizationAndDropCasting, EntryData):
+    VaporizationAndDropCasting, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=[
                 'lab_id',
                 'users',
-                'end_time',  'steps', 'instruments', 'results',
+                'end_time', 'steps', 'instruments', 'results',
                 'previous_process'],
             properties=dict(
                 order=[
@@ -460,17 +446,18 @@ class HySprint_VaporizationAndDropCasting(
             layer_type="Non-functional layer",
         ))
 
+
 # %% ### Printing
 
 
 class HySprint_Inkjet_Printing(
-        LP50InkjetPrinting, EntryData):
+    LP50InkjetPrinting, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=[
                 'lab_id',
                 'users',
-                'end_time',  'steps', 'instruments', 'results'],
+                'end_time', 'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name", "location",
@@ -506,7 +493,7 @@ class HySprint_SpinCoating(SpinCoating, EntryData):
             hide=[
                 'lab_id',
                 'users',
-                'end_time',  'steps', 'instruments', 'results', 'recipe'],
+                'end_time', 'steps', 'instruments', 'results', 'recipe'],
             properties=dict(
                 order=[
                     "name", "location",
@@ -528,8 +515,10 @@ class HySprint_SpinCoating(SpinCoating, EntryData):
         a_eln=dict(
             component='EnumEditQuantity',
             props=dict(
-                suggestions=['HySprint HyFlowBox', 'HySprint HyPeroSpin', 'HySprint HySpin', 'HySprint ProtoVap', 'IRIS HZBGloveBoxes Pero2Spincoater'])
+                suggestions=['HySprint HyFlowBox', 'HySprint HyPeroSpin', 'HySprint HySpin', 'HySprint ProtoVap',
+                             'IRIS HZBGloveBoxes Pero2Spincoater'])
         ))
+
 
 # %% ### Dip Coating
 
@@ -540,7 +529,7 @@ class HySprint_DipCoating(DipCoating, EntryData):
             hide=[
                 'lab_id',
                 'users',
-                'end_time',  'steps', 'instruments', 'results'],
+                'end_time', 'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name", "location",
@@ -564,6 +553,7 @@ class HySprint_DipCoating(DipCoating, EntryData):
                 suggestions=['HySprint'])
         ))
 
+
 # %% ### Slot Die Coating
 
 
@@ -574,7 +564,7 @@ class HySprint_SlotDieCoating(SlotDieCoating, EntryData):
                 'lab_id',
                 'users',
                 'author',
-                'end_time',  'steps', 'instruments', 'results'],
+                'end_time', 'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name", "location",
@@ -602,13 +592,13 @@ class HySprint_SlotDieCoating(SlotDieCoating, EntryData):
 
 # %% ### Sputterring
 class HySprint_Sputtering(
-        Sputtering, EntryData):
+    Sputtering, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=[
                 'lab_id',
                 'users',
-                'end_time',  'steps', 'instruments', 'results'],
+                'end_time', 'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name", "location",
@@ -628,13 +618,13 @@ class HySprint_Sputtering(
 
 # %% ### AtomicLayerDepositio
 class HySprint_AtomicLayerDeposition(
-        AtomicLayerDeposition, EntryData):
+    AtomicLayerDeposition, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=[
                 'lab_id',
                 'users',
-                'end_time',  'steps', 'instruments', 'results'],
+                'end_time', 'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name", "location",
@@ -654,13 +644,13 @@ class HySprint_AtomicLayerDeposition(
 
 # %% ### Evaporation
 class HySprint_Evaporation(
-        Evaporations, EntryData):
+    Evaporations, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=[
                 'lab_id',
                 'users',
-                'end_time',  'steps', 'instruments', 'results'],
+                'end_time', 'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name", "location",
@@ -674,7 +664,8 @@ class HySprint_Evaporation(
         a_eln=dict(
             component='EnumEditQuantity',
             props=dict(
-                suggestions=['IRIS HZBGloveBoxes Pero5Evaporation', 'HySprint HyVap', 'HySprint HyPeroVap', 'HySprint ProtoVap'])
+                suggestions=['IRIS HZBGloveBoxes Pero5Evaporation', 'HySprint HyVap', 'HySprint HyPeroVap',
+                             'HySprint ProtoVap'])
         ))
 
 
@@ -685,7 +676,7 @@ class HySprint_LaserScribing(LaserScribing, EntryData):
             hide=[
                 'lab_id',
                 'users',
-                'end_time',  'steps', 'instruments', 'results'],
+                'end_time', 'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name", "location",
@@ -693,6 +684,7 @@ class HySprint_LaserScribing(LaserScribing, EntryData):
                     "datetime",
                     "batch",
                     "samples"])))
+
 
 # %% ## Storage
 
@@ -704,7 +696,7 @@ class HySprint_Storage(Storage, EntryData):
                 'lab_id',
                 'users',
                 'location',
-                'end_time',  'steps', 'instruments', 'results'],
+                'end_time', 'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name", "location",
@@ -722,7 +714,7 @@ class HZB_EnvironmentMeasurement(EnvironmentMeasurement, EntryData):
                 'lab_id',
                 'users',
                 'author',
-                'end_time',  'steps', 'instruments', 'results',
+                'end_time', 'steps', 'instruments', 'results',
                 'location'],
             properties=dict(
                 order=[
@@ -731,17 +723,18 @@ class HZB_EnvironmentMeasurement(EnvironmentMeasurement, EntryData):
                     "samples"])),
         a_plot=[
             {
-                "label": "Temperature Sensors", 'x': 'data/time', 'y': 'data/temperature_sensors/:/temperature', 'layout': {
+                "label": "Temperature Sensors", 'x': 'data/time', 'y': 'data/temperature_sensors/:/temperature',
+                'layout': {
                     'yaxis': {
                         "fixedrange": False}, 'xaxis': {
                         "fixedrange": False}}, "config": {
-                    "editable": True, "scrollZoom": True}},
+                "editable": True, "scrollZoom": True}},
             {
                 "label": "Environment", 'x': 'data/time', 'y': ['data/humidity', 'data/temperature'], 'layout': {
-                    'yaxis': {
-                        "fixedrange": False}, 'xaxis': {
-                        "fixedrange": False}}, "config": {
-                    "editable": True, "scrollZoom": True}}]
+                'yaxis': {
+                    "fixedrange": False}, 'xaxis': {
+                    "fixedrange": False}}, "config": {
+                "editable": True, "scrollZoom": True}}]
     )
 
     def normalize(self, archive, logger):
@@ -768,7 +761,7 @@ class HySprint_trSPVmeasurement(trSPVMeasurement, EntryData):
                 'author',
                 'certified_values',
                 'certification_institute',
-                'end_time',  'steps', 'instruments', 'results',
+                'end_time', 'steps', 'instruments', 'results',
                 'location'],
             properties=dict(
                 order=[
@@ -784,10 +777,10 @@ class HySprint_trSPVmeasurement(trSPVMeasurement, EntryData):
         a_plot=[
             {
                 "label": "Voltage", 'x': 'data/time', 'y': 'data/voltages/:/voltage', 'layout': {
-                    'yaxis': {
-                        "fixedrange": False}, 'xaxis': {
-                        "fixedrange": False, 'type': 'log'}}, "config": {
-                    "editable": True, "scrollZoom": True}}]
+                'yaxis': {
+                    "fixedrange": False}, 'xaxis': {
+                    "fixedrange": False, 'type': 'log'}}, "config": {
+                "editable": True, "scrollZoom": True}}]
     )
 
     def normalize(self, archive, logger):
@@ -816,7 +809,7 @@ class HySprint_JVmeasurement(JVMeasurement, EntryData):
                 'author',
                 'certified_values',
                 'certification_institute',
-                'end_time',  'steps', 'instruments', 'results',
+                'end_time', 'steps', 'instruments', 'results',
             ],
             properties=dict(
                 order=[
@@ -867,7 +860,7 @@ class HySprint_MPPTracking(MPPTrackingHsprintCustom, EntryData):
                 'lab_id', 'solution',
                 'users',
                 'author',
-                'end_time',  'steps', 'instruments', 'results',
+                'end_time', 'steps', 'instruments', 'results',
                 'location'],
             properties=dict(
                 order=[
@@ -896,11 +889,11 @@ class HySprint_MPPTracking(MPPTrackingHsprintCustom, EntryData):
                 'x': 'best_pixels/:/time',
                 'y': 'best_pixels/:/efficiency',
                 'layout': {
-                     "showlegend": True,
-                     'yaxis': {
-                         "fixedrange": False},
-                     'xaxis': {
-                         "fixedrange": False}},
+                    "showlegend": True,
+                    'yaxis': {
+                        "fixedrange": False},
+                    'xaxis': {
+                        "fixedrange": False}},
             }]
     )
 
@@ -927,7 +920,7 @@ class HySprint_MPPTracking(MPPTrackingHsprintCustom, EntryData):
 
 
 class HySprint_TimeResolvedPhotoluminescence(
-        TimeResolvedPhotoluminescence, EntryData):
+    TimeResolvedPhotoluminescence, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=[
@@ -937,7 +930,7 @@ class HySprint_TimeResolvedPhotoluminescence(
                 'certified_values',
                 'certification_institute',
                 'location',
-                'end_time',  'steps', 'instruments', 'results'],
+                'end_time', 'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name",
@@ -982,7 +975,7 @@ class HySprint_TimeResolvedPhotoluminescence(
 
 
 class HySprint_OpticalMicroscope(
-        OpticalMicroscope, EntryData):
+    OpticalMicroscope, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=[
@@ -992,7 +985,7 @@ class HySprint_OpticalMicroscope(
                 'detector_data_folder',
                 'external_sample_url',
                 'location',
-                'end_time',  'steps', 'instruments', 'results'],
+                'end_time', 'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name",
@@ -1008,7 +1001,7 @@ class HySprint_EQEmeasurement(EQEMeasurement, EntryData):
                 'lab_id', 'solution',
                 'users',
                 'location',
-                'end_time',  'steps', 'instruments', 'results'],
+                'end_time', 'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name",
@@ -1034,7 +1027,7 @@ class HySprint_PLmeasurement(PLMeasurement, EntryData):
                 'lab_id',
                 'users',
                 'location',
-                'end_time',  'steps', 'instruments', 'results'],
+                'end_time', 'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name",
@@ -1082,7 +1075,7 @@ class HySprint_UVvismeasurement(UVvisMeasurement, EntryData):
                 'lab_id',
                 'users',
                 'location',
-                'end_time',  'steps', 'instruments', 'results'],
+                'end_time', 'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name",
@@ -1112,6 +1105,42 @@ class HySprint_UVvismeasurement(UVvisMeasurement, EntryData):
               self).normalize(archive, logger)
 
 
+# %%####################################### Data Transformations
+class HZB_nkDataAnalysis(nkDataAnalysis, EntryData):
+    m_def = Section(
+        a_eln=dict(
+            hide=[
+                'lab_id',
+                'users',
+                'location',
+                'end_time', 'steps', 'instruments', 'results'],
+            properties=dict(
+                order=[
+                    "name"
+                ])))
+
+    def normalize(self, archive, logger):
+        if self.inputs and not self.outputs:
+            outputs = []
+            for input in self.inputs:
+                if not input.data_file:
+                    outputs.append(nkDataAnalysisResult())
+                    continue
+                from baseclasses.helper.utilities import get_encoding
+                with archive.m_context.raw_file(input.data_file, "br") as f:
+                    encoding = get_encoding(f)
+
+                with archive.m_context.raw_file(input.data_file, encoding=encoding) as f:
+                    from baseclasses.helper.file_parser.nk_parser import get_nk_data
+                    from baseclasses.helper.archive_builder.nk_archive import get_nk_archive
+
+                    nk_data = get_nk_data(f.name, encoding)
+                    outputs.append(get_nk_archive(nk_data))
+            self.outputs = outputs
+
+        super(HZB_nkDataAnalysis, self).normalize(archive, logger)
+
+
 # %%####################################### Generic Entries
 
 
@@ -1122,7 +1151,7 @@ class HySprint_Process(BaseProcess, EntryData):
                 'lab_id',
                 'users',
                 'location',
-                'end_time',  'steps', 'instruments', 'results'],
+                'end_time', 'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name",
@@ -1145,7 +1174,7 @@ class HySprint_WetChemicalDepoistion(WetChemicalDeposition, EntryData):
                 'lab_id',
                 'users',
                 'location',
-                'end_time',  'steps', 'instruments', 'results'],
+                'end_time', 'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name",
@@ -1172,7 +1201,7 @@ class HySprint_Deposition(LayerDeposition, EntryData):
                 'lab_id',
                 'users',
                 'location',
-                'end_time',  'steps', 'instruments', 'results'],
+                'end_time', 'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name",
@@ -1197,7 +1226,7 @@ class HySprint_Measurement(BaseMeasurement, EntryData):
                 'lab_id',
                 'users',
                 'location',
-                'end_time',  'steps', 'instruments', 'results'],
+                'end_time', 'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
                     "name",
