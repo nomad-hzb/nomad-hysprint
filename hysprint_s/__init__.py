@@ -33,7 +33,7 @@ from baseclasses.chemical_energy import (
     Electrode,
     ElectroChemicalSetup, Environment
 )
-from baseclasses.data_transformations import nkDataAnalysis, nkDataAnalysisResult
+from baseclasses.data_transformations import NKData
 from baseclasses.experimental_plan import ExperimentalPlan
 from baseclasses.material_processes_misc import (
     Cleaning,
@@ -1106,39 +1106,42 @@ class HySprint_UVvismeasurement(UVvisMeasurement, EntryData):
 
 
 # %%####################################### Data Transformations
-class HZB_nkDataAnalysis(nkDataAnalysis, EntryData):
+class HZB_NKData(NKData, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=[
                 'lab_id',
                 'users',
-                'location',
+                'location', "datetime",
                 'end_time', 'steps', 'instruments', 'results'],
             properties=dict(
                 order=[
-                    "name"
+                    "name", "data_file", "data_reference", "chemical_composition_or_formulas", "reference"
                 ])))
 
     def normalize(self, archive, logger):
-        if self.inputs and not self.outputs:
-            outputs = []
-            for input in self.inputs:
-                if not input.data_file:
-                    outputs.append(nkDataAnalysisResult())
-                    continue
-                from baseclasses.helper.utilities import get_encoding
-                with archive.m_context.raw_file(input.data_file, "br") as f:
-                    encoding = get_encoding(f)
+        from baseclasses.helper.utilities import get_encoding
+        with archive.m_context.raw_file(self.data_file, "br") as f:
+            encoding = get_encoding(f)
 
-                with archive.m_context.raw_file(input.data_file, encoding=encoding) as f:
-                    from baseclasses.helper.file_parser.nk_parser import get_nk_data
-                    from baseclasses.helper.archive_builder.nk_archive import get_nk_archive
+        with archive.m_context.raw_file(self.data_file, encoding=encoding) as f:
+            from baseclasses.helper.file_parser.nk_parser import get_nk_data
+            from baseclasses.helper.archive_builder.nk_archive import get_nk_archive
 
-                    nk_data = get_nk_data(f.name, encoding)
-                    outputs.append(get_nk_archive(nk_data))
-            self.outputs = outputs
+            nk_data, metadata = get_nk_data(f.name, encoding)
 
-        super(HZB_nkDataAnalysis, self).normalize(archive, logger)
+        self.description = metadata["Comment"] if "Comment" in metadata else ""
+        self.chemical_composition_or_formulas = metadata["Formula"] if "Formula" in metadata else ""
+        self.name = metadata["Name"] if "Name" in metadata else ""
+        doi = metadata["Reference"] if "Reference" in metadata else ""
+        if doi.startswith("doi:"):
+            doi = doi.strip("doi:")
+            doi = "https://doi.org/" + doi
+        self.data_reference = doi
+        self.name =  metadata["Name"] if "Name" in metadata else ""
+        self.data = get_nk_archive(nk_data)
+
+        super(HZB_NKData, self).normalize(archive, logger)
 
 
 # %%####################################### Generic Entries
