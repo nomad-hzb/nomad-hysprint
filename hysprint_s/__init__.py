@@ -1030,10 +1030,10 @@ class HySprint_EQEmeasurement(EQEMeasurement, EntryData):
             with archive.m_context.raw_file(self.data.eqe_data_file, encoding=encoding) as f:
                 from baseclasses.helper.file_parser.eqe_parser import read_file
                 photon_energy_raw, eqe_raw, photon_energy, eqe = read_file(f.name, self.data.header_lines)
-                self.photon_energy_array = np.array(photon_energy)
-                self.raw_photon_energy_array = np.array(photon_energy_raw)
-                self.eqe_array = np.array(eqe)
-                self.raw_eqe_array = np.array(eqe_raw)
+                self.data.photon_energy_array = np.array(photon_energy)
+                self.data.raw_photon_energy_array = np.array(photon_energy_raw)
+                self.data.eqe_array = np.array(eqe)
+                self.data.raw_eqe_array = np.array(eqe_raw)
             self.data.normalize(archive, logger)
 
         super(HySprint_EQEmeasurement, self).normalize(archive, logger)
