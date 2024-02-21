@@ -20,6 +20,8 @@ import os
 import random
 import string
 
+import numpy as np
+
 from baseclasses import (
     BaseProcess, BaseMeasurement, LayerDeposition, Batch, ReadableIdentifiersCustom
 )
@@ -422,7 +424,7 @@ class HySprint_SprayPyrolysis(SprayPyrolysis, EntryData):
 
 
 class HySprint_VaporizationAndDropCasting(
-    VaporizationAndDropCasting, EntryData):
+        VaporizationAndDropCasting, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=[
@@ -451,7 +453,7 @@ class HySprint_VaporizationAndDropCasting(
 
 
 class HySprint_Inkjet_Printing(
-    LP50InkjetPrinting, EntryData):
+        LP50InkjetPrinting, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=[
@@ -592,7 +594,7 @@ class HySprint_SlotDieCoating(SlotDieCoating, EntryData):
 
 # %% ### Sputterring
 class HySprint_Sputtering(
-    Sputtering, EntryData):
+        Sputtering, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=[
@@ -618,7 +620,7 @@ class HySprint_Sputtering(
 
 # %% ### AtomicLayerDepositio
 class HySprint_AtomicLayerDeposition(
-    AtomicLayerDeposition, EntryData):
+        AtomicLayerDeposition, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=[
@@ -644,7 +646,7 @@ class HySprint_AtomicLayerDeposition(
 
 # %% ### Evaporation
 class HySprint_Evaporation(
-    Evaporations, EntryData):
+        Evaporations, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=[
@@ -728,13 +730,13 @@ class HZB_EnvironmentMeasurement(EnvironmentMeasurement, EntryData):
                     'yaxis': {
                         "fixedrange": False}, 'xaxis': {
                         "fixedrange": False}}, "config": {
-                "editable": True, "scrollZoom": True}},
+                    "editable": True, "scrollZoom": True}},
             {
                 "label": "Environment", 'x': 'data/time', 'y': ['data/humidity', 'data/temperature'], 'layout': {
-                'yaxis': {
-                    "fixedrange": False}, 'xaxis': {
-                    "fixedrange": False}}, "config": {
-                "editable": True, "scrollZoom": True}}]
+                    'yaxis': {
+                        "fixedrange": False}, 'xaxis': {
+                        "fixedrange": False}}, "config": {
+                    "editable": True, "scrollZoom": True}}]
     )
 
     def normalize(self, archive, logger):
@@ -777,10 +779,10 @@ class HySprint_trSPVmeasurement(trSPVMeasurement, EntryData):
         a_plot=[
             {
                 "label": "Voltage", 'x': 'data/time', 'y': 'data/voltages/:/voltage', 'layout': {
-                'yaxis': {
-                    "fixedrange": False}, 'xaxis': {
-                    "fixedrange": False, 'type': 'log'}}, "config": {
-                "editable": True, "scrollZoom": True}}]
+                    'yaxis': {
+                        "fixedrange": False}, 'xaxis': {
+                        "fixedrange": False, 'type': 'log'}}, "config": {
+                    "editable": True, "scrollZoom": True}}]
     )
 
     def normalize(self, archive, logger):
@@ -920,7 +922,7 @@ class HySprint_MPPTracking(MPPTrackingHsprintCustom, EntryData):
 
 
 class HySprint_TimeResolvedPhotoluminescence(
-    TimeResolvedPhotoluminescence, EntryData):
+        TimeResolvedPhotoluminescence, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=[
@@ -975,7 +977,7 @@ class HySprint_TimeResolvedPhotoluminescence(
 
 
 class HySprint_OpticalMicroscope(
-    OpticalMicroscope, EntryData):
+        OpticalMicroscope, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=[
@@ -1001,7 +1003,7 @@ class HySprint_EQEmeasurement(EQEMeasurement, EntryData):
                 'lab_id', 'solution',
                 'users',
                 'location',
-                'end_time', 'steps', 'instruments', 'results'],
+                'end_time', 'steps', 'instruments', 'results', "eqe_data"],
             properties=dict(
                 order=[
                     "name",
@@ -1009,8 +1011,8 @@ class HySprint_EQEmeasurement(EQEMeasurement, EntryData):
                     "samples"])),
         a_plot=[
             {
-                'x': 'eqe_data/:/photon_energy_array',
-                'y': 'eqe_data/:/eqe_array',
+                'x': 'data/photon_energy_array',
+                'y': 'data/eqe_array',
                 'layout': {
                     "showlegend": True,
                     'yaxis': {
@@ -1018,6 +1020,23 @@ class HySprint_EQEmeasurement(EQEMeasurement, EntryData):
                     'xaxis': {
                         "fixedrange": False}},
             }])
+
+    def normalize(self, archive, logger):
+        if self.data is not None and self.data.eqe_data_file is not None and self.data.header_lines is not None:
+            from baseclasses.helper.utilities import get_encoding
+            with archive.m_context.raw_file(self.data.eqe_data_file, "br") as f:
+                encoding = get_encoding(f)
+
+            with archive.m_context.raw_file(self.data.eqe_data_file, encoding=encoding) as f:
+                from baseclasses.helper.file_parser.eqe_parser import read_file
+                photon_energy_raw, eqe_raw, photon_energy, eqe = read_file(f.name, self.data.header_lines)
+                self.photon_energy_array = np.array(photon_energy)
+                self.raw_photon_energy_array = np.array(photon_energy_raw)
+                self.eqe_array = np.array(eqe)
+                self.raw_eqe_array = np.array(eqe_raw)
+            self.data.normalize(archive, logger)
+
+        super(HySprint_EQEmeasurement, self).normalize(archive, logger)
 
 
 class HySprint_PLmeasurement(PLMeasurement, EntryData):
@@ -1138,7 +1157,7 @@ class HZB_NKData(NKData, EntryData):
             doi = doi.strip("doi:")
             doi = "https://doi.org/" + doi
         self.data_reference = doi
-        self.name =  metadata["Name"] if "Name" in metadata else ""
+        self.name = metadata["Name"] if "Name" in metadata else ""
         self.data = get_nk_archive(nk_data)
 
         super(HZB_NKData, self).normalize(archive, logger)
