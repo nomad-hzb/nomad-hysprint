@@ -80,6 +80,10 @@ from nomad.metainfo import (
     SubSection,
     Section)
 
+from baseclasses.voila import (
+    VoilaNotebook
+)
+
 m_package0 = Package(name='HySprint')
 
 
@@ -88,6 +92,15 @@ m_package0 = Package(name='HySprint')
 
 def randStr(chars=string.ascii_uppercase + string.digits, N=6):
     return ''.join(random.choice(chars) for _ in range(N))
+
+
+class HySprint_VoilaNotebook(VoilaNotebook, EntryData):
+    m_def = Section(
+
+    )
+
+    def normalize(self, archive, logger):
+        super(HySprint_VoilaNotebook, self).normalize(archive, logger)
 
 
 class HySprint_ExperimentalPlan(ExperimentalPlan, EntryData):
