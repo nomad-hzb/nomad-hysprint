@@ -65,7 +65,7 @@ from baseclasses.vapour_based_deposition import (
 from baseclasses.wet_chemical_deposition import (
     SpinCoating,
     SpinCoatingRecipe,
-    SlotDieCoating, DipCoating,
+    SlotDieCoating, DipCoating, BladeCoating,
     LP50InkjetPrinting,
     VaporizationAndDropCasting,
     SprayPyrolysis,
@@ -568,6 +568,25 @@ class HySprint_DipCoating(DipCoating, EntryData):
                 suggestions=['HySprint'])
         ))
 
+
+class HySprint_BladeCoating(BladeCoating, EntryData):
+    m_def = Section(
+        a_eln=dict(
+            hide=[
+                'lab_id',
+                'users',
+                'end_time', 'steps', 'instruments', 'results'],
+            properties=dict(
+                order=[
+                    "name", "location",
+                    "present",
+                    "datetime",
+                    "batch",
+                    "samples",
+                    "solution",
+                    "layer",
+                    "quenching",
+                    "annealing"])))
 
 # %% ### Slot Die Coating
 
