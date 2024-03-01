@@ -21,7 +21,7 @@ import random
 import string
 
 import numpy as np
-
+from nomad.datamodel.metainfo.plot import PlotSection, PlotlyFigure
 from baseclasses import (
     BaseProcess, BaseMeasurement, LayerDeposition, Batch, ReadableIdentifiersCustom
 )
@@ -73,7 +73,7 @@ from baseclasses.wet_chemical_deposition import (
     Crystallization)
 from nomad.datamodel.data import EntryData
 from nomad.datamodel.results import Results, Properties, Material, ELN
-# from nomad.units import ureg
+from nomad.units import ureg
 from nomad.metainfo import (
     Package,
     Quantity,
@@ -868,7 +868,7 @@ class HySprint_JVmeasurement(JVMeasurement, EntryData):
               self).normalize(archive, logger)
 
 
-class HySprint_MPPTracking(MPPTrackingHsprintCustom, EntryData):
+class HySprint_MPPTracking(MPPTrackingHsprintCustom, PlotSection, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=[
@@ -887,29 +887,7 @@ class HySprint_MPPTracking(MPPTrackingHsprintCustom, EntryData):
                     "settling_time",
                     "averaging",
                     "compliance",
-                    "samples"])),
-        a_plot=[
-            {
-                "label": "Averages by Parameters",
-                'x': 'averages/:/time',
-                'y': 'averages/:/efficiency',
-                'layout': {
-                    "showlegend": True,
-                    'yaxis': {
-                        "fixedrange": False},
-                    'xaxis': {
-                        "fixedrange": False}},
-            }, {
-                "label": "Best Pixels",
-                'x': 'best_pixels/:/time',
-                'y': 'best_pixels/:/efficiency',
-                'layout': {
-                    "showlegend": True,
-                    'yaxis': {
-                        "fixedrange": False},
-                    'xaxis': {
-                        "fixedrange": False}},
-            }]
+                    "samples"]))
     )
 
     def normalize(self, archive, logger):
@@ -930,6 +908,41 @@ class HySprint_MPPTracking(MPPTrackingHsprintCustom, EntryData):
 
             from baseclasses.helper.archive_builder.mpp_hysprint_archive import get_mpp_hysprint_samples
             self.samples = get_mpp_hysprint_samples(self, data)
+        import plotly.express as px
+        import pandas as pd
+        column_names = ["Time [hr]", "Efficiency [%]", "P"]
+        self.figures = []
+        if self.averages:
+            fig = px.scatter()
+            df = pd.DataFrame(columns=column_names)
+            for avg in self.averages:
+                df1 = pd.DataFrame(columns=column_names)
+                df1[column_names[0]] = avg.time * ureg("hr")
+                df1[column_names[1]] = avg.efficiency
+                df1[column_names[2]] = avg.name
+                df = pd.concat([df, df1])
+
+            fig = px.scatter(df, x=column_names[0], y=column_names[1],
+                             color=column_names[2], symbol=column_names[2], title="Averages")
+            fig.update_traces(marker=dict(size=4))
+            fig.update_layout(showlegend=True, xaxis=dict(fixedrange=False), yaxis=dict(fixedrange=False))
+            self.figures.append(PlotlyFigure(label='Averages', index=0, figure=fig.to_plotly_json()))
+
+        if self.best_pixels:
+            df = pd.DataFrame(columns=column_names)
+            for bp in self.best_pixels:
+                df1 = pd.DataFrame(columns=column_names)
+                df1[column_names[0]] = bp.time * ureg("hr")
+                df1[column_names[1]] = bp.efficiency
+                df1[column_names[2]] = bp.name
+                df = pd.concat([df, df1])
+
+            fig = px.scatter(df, x=column_names[0], y=column_names[1],
+                             color=column_names[2], symbol=column_names[2], title="Best Pixels")
+            fig.update_traces(marker=dict(size=4))
+            fig.update_layout(showlegend=True, xaxis=dict(fixedrange=False), yaxis=dict(fixedrange=False))
+            self.figures.append(PlotlyFigure(label='Best Pixel', index=1, figure=fig.to_plotly_json()))
+
         super(HySprint_MPPTracking,
               self).normalize(archive, logger)
 
