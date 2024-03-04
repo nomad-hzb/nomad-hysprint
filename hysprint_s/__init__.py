@@ -895,7 +895,7 @@ class HySprint_MPPTracking(MPPTrackingHsprintCustom, PlotSection, EntryData):
                 'users',
                 'author',
                 'end_time', 'steps', 'instruments', 'results',
-                'location'],
+                'location', 'figures'],
             properties=dict(
                 order=[
                     "name",
