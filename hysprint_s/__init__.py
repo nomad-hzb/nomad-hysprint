@@ -50,7 +50,7 @@ from baseclasses.solar_energy import (
     TimeResolvedPhotoluminescence,
     JVMeasurement,
     trSPVMeasurement,
-    PLMeasurement,
+    PLMeasurement, PLImaging,
     UVvisMeasurement,
     EQEMeasurement,
     OpticalMicroscope,
@@ -1130,6 +1130,21 @@ class HySprint_PLmeasurement(PLMeasurement, EntryData):
                     get_pl_archive(pl_dict, self.data_file, self)
 
         super(HySprint_PLmeasurement, self).normalize(archive, logger)
+
+
+class HySprint_PLImaging(PLImaging, EntryData):
+    m_def = Section(
+        a_eln=dict(
+            hide=[
+                'lab_id',
+                'users',
+                'location',
+                'end_time', 'steps', 'instruments', 'results', "solution"],
+            properties=dict(
+                order=[
+                    "name",
+                    "data_file",
+                    "samples"])))
 
 
 class HySprint_UVvismeasurement(UVvisMeasurement, EntryData):
