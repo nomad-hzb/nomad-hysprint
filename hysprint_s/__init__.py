@@ -96,7 +96,7 @@ def randStr(chars=string.ascii_uppercase + string.digits, N=6):
 
 class HySprint_VoilaNotebook(VoilaNotebook, EntryData):
     m_def = Section(
-
+        a_eln=dict(hide=['lab_id'])
     )
 
     def normalize(self, archive, logger):
