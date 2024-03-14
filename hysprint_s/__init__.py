@@ -16,9 +16,18 @@
 # limitations under the License.
 #
 
+from nomad.datamodel.metainfo.annotations import ELNAnnotation, ELNComponentEnum
 import os
 import random
 import string
+
+from nomad.metainfo import (
+    Quantity,
+    Package,
+    Section,
+    MSection,
+    SubSection,
+)
 
 import numpy as np
 from nomad.datamodel.metainfo.plot import PlotSection, PlotlyFigure
@@ -84,7 +93,7 @@ from baseclasses.voila import (
     VoilaNotebook
 )
 
-m_package0 = Package(name='HySprint')
+m_package = Package(name='HySprint')
 
 
 # %% ####################### Entities
@@ -1319,3 +1328,6 @@ class HySprint_Measurement(BaseMeasurement, EntryData):
         type=str,
         a_eln=dict(component='FileEditQuantity'),
         a_browser=dict(adaptor='RawFileAdaptor'))
+
+
+m_package.__init_metainfo__()
