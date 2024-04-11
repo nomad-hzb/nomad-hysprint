@@ -29,6 +29,9 @@ from nomad.metainfo import (
     SubSection,
 )
 
+from baseclasses.helper.add_solar_cell import add_band_gap
+
+
 import numpy as np
 from nomad.datamodel.metainfo.plot import PlotSection, PlotlyFigure
 from baseclasses import (
@@ -61,7 +64,7 @@ from baseclasses.solar_energy import (
     trSPVMeasurement,
     PLMeasurement, PLImaging,
     UVvisMeasurement,
-    EQEMeasurement,
+    EQEMeasurement, SolarCellEQECustom,
     OpticalMicroscope,
     SolcarCellSample, BasicSampleWithID,
     MPPTrackingHsprintCustom
@@ -1041,7 +1044,7 @@ class HySprint_OpticalMicroscope(
                 'detector_data_folder',
                 'external_sample_url',
                 'location',
-                'end_time', 'steps', 'instruments', 'results'],
+                'end_time', 'steps', 'instruments', 'results', "data"],
             properties=dict(
                 order=[
                     "name",
@@ -1057,7 +1060,7 @@ class HySprint_EQEmeasurement(EQEMeasurement, EntryData):
                 'lab_id', 'solution',
                 'users',
                 'location',
-                'end_time', 'steps', 'instruments', 'results', "eqe_data"],
+                'end_time', 'steps', 'instruments', 'results', "data", "header_lines"],
             properties=dict(
                 order=[
                     "name",
@@ -1065,8 +1068,8 @@ class HySprint_EQEmeasurement(EQEMeasurement, EntryData):
                     "samples"])),
         a_plot=[
             {
-                'x': 'data/photon_energy_array',
-                'y': 'data/eqe_array',
+                'x': 'eqe_data/:/photon_energy_array',
+                'y': 'eqe_data/:/eqe_array',
                 'layout': {
                     "showlegend": True,
                     'yaxis': {
@@ -1076,19 +1079,41 @@ class HySprint_EQEmeasurement(EQEMeasurement, EntryData):
             }])
 
     def normalize(self, archive, logger):
-        if self.data is not None and self.data.eqe_data_file is not None and self.data.header_lines is not None:
-            from baseclasses.helper.utilities import get_encoding
-            with archive.m_context.raw_file(self.data.eqe_data_file, "br") as f:
-                encoding = get_encoding(f)
+        from baseclasses.helper.utilities import get_encoding
 
-            with archive.m_context.raw_file(self.data.eqe_data_file, encoding=encoding) as f:
-                from baseclasses.helper.file_parser.eqe_parser import read_file
-                photon_energy_raw, eqe_raw, photon_energy, eqe = read_file(f.name, self.data.header_lines)
-                self.data.photon_energy_array = np.array(photon_energy)
-                self.data.raw_photon_energy_array = np.array(photon_energy_raw)
-                self.data.eqe_array = np.array(eqe)
-                self.data.raw_eqe_array = np.array(eqe_raw)
-            self.data.normalize(archive, logger)
+        if self.data_file:
+            with archive.m_context.raw_file(self.data_file, "br") as f:
+                encoding = get_encoding(f)
+            with archive.m_context.raw_file(self.data_file, encoding=encoding) as f:
+                from baseclasses.helper.file_parser.eqe_parser import read_file_multiple
+                data_list = read_file_multiple(f.name, encoding=encoding)
+            eqe_data = []
+            for d in data_list:
+                entry = SolarCellEQECustom(photon_energy_array=d.get("photon_energy"),
+                                           raw_photon_energy_array=d.get("photon_energy_raw"),
+                                           eqe_array=d.get("intensity"),
+                                           raw_eqe_array=d.get("intensty_raw"),
+                                           )
+                entry.normalize(archive, logger)
+                eqe_data.append(entry)
+            self.eqe_data = eqe_data
+        # if self.data and self.data.eqe_data_file is not None and self.data.header_lines is not None:
+        #     with archive.m_context.raw_file(self.data.eqe_data_file, "br") as f:
+        #         encoding = get_encoding(f)
+
+        #     with archive.m_context.raw_file(self.data.eqe_data_file, encoding=encoding) as f:
+        #         from baseclasses.helper.file_parser.eqe_parser import read_file
+        #         photon_energy_raw, eqe_raw, photon_energy, eqe = read_file(f.name, self.data.header_lines)
+        #         self.data.photon_energy_array = np.array(photon_energy)
+        #         self.data.raw_photon_energy_array = np.array(photon_energy_raw)
+        #         self.data.eqe_array = np.array(eqe)
+        #         self.data.raw_eqe_array = np.array(eqe_raw)
+        #     self.data.normalize(archive, logger)
+
+        if eqe_data:
+            band_gaps = np.array([d.bandgap_eqe.magnitude for d in eqe_data])
+
+            add_band_gap(archive, band_gaps[np.isfinite(band_gaps)].mean())
 
         super(HySprint_EQEmeasurement, self).normalize(archive, logger)
 
