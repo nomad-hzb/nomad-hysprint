@@ -1182,6 +1182,10 @@ class HySprint_SEM(SEM_Microscope_Merlin, EntryData):
                            "detector_data",
                            "samples"])))
 
+    def normalize(self, archive, logger):
+        self.method = "SEM"
+        super(HySprint_SEM, self).normalize(archive, logger)
+
 
 class HySprint_PLImaging(PLImaging, EntryData):
     m_def = Section(
