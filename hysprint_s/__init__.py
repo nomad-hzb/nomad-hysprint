@@ -92,6 +92,10 @@ from nomad.metainfo import (
     SubSection,
     Section)
 
+from baseclasses.characterizations.electron_microscopy import (
+    SEM_Microscope_Merlin
+)
+
 from baseclasses.voila import (
     VoilaNotebook
 )
@@ -1164,6 +1168,19 @@ class HySprint_PLmeasurement(PLMeasurement, EntryData):
                     get_pl_archive(pl_dict, self.data_file, self)
 
         super(HySprint_PLmeasurement, self).normalize(archive, logger)
+
+
+class HySprint_SEM(SEM_Microscope_Merlin, EntryData):
+    m_def = Section(
+        a_eln=dict(hide=['lab_id',
+                         'users',
+                         "location",
+                         'end_time', 'steps', 'instruments', 'results', "detector_data_folder", "external_sample_url"],
+                   properties=dict(
+                       order=[
+                           "name",
+                           "detector_data",
+                           "samples"])))
 
 
 class HySprint_PLImaging(PLImaging, EntryData):
