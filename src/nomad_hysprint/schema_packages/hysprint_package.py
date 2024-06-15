@@ -90,7 +90,8 @@ from nomad.metainfo import (
     Package,
     Quantity,
     SubSection,
-    Section)
+    Section,
+    SchemaPackage)
 
 from baseclasses.characterizations.electron_microscopy import (
     SEM_Microscope_Merlin
@@ -100,7 +101,7 @@ from baseclasses.voila import (
     VoilaNotebook
 )
 
-m_package = Package(name='HySprint')
+m_package = SchemaPackage()
 
 
 # %% ####################### Entities
@@ -794,7 +795,7 @@ class HZB_EnvironmentMeasurement(EnvironmentMeasurement, EntryData):
                 encoding = get_encoding(f)
 
             with archive.m_context.raw_file(self.data_file, encoding=encoding) as f:
-                from baseclasses.helper.file_parser.environment_parser import get_environment_data
+                from nomad_hysprint.schema_packages.file_parser.environment_parser import get_environment_data
                 from baseclasses.helper.archive_builder.environment_archive import get_environment_archive
 
                 env_data = get_environment_data(f.name, encoding)
@@ -841,7 +842,7 @@ class HySprint_trSPVmeasurement(trSPVMeasurement, EntryData):
                 encoding = get_encoding(f)
 
             with archive.m_context.raw_file(self.data_file, encoding=encoding) as f:
-                from baseclasses.helper.file_parser.spv_parser import get_spv_data
+                from nomad_hysprint.schema_packages.file_parser.spv_parser import get_spv_data
                 from baseclasses.helper.archive_builder.spv_archive import get_spv_archive
 
                 spv_dict, spv_data = get_spv_data(f.name, encoding)
@@ -892,7 +893,7 @@ class HySprint_JVmeasurement(JVMeasurement, EntryData):
                 encoding = get_encoding(f)
 
             with archive.m_context.raw_file(self.data_file, encoding=encoding) as f:
-                from baseclasses.helper.file_parser.jv_parser import get_jv_data
+                from nomad_hysprint.schema_packages.file_parser.jv_parser import get_jv_data
                 from baseclasses.helper.archive_builder.jv_archive import get_jv_archive
 
                 jv_dict, location = get_jv_data(f.name, encoding)
@@ -938,7 +939,7 @@ class HySprint_MPPTracking(MPPTrackingHsprintCustom, PlotSection, EntryData):
             with archive.m_context.raw_file(self.data_file, encoding="ascii") as f:
                 if os.path.splitext(f.name)[-1] != ".csv":
                     return
-                from baseclasses.helper.file_parser.load_mpp_hysprint import load_mpp_file
+                from nomad_hysprint.schema_packages.file_parser.load_mpp_hysprint import load_mpp_file
                 data = load_mpp_file(f.name)  # , encoding)
 
             from baseclasses.helper.archive_builder.mpp_hysprint_archive import get_mpp_hysprint_samples
@@ -1027,7 +1028,7 @@ class HySprint_TimeResolvedPhotoluminescence(
                     encoding = get_encoding(f)
 
                 with archive.m_context.raw_file(data_file, encoding=encoding) as f:
-                    from baseclasses.helper.file_parser.trpl_parser import get_trpl_measurement
+                    from nomad_hysprint.schema_packages.file_parser.trpl_parser import get_trpl_measurement
                     data = get_trpl_measurement(f)
 
                 from baseclasses.helper.archive_builder.trpl_archive import get_trpl_archive
@@ -1089,7 +1090,7 @@ class HySprint_EQEmeasurement(EQEMeasurement, EntryData):
             with archive.m_context.raw_file(self.data_file, "br") as f:
                 encoding = get_encoding(f)
             with archive.m_context.raw_file(self.data_file, encoding=encoding) as f:
-                from baseclasses.helper.file_parser.eqe_parser import read_file_multiple
+                from nomad_hysprint.schema_packages.file_parser.eqe_parser import read_file_multiple
                 data_list = read_file_multiple(f.name, encoding=encoding)
             eqe_data = []
             for d in data_list:
@@ -1106,7 +1107,7 @@ class HySprint_EQEmeasurement(EQEMeasurement, EntryData):
         #         encoding = get_encoding(f)
 
         #     with archive.m_context.raw_file(self.data.eqe_data_file, encoding=encoding) as f:
-        #         from baseclasses.helper.file_parser.eqe_parser import read_file
+        #         from nomad_hysprint.schema_packages.file_parser.eqe_parser import read_file
         #         photon_energy_raw, eqe_raw, photon_energy, eqe = read_file(f.name, self.data.header_lines)
         #         self.data.photon_energy_array = np.array(photon_energy)
         #         self.data.raw_photon_energy_array = np.array(photon_energy_raw)
@@ -1159,7 +1160,7 @@ class HySprint_PLmeasurement(PLMeasurement, EntryData):
                 encoding = get_encoding(f)
 
             with archive.m_context.raw_file(self.data_file, encoding=encoding) as f:
-                from baseclasses.helper.file_parser.pl_parser import get_pl_data
+                from nomad_hysprint.schema_packages.file_parser.pl_parser import get_pl_data
                 from baseclasses.helper.archive_builder.pl_archive import get_pl_archive
 
                 pl_dict, location = get_pl_data(f.name, encoding)
@@ -1223,11 +1224,11 @@ class HySprint_UVvismeasurement(UVvisMeasurement, EntryData):
                 continue
             with archive.m_context.raw_file(data_file) as f:
                 if os.path.splitext(data_file)[-1] == ".txt":
-                    from baseclasses.helper.file_parser.uvvis_parser import get_uvvis_measurement_txt
+                    from nomad_hysprint.schema_packages.file_parser.uvvis_parser import get_uvvis_measurement_txt
                     data, datetime_object = get_uvvis_measurement_txt(f)
 
                 if os.path.splitext(data_file)[-1] == ".csv":
-                    from baseclasses.helper.file_parser.uvvis_parser import get_uvvis_measurement_csv
+                    from nomad_hysprint.schema_packages.file_parser.uvvis_parser import get_uvvis_measurement_csv
                     data, datetime_object = get_uvvis_measurement_csv(f)
 
             from baseclasses.helper.archive_builder.uvvis_archive import get_uvvis_archive
@@ -1259,7 +1260,7 @@ class HZB_NKData(NKData, EntryData):
             encoding = get_encoding(f)
 
         with archive.m_context.raw_file(self.data_file, encoding=encoding) as f:
-            from baseclasses.helper.file_parser.nk_parser import get_nk_data
+            from nomad_hysprint.schema_packages.file_parser.nk_parser import get_nk_data
             from baseclasses.helper.archive_builder.nk_archive import get_nk_archive
 
             nk_data, metadata = get_nk_data(f.name, encoding)
