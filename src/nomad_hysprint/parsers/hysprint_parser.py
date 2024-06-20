@@ -28,7 +28,7 @@ from nomad_hysprint.schema_packages.hysprint_package import (
     HySprint_UVvismeasurement,
     HySprint_trSPVmeasurement,
     HZB_EnvironmentMeasurement,
-    HZB_NKData, HySprint_SEM
+    HZB_NKData, HySprint_SEM, HySprint_XRD_XY
 )
 
 
@@ -87,6 +87,8 @@ class HySprintParser(MatchingParser):
             entry = HySprint_PLmeasurement()
         if measurment_type == "pli":
             entry = HySprint_PLImaging()
+        if measurment_type == "xrd" and mainfile_split[-1] == "xy":
+            entry = HySprint_XRD_XY()
         if measurment_type == "uvvis":
             entry = HySprint_UVvismeasurement()
             entry.data_file = [os.path.basename(mainfile)]
