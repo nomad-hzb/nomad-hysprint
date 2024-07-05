@@ -72,7 +72,7 @@ from baseclasses.solar_energy import (
 from baseclasses.solution import Solution, Ink, SolutionPreparationStandard
 from baseclasses.vapour_based_deposition import (
     Evaporations,
-    AtomicLayerDeposition,
+    AtomicLayerDeposition, ALDPropertiesIris,
     Sputtering)
 from baseclasses.wet_chemical_deposition import (
     SpinCoating,
@@ -695,6 +695,34 @@ class HySprint_AtomicLayerDeposition(
             props=dict(
                 suggestions=['IRIS', 'HySprint'])
         ))
+
+
+class IRIS_AtomicLayerDeposition(
+        AtomicLayerDeposition, EntryData):
+    m_def = Section(
+        a_eln=dict(
+            hide=[
+                'lab_id',
+                'users',
+                'end_time', 'steps', 'instruments', 'results'],
+            properties=dict(
+                order=[
+                    "name", "location",
+                    "present",
+                    "datetime",
+                    "batch",
+                    "samples", "layer"])))
+
+    location = Quantity(
+        type=str,
+        a_eln=dict(
+            component='EnumEditQuantity',
+            props=dict(
+                suggestions=['IRIS'])
+        ))
+
+    properties = SubSection(
+        section_def=ALDPropertiesIris)
 
 
 # %% ### Evaporation
