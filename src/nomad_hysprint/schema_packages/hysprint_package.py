@@ -67,7 +67,7 @@ from baseclasses.solar_energy import (
     EQEMeasurement, SolarCellEQECustom,
     OpticalMicroscope,
     SolcarCellSample, BasicSampleWithID,
-    MPPTrackingHsprintCustom
+    MPPTrackingHsprintCustom, MPPTracking
 )
 from baseclasses.solution import Solution, Ink, SolutionPreparationStandard
 from baseclasses.vapour_based_deposition import (
@@ -934,6 +934,32 @@ class HySprint_JVmeasurement(JVMeasurement, EntryData):
 
         super(HySprint_JVmeasurement,
               self).normalize(archive, logger)
+
+
+class HySprint_SimpleMPPTracking(MPPTracking, EntryData):
+    m_def = Section(
+        a_eln=dict(
+            hide=[
+                'lab_id',
+                'users',
+                'location',
+                'end_time',  'steps', 'instruments', 'results', 'properties'],
+            properties=dict(
+                order=[
+                    "name",
+                    "data_file",
+                    "samples"])),
+        a_plot=[
+            {
+                'x': 'time',
+                'y': ['efficiency', 'voltage'],
+                'layout': {
+                    "showlegend": True,
+                    'yaxis': {
+                        "fixedrange": False},
+                    'xaxis': {
+                        "fixedrange": False}},
+            }])
 
 
 class HySprint_MPPTracking(MPPTrackingHsprintCustom, PlotSection, EntryData):
