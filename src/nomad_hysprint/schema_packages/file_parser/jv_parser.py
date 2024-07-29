@@ -66,6 +66,8 @@ def get_jv_data_hysprint(filename, encoding='utf-8'):
     df_header.replace([np.inf, -np.inf, np.nan], 0, inplace=True)
     df.replace([np.inf, -np.inf, np.nan], 0, inplace=True)
 
+    number_of_curves = len(df_curves.columns)-1
+
     jv_dict = {}
     jv_dict['active_area'] = df_header.iloc[0, 1]
     jv_dict['intensity'] = df_header.iloc[1, 1]
@@ -74,15 +76,15 @@ def get_jv_data_hysprint(filename, encoding='utf-8'):
     jv_dict['averaging'] = df_header.iloc[4, 1]
     jv_dict['compliance'] = df_header.iloc[5, 1]
 
-    jv_dict['J_sc'] = list(abs(df.iloc[0]))[:-1]
-    jv_dict['V_oc'] = list(df.iloc[1])[:-1]
-    jv_dict['Fill_factor'] = list(df.iloc[2])[:-1]
-    jv_dict['Efficiency'] = list(df.iloc[3])[:-1]
-    jv_dict['P_MPP'] = list(df.iloc[4])[:-1]
-    jv_dict['J_MPP'] = list(abs(df.iloc[5]))[:-1]
-    jv_dict['U_MPP'] = list(df.iloc[6])[:-1]
-    jv_dict['R_ser'] = list(df.iloc[7])[:-1]
-    jv_dict['R_par'] = list(df.iloc[8])[:-1]
+    jv_dict['J_sc'] = list(abs(df.iloc[0]))[:number_of_curves]
+    jv_dict['V_oc'] = list(df.iloc[1])[:number_of_curves]
+    jv_dict['Fill_factor'] = list(df.iloc[2])[:number_of_curves]
+    jv_dict['Efficiency'] = list(df.iloc[3])[:number_of_curves]
+    jv_dict['P_MPP'] = list(df.iloc[4])[:number_of_curves]
+    jv_dict['J_MPP'] = list(abs(df.iloc[5]))[:number_of_curves]
+    jv_dict['U_MPP'] = list(df.iloc[6])[:number_of_curves]
+    jv_dict['R_ser'] = list(df.iloc[7])[:number_of_curves]
+    jv_dict['R_par'] = list(df.iloc[8])[:number_of_curves]
 
     jv_dict['jv_curve'] = []
     for column in range(1, len(df_curves.columns)):
