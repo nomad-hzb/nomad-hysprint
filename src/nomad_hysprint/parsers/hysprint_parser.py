@@ -71,7 +71,7 @@ class HySprintParser(MatchingParser):
         mainfile_split = os.path.basename(mainfile).split('.')
         notes = ''
         if len(mainfile_split) > 2:
-            notes = mainfile_split[1]
+            notes = ".".join(mainfile_split[1:-2])
         measurment_type = mainfile_split[-2].lower()
         entry = HySprint_Measurement()
         if mainfile_split[-1] == "txt" and measurment_type == "jv":
