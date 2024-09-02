@@ -28,7 +28,7 @@ from nomad_hysprint.schema_packages.hysprint_package import (
     HySprint_UVvismeasurement,
     HySprint_trSPVmeasurement,
     HZB_EnvironmentMeasurement,
-    HZB_NKData, HySprint_SEM, HySprint_XRD_XY
+    HZB_NKData, HySprint_SEM, HySprint_XRD_XY, HySprint_SimpleMPPTracking
 )
 
 
@@ -96,6 +96,8 @@ class HySprintParser(MatchingParser):
             entry = HZB_EnvironmentMeasurement()
         if mainfile_split[-1] in ["nk"]:
             entry = HZB_NKData()
+        if mainfile_split[-1] in ["txt"] and measurment_type == "mppt":
+            entry = HySprint_SimpleMPPTracking()
         archive.metadata.entry_name = os.path.basename(mainfile)
 
         if not mainfile_split[-1] in ["nk"]:
