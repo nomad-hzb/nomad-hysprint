@@ -67,7 +67,7 @@ from baseclasses.solar_energy import (
     EQEMeasurement, SolarCellEQECustom,
     OpticalMicroscope,
     SolcarCellSample, BasicSampleWithID,
-    MPPTrackingHsprintCustom, MPPTracking
+    MPPTrackingHsprintCustom, MPPTracking, MPPTrackingProperties
 )
 from baseclasses.solution import Solution, Ink, SolutionPreparationStandard
 from baseclasses.vapour_based_deposition import (
@@ -952,7 +952,7 @@ class HySprint_SimpleMPPTracking(MPPTracking, EntryData):
         a_plot=[
             {
                 'x': 'time',
-                'y': ['efficiency', 'voltage'],
+                'y': 'power_density',
                 'layout': {
                     "showlegend": True,
                     'yaxis': {
@@ -960,6 +960,27 @@ class HySprint_SimpleMPPTracking(MPPTracking, EntryData):
                     'xaxis': {
                         "fixedrange": False}},
             }])
+
+    def normalize(self, archive, logger):
+        if self.data_file:
+            from baseclasses.helper.utilities import get_encoding
+            with archive.m_context.raw_file(self.data_file, "br") as f:
+                encoding = get_encoding(f)
+
+            with archive.m_context.raw_file(self.data_file, encoding=encoding) as f:
+                from nomad_hysprint.schema_packages.file_parser.mppt_simple import read_mppt_file
+                data = read_mppt_file(f.name, encoding)
+
+            self.time = data["time_data"]
+            self.voltage = data["voltage_data"]
+            self.current_density = data["current_density_data"]
+            self.power_density = data["power_data"]
+            self.properties = MPPTrackingProperties(
+                time=data["total_time"],
+                perturbation_voltage=data["step_size"]
+            )
+        super(HySprint_SimpleMPPTracking,
+              self).normalize(archive, logger)
 
 
 class HySprint_MPPTracking(MPPTrackingHsprintCustom, PlotSection, EntryData):
