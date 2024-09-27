@@ -328,10 +328,7 @@ def map_generic(i, j, lab_ids, data, upload_id):
 class RawHySprintExperiment(EntryData):
     processed_archive = Quantity(
         type=Entity,
-        shape=["*"],
-        a_eln=ELNAnnotation(
-            component='ReferenceEditQuantity',
-        )
+        shape=["*"]
     )
 
 
