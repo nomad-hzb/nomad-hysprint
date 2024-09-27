@@ -112,3 +112,4 @@ where = ["src"]
 [project.entry-points.'nomad.plugin']
 hysprint_package = "nomad_hysprint.schema_packages:hysprint_package"
 hysprint_parser = "nomad_hysprint.parsers:hysprint_parser"
+hysprint_experiment_parser = "nomad_hysprint.parsers:hysprint_experiment_parser"
