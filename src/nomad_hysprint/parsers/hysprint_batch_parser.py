@@ -90,16 +90,15 @@ def convert_quantity(value, factor):
 
 def get_value(data, key, default=None, number=True):
     try:
+        if key not in data:
+            return default
         if pd.isna(data[key]):
             return default
-        try:
-            if number:
-                return float(data[key])
-        except:
-            pass
+        if number:
+            return float(data[key])
         return str(data[key]).strip()
-    except:
-        return None
+    except Exception as e:
+        raise e
 
 
 def map_basic_sample(data, substrate_name, upload_id):
