@@ -60,7 +60,7 @@ from nomad_hysprint.schema_packages.hysprint_package import (
 from baseclasses import LayerProperties
 from baseclasses.vapour_based_deposition.evaporation import OrganicEvaporation, InorganicEvaporation
 from baseclasses.vapour_based_deposition.sputtering import SputteringProcess
-from baseclasses.material_processes_misc import Annealing,  AirKnifeGasQuenching
+from baseclasses.material_processes_misc import Annealing,  AirKnifeGasQuenching, AntiSolventQuenching
 from baseclasses.wet_chemical_deposition import PrecursorSolution
 from baseclasses.wet_chemical_deposition.slot_die_coating import SlotDieCoatingProperties
 from baseclasses.wet_chemical_deposition.spin_coating import SpinCoatingRecipeSteps
@@ -170,6 +170,13 @@ def map_spin_coating(i, j, lab_ids, data, upload_id):
             # check unit
             solution_volume=convert_quantity(get_value(data, "Solution volume [um]", None), 1/1000)
         )],
+        quenching=AntiSolventQuenching(
+            anti_solvent_volume=get_value(data, "Anti solvent volume [ml]", None),
+            anti_solvent_dropping_time=get_value(data, "Anti solvent dropping time [s]", None),
+            anti_solvent_2=PubChemPureSubstanceSection(name=get_value(data, "Anti solvent name", None, False),
+                                                       load_data=False
+                                                       )
+        ),
         annealing=Annealing(
             temperature=get_value(data, "Annealing temperature [°C]", None),
             time=convert_quantity(get_value(data, "Annealing time [min]", None), 60)
@@ -341,8 +348,8 @@ class HySprintExperimentParser(MatchingParser):
 
         base = ".."
         upload_id = archive.metadata.upload_id
-        xls = pd.ExcelFile(mainfile)
-        df = pd.read_excel(xls, 'Sheet', header=[0, 1])
+        # xls = pd.ExcelFile(mainfile)
+        df = pd.read_excel(mainfile, header=[0, 1])
 
         sample_ids = df["Experiment Info"]["Nomad ID"].dropna().to_list()
         batch_id = "_".join(sample_ids[0].split("_")[:-1])
