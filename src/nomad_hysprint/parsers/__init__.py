@@ -27,6 +27,6 @@ hysprint_experiment_parser = HySprintExperimentParserEntryPoint(
     name='HySprintBatchParser',
     description='Parser for Hysprint Batch xlsx files',
     mainfile_name_re='^(.+\.xlsx)$',
-    mainfile_content_re='Experiment Info',
+    mainfile_contents_re='Experiment Info',
     mainfile_mime_re='(application|text|image)/.*'
 )
