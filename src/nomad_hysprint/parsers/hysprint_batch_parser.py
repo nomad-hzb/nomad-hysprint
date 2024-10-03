@@ -341,6 +341,24 @@ class RawHySprintExperiment(EntryData):
 
 class HySprintExperimentParser(MatchingParser):
 
+    def is_mainfile(
+        self,
+        filename: str,
+        mime: str,
+        buffer: bytes,
+        decoded_buffer: str,
+        compression: str = None,
+    ):
+        is_mainfile_super = super().is_mainfile(filename, mime, buffer, decoded_buffer, compression)
+        if not is_mainfile_super:
+            return False
+        try:
+            df = pd.read_excel(filename, header=[0, 1])
+            df["Experiment Info"]["Nomad ID"].dropna().to_list()
+        except:
+            return False
+        return True
+
     def parse(self, mainfile: str, archive: EntryArchive, logger):
         # Log a hello world, just to get us started. TODO remove from an actual parser.
 
