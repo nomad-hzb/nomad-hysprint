@@ -7,6 +7,7 @@ Created on Thu Sep  7 11:44:19 2023
 """
 
 import pandas as pd
+from io import StringIO
 
 
 def is_float(string):
@@ -19,28 +20,27 @@ def is_float(string):
         return False
 
 
-def find_footer(file_path, encoding):
-    with open(file_path) as myFile:
-        for num, line in enumerate(myFile, 1):
-            if "BEGIN_METADATA" in line:
-                return num-5
+def find_footer(file_lines):
+    for num, line in enumerate(file_lines, 1):
+        if "BEGIN_METADATA" in line:
+            return num-5
 
 
-def get_spv_data(file_path, encoding='utf-8'):
-    nrows = find_footer(file_path, encoding)
+def get_spv_data(filedata):
+    file_lines = filedata.split("\n")
+    nrows = find_footer(file_lines)
     if nrows is None:
         return
-    data = pd.read_csv(file_path, sep="\t", nrows=nrows)
+    data = pd.read_csv(StringIO(filedata), sep="\t", nrows=nrows)
 
     md_dict = {}
-    with open(file_path, encoding=encoding) as myFile:
-        for num, line in enumerate(myFile, 1):
-            if num < nrows or ":" not in line:
-                continue
-            line_split = line.split(":")
-            line_split[0] = line_split[0].replace("#", "")
-            value = float(line_split[1].strip()) if is_float(line_split[1].strip()) else line_split[1].strip()
-            md_dict.update({line_split[0].strip(): value})
+    for num, line in enumerate(file_lines, 1):
+        if num < nrows or ":" not in line:
+            continue
+        line_split = line.split(":")
+        line_split[0] = line_split[0].replace("#", "")
+        value = float(line_split[1].strip()) if is_float(line_split[1].strip()) else line_split[1].strip()
+        md_dict.update({line_split[0].strip(): value})
     return md_dict, data
 
 

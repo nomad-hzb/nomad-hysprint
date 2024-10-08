@@ -17,30 +17,32 @@
 #
 
 import pandas as pd
+from io import StringIO
 
-def find_row_with_data(file_object):
+
+def find_row_with_data(file_lines):
     # Find the row with the data
     count = 1
-    while(True):
-        next_line = file_object.readline()
+    for next_line in file_lines:
         if next_line.strip() and not next_line.strip().startswith('#'):
             return count
         count += 1
-    return -1 # No data found
+    return -1  # No data found
 
-def get_nk_data(filename, encoding='utf-8'):
+
+def get_nk_data(filedata):
     # Block to clean up some bad characters found in the file which gives
     # trouble reading.
-    with open(filename, 'r', encoding=encoding) as f:
-        first_line = f.readline().strip("#").split(";")
-        count = find_row_with_data(f)
+    file_lines = filedata.split("\n")
+    first_line = file_lines[0].strip("#").split(";")
+    count = find_row_with_data(file_lines[1:])
 
     metadata = {"Name": first_line[0].strip() if len(first_line) > 0 else "",
                 "Formula": first_line[1].strip() if len(first_line) > 1 else "",
                 "Reference": first_line[2].strip() if len(first_line) > 2 else "",
                 "Comment": first_line[3].strip() if len(first_line) > 3 else ""
                 }
-    data = pd.read_csv(filename, sep='\t', encoding=encoding, header=0, skiprows=count)
+    data = pd.read_csv(StringIO(filedata), sep='\t', header=0, skiprows=count)
     return data, metadata
 
 # data, m = get_nk_data('/home/a2853/Documents/Projects/nomad/hysprintlab/klaus/BCP.nk')

@@ -1,7 +1,7 @@
 import pandas as pd
 import re
 import time
-
+from io import StringIO
 from baseclasses.helper.utilities import lookup
 
 
@@ -151,8 +151,8 @@ def parse_sample(info, sample_id, df):
     return data
 
 
-def load_mpp_file(filename):
-    df = pd.read_csv(filename, sep=";")
+def load_mpp_file(filedata):
+    df = pd.read_csv(StringIO(filedata), sep=";")
     df['Zeitstempel'] = lookup(df['Zeitstempel'], format='%m/%d/%Y %H:%M:%S')
     info = get_dimensions(df.columns)
 

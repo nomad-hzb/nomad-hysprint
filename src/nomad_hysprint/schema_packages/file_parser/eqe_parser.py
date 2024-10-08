@@ -25,7 +25,7 @@
 
 import numpy as np
 import pandas as pd
-
+from io import StringIO
 
 # Constants
 temperature = 300  # in [°K]
@@ -121,8 +121,8 @@ def read_file(file_path, header_lines=None):
     return photon_energy_raw, eqe_raw, photon_energy, intensity
 
 
-def read_file_multiple(file_path, encoding="utf-8"):
-    df = pd.read_csv(file_path, sep="\t", encoding=encoding)
+def read_file_multiple(filedata):
+    df = pd.read_csv(StringIO(filedata), sep="\t")
     result = []
     for i in range(0, len(df.columns), 6):
         try:
