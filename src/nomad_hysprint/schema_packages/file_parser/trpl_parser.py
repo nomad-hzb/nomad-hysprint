@@ -1,10 +1,11 @@
-def get_trpl_measurement(file_obj):
+def get_trpl_measurement(filedata):
+    file_lines = filedata.split("\n")
 
     bin_line = -1
     count_line = -1
     counts = []
     time = []
-    for l_idx, raw_line in enumerate(file_obj):
+    for l_idx, raw_line in enumerate(file_lines):
         line = raw_line.strip()
         if line.startswith("#ns/bin"):
             bin_line = l_idx + 1

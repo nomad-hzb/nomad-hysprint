@@ -5,9 +5,9 @@ Created on Mon Sep  2 13:48:09 2024
 
 @author: a2853
 """
-import chardet
 import pandas as pd
 import numpy as np
+from io import StringIO
 
 
 def get_value(val):
@@ -17,34 +17,26 @@ def get_value(val):
         return None
 
 
-def read_mppt_file(filename, encoding):
-    with open(filename, 'r', encoding=encoding) as f:
-        filedata = f.read()
+def read_mppt_file(filedata):
+    filedata = filedata.replace("²", "^2")
 
-    newdata = filedata.replace("²", "^2")
-
-    with open(filename, 'w') as f:
-        f.write(newdata)
-
-    with open(filename) as f:
-        df = pd.read_csv(
-            f,
-            skiprows=0,
-            nrows=5,
-            header=None,
-            sep=':\t',
-            index_col=0,
-            engine='python',
-            encoding='unicode_escape')
-    with open(filename) as f:
-        df_curve = pd.read_csv(
-            f,
-            header=6,
-            skiprows=[7],
-            sep='\t',
-            encoding='unicode_escape',
-            engine='python')
-        df_curve = df_curve.dropna(how='any', axis=0)
+    df = pd.read_csv(
+        StringIO(filedata),
+        skiprows=0,
+        nrows=5,
+        header=None,
+        sep=':\t',
+        index_col=0,
+        engine='python',
+        encoding='unicode_escape')
+    df_curve = pd.read_csv(
+        StringIO(filedata),
+        header=6,
+        skiprows=[7],
+        sep='\t',
+        encoding='unicode_escape',
+        engine='python')
+    df_curve = df_curve.dropna(how='any', axis=0)
 
     mppt_dict = {}
     mppt_dict['total_time'] = get_value(df.iloc[0, 0])

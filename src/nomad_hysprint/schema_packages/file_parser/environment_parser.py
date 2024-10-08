@@ -6,21 +6,20 @@ Created on Thu Sep  7 11:44:19 2023
 @author: a2853
 """
 
-import chardet
 import pandas as pd
+from io import StringIO
 
 
-def find_data(file_path, encoding):
-    with open(file_path, encoding=encoding) as myFile:
-        for num, line in enumerate(myFile, 1):
-            if "Time [s]" in line:
-                return num-1
+def find_data(filedata):
+    for num, line in enumerate(filedata, 1):
+        if "Time [s]" in line:
+            return num-1
 
 
-def get_environment_data(file_path, encoding='utf-8'):
-    nrows = find_data(file_path, encoding)
+def get_environment_data(filedata, encoding='utf-8'):
+    nrows = find_data(filedata)
     if nrows is None:
         return
-    data = pd.read_csv(file_path, sep="\t", skiprows=nrows, encoding=encoding)
+    data = pd.read_csv(StringIO(filedata), sep="\t", skiprows=nrows)
 
     return data
