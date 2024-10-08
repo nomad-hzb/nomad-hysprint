@@ -19,40 +19,32 @@
 import pandas as pd
 import numpy as np
 import ast
+from io import StringIO
 
 
-def get_pl_data_iris(filename, encoding='utf-8'):
+def get_pl_data_iris(filedata):
     # Block to clean up some bad characters found in the file which gives
     # trouble reading.
-    f = open(filename, 'r', encoding=encoding)
-    filedata = f.read()
-    f.close()
 
-    newdata = filedata.replace("²", "^2")
+    filedata = filedata.replace("²", "^2")
 
-    f = open(filename, 'w')
-    f.write(newdata)
-    f.close()
+    df_header = pd.read_csv(
+        StringIO(filedata),
+        skiprows=0,
+        nrows=21,
+        header=None,
+        sep=',',
+        index_col=0,
+        encoding='unicode_escape',
+        engine='python')
 
-    with open(filename) as f:
-        df_header = pd.read_csv(
-            f,
-            skiprows=0,
-            nrows=21,
-            header=None,
-            sep=',',
-            index_col=0,
-            encoding='unicode_escape',
-            engine='python')
-
-    with open(filename) as f:
-        df_data = pd.read_csv(
-            f,
-            header=None,
-            skiprows=22,
-            sep=',',
-            encoding='unicode_escape',
-            engine='python')
+    df_data = pd.read_csv(
+        StringIO(filedata),
+        header=None,
+        skiprows=22,
+        sep=',',
+        encoding='unicode_escape',
+        engine='python')
 
     pl_dict = {}
     pl_dict['name'] = df_header.iloc[0, 0]
@@ -69,13 +61,10 @@ def get_pl_data_iris(filename, encoding='utf-8'):
     return pl_dict
 
 
-def get_pl_data(filename, encoding='utf-8'):
+def get_pl_data(filedata):
     # Block to clean up some bad characters found in the file which gives
     # trouble reading.
-    f = open(filename, 'r', encoding=encoding)
-    filedata = f.read()
-    f.close()
 
     if filedata.startswith("Labels"):
-        return get_pl_data_iris(filename, encoding), "IRIS HZBGloveBoxes"
+        return get_pl_data_iris(filedata), "IRIS HZBGloveBoxes"
     return None, None

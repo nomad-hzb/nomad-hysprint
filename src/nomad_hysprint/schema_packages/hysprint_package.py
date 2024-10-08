@@ -20,6 +20,7 @@ from nomad.datamodel.metainfo.annotations import ELNAnnotation, ELNComponentEnum
 import os
 import random
 import string
+from io import StringIO
 
 from nomad.metainfo import (
     Quantity,
@@ -820,19 +821,19 @@ class HZB_EnvironmentMeasurement(EnvironmentMeasurement, EntryData):
                     "editable": True, "scrollZoom": True}}]
     )
 
-    def normalize(self, archive, logger):
-        if self.data_file and self.data is None:  # and self.properties is None:
-            from baseclasses.helper.utilities import get_encoding
-            with archive.m_context.raw_file(self.data_file, "br") as f:
-                encoding = get_encoding(f)
+    # def normalize(self, archive, logger):
+    #     if self.data_file and self.data is None:  # and self.properties is None:
+    #         from baseclasses.helper.utilities import get_encoding
+    #         with archive.m_context.raw_file(self.data_file, "br") as f:
+    #             encoding = get_encoding(f)
 
-            with archive.m_context.raw_file(self.data_file, encoding=encoding) as f:
-                from nomad_hysprint.schema_packages.file_parser.environment_parser import get_environment_data
-                from baseclasses.helper.archive_builder.environment_archive import get_environment_archive
+    #         with archive.m_context.raw_file(self.data_file, "tr", encoding=encoding) as f:
+    #             from nomad_hysprint.schema_packages.file_parser.environment_parser import get_environment_data
+    #             from baseclasses.helper.archive_builder.environment_archive import get_environment_archive
 
-                env_data = get_environment_data(f.name, encoding)
-                get_environment_archive(env_data, self)
-        super(HZB_EnvironmentMeasurement, self).normalize(archive, logger)
+    #             env_data = get_environment_data(f)
+    #             get_environment_archive(env_data, self)
+    #     super(HZB_EnvironmentMeasurement, self).normalize(archive, logger)
 
 
 class HySprint_trSPVmeasurement(trSPVMeasurement, EntryData):
@@ -873,11 +874,11 @@ class HySprint_trSPVmeasurement(trSPVMeasurement, EntryData):
             with archive.m_context.raw_file(self.data_file, "br") as f:
                 encoding = get_encoding(f)
 
-            with archive.m_context.raw_file(self.data_file, encoding=encoding) as f:
+            with archive.m_context.raw_file(self.data_file, "tr", encoding=encoding) as f:
                 from nomad_hysprint.schema_packages.file_parser.spv_parser import get_spv_data
                 from baseclasses.helper.archive_builder.spv_archive import get_spv_archive
 
-                spv_dict, spv_data = get_spv_data(f.name, encoding)
+                spv_dict, spv_data = get_spv_data(f.read())
                 get_spv_archive(spv_dict, spv_data, f.name, self)
         super(HySprint_trSPVmeasurement,
               self).normalize(archive, logger)
@@ -924,11 +925,11 @@ class HySprint_JVmeasurement(JVMeasurement, EntryData):
             with archive.m_context.raw_file(self.data_file, "br") as f:
                 encoding = get_encoding(f)
 
-            with archive.m_context.raw_file(self.data_file, encoding=encoding) as f:
+            with archive.m_context.raw_file(self.data_file, "tr", encoding=encoding) as f:
                 from nomad_hysprint.schema_packages.file_parser.jv_parser import get_jv_data
                 from baseclasses.helper.archive_builder.jv_archive import get_jv_archive
 
-                jv_dict, location = get_jv_data(f.name, encoding)
+                jv_dict, location = get_jv_data(f.read())
                 self.location = location
                 get_jv_archive(jv_dict, self.data_file, self)
 
@@ -967,9 +968,9 @@ class HySprint_SimpleMPPTracking(MPPTracking, EntryData):
             with archive.m_context.raw_file(self.data_file, "br") as f:
                 encoding = get_encoding(f)
 
-            with archive.m_context.raw_file(self.data_file, encoding=encoding) as f:
+            with archive.m_context.raw_file(self.data_file, "tr", encoding=encoding) as f:
                 from nomad_hysprint.schema_packages.file_parser.mppt_simple import read_mppt_file
-                data = read_mppt_file(f.name, encoding)
+                data = read_mppt_file(f.read())
 
             self.time = data["time_data"]
             self.voltage = data["voltage_data"]
@@ -1015,11 +1016,11 @@ class HySprint_MPPTracking(MPPTrackingHsprintCustom, PlotSection, EntryData):
             # with archive.m_context.raw_file(self.data_file, "br") as f:
             #     encoding = get_encoding(f)
 
-            with archive.m_context.raw_file(self.data_file, encoding="ascii") as f:
+            with archive.m_context.raw_file(self.data_file, "tr", encoding="ascii") as f:
                 if os.path.splitext(f.name)[-1] != ".csv":
                     return
                 from nomad_hysprint.schema_packages.file_parser.load_mpp_hysprint import load_mpp_file
-                data = load_mpp_file(f.name)  # , encoding)
+                data = load_mpp_file(f.read())  # , encoding)
 
             from baseclasses.helper.archive_builder.mpp_hysprint_archive import get_mpp_hysprint_samples
             self.samples = get_mpp_hysprint_samples(self, data)
@@ -1092,29 +1093,29 @@ class HySprint_TimeResolvedPhotoluminescence(
                         "fixedrange": False}},
             }])
 
-    def normalize(self, archive, logger):
-        if self.data_file is not None:
-            # if self.trpl_properties is not None:
-            #     return
-            trpl_properties_list = []
-            for data_file in self.data_file:
-                # todo detect file format
-                if os.path.splitext(data_file)[-1] not in [".txt", ".dat"]:
-                    continue
+    # def normalize(self, archive, logger):
+    #     if self.data_file is not None:
+    #         # if self.trpl_properties is not None:
+    #         #     return
+    #         trpl_properties_list = []
+    #         for data_file in self.data_file:
+    #             # todo detect file format
+    #             if os.path.splitext(data_file)[-1] not in [".txt", ".dat"]:
+    #                 continue
 
-                from baseclasses.helper.utilities import get_encoding
-                with archive.m_context.raw_file(self.data_file, "br") as f:
-                    encoding = get_encoding(f)
+    #             from baseclasses.helper.utilities import get_encoding
+    #             with archive.m_context.raw_file(data_file, "br") as f:
+    #                 encoding = get_encoding(f)
 
-                with archive.m_context.raw_file(data_file, encoding=encoding) as f:
-                    from nomad_hysprint.schema_packages.file_parser.trpl_parser import get_trpl_measurement
-                    data = get_trpl_measurement(f)
+    #             with archive.m_context.raw_file(data_file, "tr", encoding=encoding) as f:
+    #                 from nomad_hysprint.schema_packages.file_parser.trpl_parser import get_trpl_measurement
+    #                 data = get_trpl_measurement(f.read())
 
-                from baseclasses.helper.archive_builder.trpl_archive import get_trpl_archive
-                trpl_properties_list.append(get_trpl_archive(data, data_file))
-            self.trpl_properties = trpl_properties_list
-        super(HySprint_TimeResolvedPhotoluminescence,
-              self).normalize(archive, logger)
+    #             from baseclasses.helper.archive_builder.trpl_archive import get_trpl_archive
+    #             trpl_properties_list.append(get_trpl_archive(data, data_file))
+    #         self.trpl_properties = trpl_properties_list
+    #     super(HySprint_TimeResolvedPhotoluminescence,
+    #           self).normalize(archive, logger)
 
 
 class HySprint_OpticalMicroscope(
@@ -1168,9 +1169,9 @@ class HySprint_EQEmeasurement(EQEMeasurement, EntryData):
         if self.data_file:
             with archive.m_context.raw_file(self.data_file, "br") as f:
                 encoding = get_encoding(f)
-            with archive.m_context.raw_file(self.data_file, encoding=encoding) as f:
+            with archive.m_context.raw_file(self.data_file, "tr", encoding=encoding) as f:
                 from nomad_hysprint.schema_packages.file_parser.eqe_parser import read_file_multiple
-                data_list = read_file_multiple(f.name, encoding=encoding)
+                data_list = read_file_multiple(f.read())
             eqe_data = []
             for d in data_list:
                 entry = SolarCellEQECustom(photon_energy_array=d.get("photon_energy"),
@@ -1227,27 +1228,27 @@ class HySprint_PLmeasurement(PLMeasurement, EntryData):
                         "fixedrange": False}},
             }])
 
-    def normalize(self, archive, logger):
+    # def normalize(self, archive, logger):
 
-        with archive.m_context.raw_file(archive.metadata.mainfile) as f:
-            path = os.path.dirname(f.name)
+    #     with archive.m_context.raw_file(archive.metadata.mainfile) as f:
+    #         path = os.path.dirname(f.name)
 
-        if self.data_file and os.path.getsize(os.path.join(path, self.data_file)) < 1e7:
-            # todo detect file format
-            from baseclasses.helper.utilities import get_encoding
-            with archive.m_context.raw_file(self.data_file, "br") as f:
-                encoding = get_encoding(f)
+    #     if self.data_file and os.path.getsize(os.path.join(path, self.data_file)) < 1e7:
+    #         # todo detect file format
+    #         from baseclasses.helper.utilities import get_encoding
+    #         with archive.m_context.raw_file(self.data_file, "br") as f:
+    #             encoding = get_encoding(f)
 
-            with archive.m_context.raw_file(self.data_file, encoding=encoding) as f:
-                from nomad_hysprint.schema_packages.file_parser.pl_parser import get_pl_data
-                from baseclasses.helper.archive_builder.pl_archive import get_pl_archive
+    #         with archive.m_context.raw_file(self.data_file, "tr", encoding=encoding) as f:
+    #             from nomad_hysprint.schema_packages.file_parser.pl_parser import get_pl_data
+    #             from baseclasses.helper.archive_builder.pl_archive import get_pl_archive
 
-                pl_dict, location = get_pl_data(f.name, encoding)
-                self.location = location
-                if pl_dict is not None:
-                    get_pl_archive(pl_dict, self.data_file, self)
+    #             pl_dict, location = get_pl_data(f)
+    #             self.location = location
+    #             if pl_dict is not None:
+    #                 get_pl_archive(pl_dict, self.data_file, self)
 
-        super(HySprint_PLmeasurement, self).normalize(archive, logger)
+    #     super(HySprint_PLmeasurement, self).normalize(archive, logger)
 
 
 class HySprint_SEM(SEM_Microscope_Merlin, EntryData):
@@ -1300,16 +1301,16 @@ class HySprint_XRD_XY(XRD, EntryData):
     def normalize(self, archive, logger):
 
         if self.data_file:
-            with archive.m_context.raw_file(self.data_file) as f:
+            with archive.m_context.raw_file(self.data_file, "tr") as f:
 
                 if os.path.splitext(self.data_file)[-1] == ".xy" and self.data is None:
                     import pandas as pd
                     if "Id" in f.readline():
                         skiprows = 1
-                        data = pd.read_csv(f.name, sep=" |\t", header=None, skiprows=skiprows)
+                        data = pd.read_csv(f, sep=" |\t", header=None, skiprows=skiprows)
                     else:
                         skiprows = 0
-                        data = pd.read_csv(f.name, sep=" |\t", header=None, skiprows=skiprows)
+                        data = pd.read_csv(f, sep=" |\t", header=None, skiprows=skiprows)
                     print(data)
                     self.data = XRDData(angle=data[0], intensity=data[1])
         super(HySprint_XRD_XY, self).normalize(archive, logger)
@@ -1344,27 +1345,27 @@ class HySprint_UVvismeasurement(UVvisMeasurement, EntryData):
                     "data_file",
                     "samples", "solution"])))
 
-    def normalize(self, archive, logger):
-        measurements = []
-        for data_file in self.data_file:
-            if os.path.splitext(data_file)[-1] not in [".txt", ".csv"]:
-                continue
-            with archive.m_context.raw_file(data_file) as f:
-                if os.path.splitext(data_file)[-1] == ".txt":
-                    from nomad_hysprint.schema_packages.file_parser.uvvis_parser import get_uvvis_measurement_txt
-                    data, datetime_object = get_uvvis_measurement_txt(f)
+    # def normalize(self, archive, logger):
+    #     measurements = []
+    #     for data_file in self.data_file:
+    #         if os.path.splitext(data_file)[-1] not in [".txt", ".csv"]:
+    #             continue
+    #         with archive.m_context.raw_file(data_file, "tr") as f:
+    #             if os.path.splitext(data_file)[-1] == ".txt":
+    #                 from nomad_hysprint.schema_packages.file_parser.uvvis_parser import get_uvvis_measurement_txt
+    #                 data, datetime_object = get_uvvis_measurement_txt(f)
 
-                if os.path.splitext(data_file)[-1] == ".csv":
-                    from nomad_hysprint.schema_packages.file_parser.uvvis_parser import get_uvvis_measurement_csv
-                    data, datetime_object = get_uvvis_measurement_csv(f)
+    #             if os.path.splitext(data_file)[-1] == ".csv":
+    #                 from nomad_hysprint.schema_packages.file_parser.uvvis_parser import get_uvvis_measurement_csv
+    #                 data, datetime_object = get_uvvis_measurement_csv(f)
 
-            from baseclasses.helper.archive_builder.uvvis_archive import get_uvvis_archive
-            measurements.append(get_uvvis_archive(
-                data, datetime_object, data_file))
-        self.measurements = measurements
+    #         from baseclasses.helper.archive_builder.uvvis_archive import get_uvvis_archive
+    #         measurements.append(get_uvvis_archive(
+    #             data, datetime_object, data_file))
+    #     self.measurements = measurements
 
-        super(HySprint_UVvismeasurement,
-              self).normalize(archive, logger)
+    #     super(HySprint_UVvismeasurement,
+    #           self).normalize(archive, logger)
 
 
 # %%####################################### Data Transformations
@@ -1386,11 +1387,11 @@ class HZB_NKData(NKData, EntryData):
         with archive.m_context.raw_file(self.data_file, "br") as f:
             encoding = get_encoding(f)
 
-        with archive.m_context.raw_file(self.data_file, encoding=encoding) as f:
+        with archive.m_context.raw_file(self.data_file, "tr", encoding=encoding) as f:
             from nomad_hysprint.schema_packages.file_parser.nk_parser import get_nk_data
             from baseclasses.helper.archive_builder.nk_archive import get_nk_archive
 
-            nk_data, metadata = get_nk_data(f.name, encoding)
+            nk_data, metadata = get_nk_data(f.read())
 
         self.description = metadata["Comment"] if "Comment" in metadata else ""
         self.chemical_composition_or_formulas = metadata["Formula"] if "Formula" in metadata else ""

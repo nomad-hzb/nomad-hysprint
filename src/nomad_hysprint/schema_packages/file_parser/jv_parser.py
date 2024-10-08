@@ -19,49 +19,38 @@
 import pandas as pd
 import numpy as np
 import ast
+from io import StringIO
 
 
-def get_jv_data_hysprint(filename, encoding='utf-8'):
+def get_jv_data_hysprint(filedata):
     # Block to clean up some bad characters found in the file which gives
     # trouble reading.
-    f = open(filename, 'r', encoding=encoding)
-    filedata = f.read()
-    f.close()
 
-    newdata = filedata.replace("²", "^2")
+    filedata = filedata.replace("²", "^2")
 
-    f = open(filename, 'w')
-    f.write(newdata)
-    f.close()
-
-    with open(filename) as f:
-        df = pd.read_csv(
-            f,
-            skiprows=8,
-            nrows=9,
-            sep='\t',
-            index_col=0,
-            engine='python',
-            encoding='unicode_escape')
-    with open(filename) as f:
-        df_header = pd.read_csv(
-            f,
-            skiprows=1,
-            nrows=6,
-            header=None,
-            sep=':|\t',
-            index_col=0,
-            encoding='unicode_escape',
-            engine='python')
-    with open(filename) as f:
-        df_curves = pd.read_csv(
-            f,
-            header=19,
-            skiprows=[20],
-            sep='\t',
-            encoding='unicode_escape',
-            engine='python')
-        df_curves = df_curves.dropna(how='all', axis=1)
+    df = pd.read_csv(
+        StringIO(filedata),
+        skiprows=8,
+        nrows=9,
+        sep='\t',
+        index_col=0,
+        engine='python',
+        encoding='unicode_escape')
+    df_header = pd.read_csv(StringIO(filedata),
+                            skiprows=1,
+                            nrows=6,
+                            header=None,
+                            sep=':|\t',
+                            index_col=0,
+                            encoding='unicode_escape',
+                            engine='python')
+    df_curves = pd.read_csv(StringIO(filedata),
+                            header=19,
+                            skiprows=[20],
+                            sep='\t',
+                            encoding='unicode_escape',
+                            engine='python')
+    df_curves = df_curves.dropna(how='all', axis=1)
 
     df_header.replace([np.inf, -np.inf, np.nan], 0, inplace=True)
     df.replace([np.inf, -np.inf, np.nan], 0, inplace=True)
@@ -95,50 +84,40 @@ def get_jv_data_hysprint(filename, encoding='utf-8'):
     return jv_dict
 
 
-def get_jv_data_iris(filename, encoding='utf-8'):
+def get_jv_data_iris(filedata):
     # Block to clean up some bad characters found in the file which gives
     # trouble reading.
-    f = open(filename, 'r', encoding=encoding)
-    filedata = f.read()
-    f.close()
 
-    newdata = filedata.replace("²", "^2")
+    filedata = filedata.replace("²", "^2")
 
-    f = open(filename, 'w')
-    f.write(newdata)
-    f.close()
+    df = pd.read_csv(
+        StringIO(filedata),
+        skiprows=30,
+        header=0,
+        nrows=11,
+        sep='\t',
+        index_col=0,
+        engine='python',
+        encoding='unicode_escape')
 
-    with open(filename) as f:
-        df = pd.read_csv(
-            f,
-            skiprows=30,
-            header=0,
-            nrows=11,
-            sep='\t',
-            index_col=0,
-            engine='python',
-            encoding='unicode_escape')
+    df_header = pd.read_csv(
+        StringIO(filedata),
+        skiprows=0,
+        nrows=29,
+        header=None,
+        sep='\t',
+        index_col=0,
+        encoding='unicode_escape',
+        engine='python')  # , on_bad_lines=lambda x: x[:2])
 
-    with open(filename) as f:
-        df_header = pd.read_csv(
-            f,
-            skiprows=0,
-            nrows=29,
-            header=None,
-            sep='\t',
-            index_col=0,
-            encoding='unicode_escape',
-            engine='python')  # , on_bad_lines=lambda x: x[:2])
-
-    with open(filename) as f:
-        df_curves = pd.read_csv(
-            f,
-            header=0,
-            skiprows=43,
-            sep='\t',
-            encoding='unicode_escape',
-            engine='python')
-        df_curves = df_curves.dropna(how='all', axis=1)
+    df_curves = pd.read_csv(
+        StringIO(filedata),
+        header=0,
+        skiprows=43,
+        sep='\t',
+        encoding='unicode_escape',
+        engine='python')
+    df_curves = df_curves.dropna(how='all', axis=1)
 
     df_header.replace([np.inf, -np.inf, np.nan], 0, inplace=True)
     df.replace([np.inf, -np.inf, np.nan], 0, inplace=True)
@@ -171,14 +150,8 @@ def get_jv_data_iris(filename, encoding='utf-8'):
     return jv_dict
 
 
-def get_jv_data(filename, encoding='utf-8'):
-    # Block to clean up some bad characters found in the file which gives
-    # trouble reading.
-    f = open(filename, 'r', encoding=encoding)
-    filedata = f.read()
-    f.close()
-
+def get_jv_data(filedata):
     if filedata.startswith("Keithley"):
-        return get_jv_data_hysprint(filename, encoding), "HySprint HyVap"
+        return get_jv_data_hysprint(filedata), "HySprint HyVap"
     else:
-        return get_jv_data_iris(filename, encoding), 'IRIS HZBGloveBoxes Pero4SOSIMStorage'
+        return get_jv_data_iris(filedata), 'IRIS HZBGloveBoxes Pero4SOSIMStorage'
