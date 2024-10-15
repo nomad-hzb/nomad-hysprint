@@ -23,18 +23,17 @@ Created on Fri Sep 27 09:08:03 2024
 # limitations under the License.
 #
 
-import pandas as pd
-from baseclasses import LayerProperties, PubChemPureSubstanceSectionCustom
-from baseclasses.helper.utilities import create_archive
+from baseclasses import LayerProperties
 from baseclasses.material_processes_misc import (
     AirKnifeGasQuenching,
     Annealing,
     AntiSolventQuenching,
 )
-from baseclasses.material_processes_misc.laser_scribing import (
-    LaserScribingProperties,
+from baseclasses.vapour_based_deposition.atomic_layer_deposition import (
+    ALDProperties, 
+    ALDPropertiesIris, 
+    ALDMaterial,
 )
-from baseclasses.solution import Solution, SolutionChemical
 from baseclasses.vapour_based_deposition.evaporation import (
     InorganicEvaporation,
     OrganicEvaporation,
@@ -45,10 +44,6 @@ from baseclasses.wet_chemical_deposition.slot_die_coating import (
     SlotDieCoatingProperties,
 )
 from baseclasses.wet_chemical_deposition.spin_coating import SpinCoatingRecipeSteps
-from nomad.datamodel import EntryArchive
-from nomad.datamodel.data import (
-    EntryData,
-)
 from nomad.datamodel.metainfo.basesections import (
     CompositeSystemReference,
     Entity,
@@ -62,13 +57,13 @@ from nomad_hysprint.schema_packages.hysprint_package import (
     HySprint_Batch,
     HySprint_Cleaning,
     HySprint_Evaporation,
-    HySprint_LaserScribing,
     HySprint_Process,
     HySprint_Sample,
     HySprint_SlotDieCoating,
     HySprint_SpinCoating,
     HySprint_Sputtering,
     HySprint_Substrate,
+    IRIS_AtomicLayerDeposition,
 )
 
 """
@@ -420,6 +415,47 @@ def map_laser_scribing(i, j, lab_ids, data, upload_id):
 
     return (f'{i}_{j}_laser_scribing', archive)
 
+def map_atomic_layer_deposition(i, j, lab_ids, data, upload_id):
+    #"ALD": {"steps": ["Material name", "Layer type", "Source", "Thickness [nm]", "Temperature [°C]", "Rate [A/s]",
+                    #   "Time [s]", "Number of cycles", "Precursor 1", "Pulse duration 1 [s]",
+                    #   "Manifold temperature 1 [°C]", "Bottle temperature 1 [°C]", "Precursor 2", "Pulse duration 2 [s]",
+                    #   "Maniforld temperature 2 [°C]"]}
+
+    archive = IRIS_AtomicLayerDeposition(
+        name="atomic layer deposition " + get_value(data, "Material name", "", number = False),
+        position_in_experimental_plan = i,
+        description = get_value(data, "Notes", "", number = False),
+        samples = [CompositeSystemReference(reference=get_reference(
+            upload_id, f"{lab_id}.archive.json"), lab_id=lab_id) for lab_id in lab_ids],
+        layer = [LayerProperties(layer_type=get_value(data, "Layer type", None, number = False),
+                               layer_material_name=get_value(data, "Material name", None, number = False)
+                               )])
+        
+    process = ALDPropertiesIris(
+        source = get_value(data, "Source", None, number = False),
+        thickness = get_value(data, "Thickness [nm]", None),
+        temperature = get_value(data, "Temperature [°C]", None),
+        rate = get_value(data, "Rate [A/s]", None),
+        time = get_value(data, "Time [s]", None),
+        number_of_cycles = get_value(data, "Number of cycles", None),
+        material = ALDMaterial(
+            material = PubChemPureSubstanceSection(name=get_value(data, "Precursor 1", None, number = False), load_data=False),
+            pulse_duration = get_value(data, "Pulse duration 1 [s]", None),
+            manifold_temperature = get_value(data, "Manifold temperature 1 [°C]", None),
+            bottle_temperature = get_value(data, "Bottle temperature 1 [°C]", None)
+            )
+            
+                               
+        oxidizer = ALDMaterial(
+            material = PubChemPureSubstanceSection(name=get_value(data, "Precursor 2", None, number = False), load_data=False),
+            pulse_duration = get_value(data, "Pulse duration 2 [s]", None),
+            manifold_temperature = get_value(data, "Manifold temperature 2 [°C]", None)
+            )
+        )
+    archive.processes = [process]
+    material = get_value(data, 'Material name', '', False)
+    return (f"{i}_{j}_ALD_{material}", archive)
+
 
 def map_generic(i, j, lab_ids, data, upload_id):
     archive = HySprint_Process(
@@ -541,6 +577,9 @@ class HySprintExperimentParser(MatchingParser):
 
                 if 'Sputtering' in col:
                     archives.append(map_sputtering(i, j, lab_ids, row, upload_id))
+                    
+                if "ALD" in col:
+                    archives.append(map_atomic_layer_deposition(i, j, lab_ids, row, upload_id))
 
         refs = []
         for subs in substrates:
