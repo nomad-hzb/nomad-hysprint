@@ -43,7 +43,8 @@ from baseclasses.solution import Solution, SolutionChemical
 import pandas as pd
 from nomad.datamodel import EntryArchive
 from nomad.parsing import MatchingParser
-from nomad.datamodel.metainfo.basesections import PubChemPureSubstanceSection, CompositeSystemReference
+from nomad.datamodel.metainfo.basesections import CompositeSystemReference
+from baseclasses import PubChemPureSubstanceSectionCustom
 
 from nomad_hysprint.schema_packages.hysprint_package import (
     HySprint_SpinCoating,
@@ -137,14 +138,14 @@ def map_solutions(data):
     for solvent in sorted(set(solvents)):
         if not get_value(data, f"{solvent} name", None, False) and not get_value(data, f"{solvent} volume [uL]", None):
             continue
-        final_solvents.append(SolutionChemical(chemical_2=PubChemPureSubstanceSection(name=get_value(data, f"{solvent} name", None, False),
+        final_solvents.append(SolutionChemical(chemical_2=PubChemPureSubstanceSectionCustom(name=get_value(data, f"{solvent} name", None, False),
                                                                                       load_data=False
                                                                                       ),
                                                chemical_volume=convert_quantity(get_value(data, f"{solvent} volume [uL]", None), 1/1000)))
     for solute in sorted(set(solutes)):
         if not get_value(data, f"{solute} type", None, False) and not get_value(data, f"{solute} Concentration [mM]", None):
             continue
-        final_solutes.append(SolutionChemical(chemical_2=PubChemPureSubstanceSection(name=get_value(data, f"{solute} type", None, False),
+        final_solutes.append(SolutionChemical(chemical_2=PubChemPureSubstanceSectionCustom(name=get_value(data, f"{solute} type", None, False),
                                                                                      load_data=False
                                                                                      ),
                                               concentration_mol=convert_quantity(get_value(data, f"{solute} Concentration [mM]", None), 1/1000)))
@@ -173,7 +174,7 @@ def map_spin_coating(i, j, lab_ids, data, upload_id):
         quenching=AntiSolventQuenching(
             anti_solvent_volume=get_value(data, "Anti solvent volume [ml]", None),
             anti_solvent_dropping_time=get_value(data, "Anti solvent dropping time [s]", None),
-            anti_solvent_2=PubChemPureSubstanceSection(name=get_value(data, "Anti solvent name", None, False),
+            anti_solvent_2=PubChemPureSubstanceSectionCustom(name=get_value(data, "Anti solvent name", None, False),
                                                        load_data=False
                                                        )
         ),
@@ -267,7 +268,7 @@ def map_evaporation(i, j, lab_ids, data, upload_id):
         inorganic_evaporation = InorganicEvaporation(
             thickness=get_value(data, "Thickness [nm]"),
             start_rate=get_value(data, "Rate [angstrom/s]"),
-            chemical_2=PubChemPureSubstanceSection(
+            chemical_2=PubChemPureSubstanceSectionCustom(
                 name=get_value(data, "Material name", None, False),
                 load_data=False
             )
@@ -280,7 +281,7 @@ def map_evaporation(i, j, lab_ids, data, upload_id):
             start_rate=get_value(data, "Rate [angstrom/s]"),
             temparature=[get_value(data, "Temperature [°C]", None)] *
             2 if get_value(data, "Temperature [°C]", None) else None,
-            chemical_2=PubChemPureSubstanceSection(
+            chemical_2=PubChemPureSubstanceSectionCustom(
                 name=get_value(data, "Material name", None, False),
                 load_data=False
             )
@@ -310,10 +311,10 @@ def map_sputtering(i, j, lab_ids, data, upload_id):
         deposition_time=get_value(data, "Deposition time [s]"),
         burn_in_time=get_value(data, "Burn in time [s]"),
         pressure=get_value(data, "Pressure [mbar]"),
-        target_2=PubChemPureSubstanceSection(name=get_value(data, "Material name", None, False),
+        target_2=PubChemPureSubstanceSectionCustom(name=get_value(data, "Material name", None, False),
                                              load_data=False
                                              ),
-        gas_2=PubChemPureSubstanceSection(
+        gas_2=PubChemPureSubstanceSectionCustom(
             name=get_value(data, "Gas", None, False),
             load_data=False
         )
