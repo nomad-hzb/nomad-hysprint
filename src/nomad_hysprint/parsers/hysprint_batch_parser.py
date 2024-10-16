@@ -31,6 +31,10 @@ from baseclasses.material_processes_misc import (
     Annealing,
     AntiSolventQuenching,
 )
+from baseclasse.material_processes_misc.laser_scribing import (
+    LaserScribing, 
+    LaserScribingProperties
+)
 from baseclasses.solution import Solution, SolutionChemical
 from baseclasses.vapour_based_deposition.evaporation import (
     InorganicEvaporation,
@@ -64,7 +68,7 @@ from nomad_hysprint.schema_packages.hysprint_package import (
     HySprint_SlotDieCoating,
     HySprint_SpinCoating,
     HySprint_Sputtering,
-    HySprint_Substrate,
+    HySprint_Substrate
 )
 
 """
@@ -392,6 +396,20 @@ def map_sputtering(i, j, lab_ids, data, upload_id):
     material = get_value(data, 'Material name', '', False)
     return (f'{i}_{j}_sputtering_{material}', archive)
 
+def map_laser_scribing(i, j, lab_ids, data, upload_id):
+    archive = LaserScribing(  # TODO is this the correct one, or we need HySprint/IRIS/PVcomB/..._LaserScribing?
+        # TODO recipe_file in LaserScribing?
+        properties=LaserScribingProperties(
+            laser_wavelength=get_value(data, 'Laser wavelength [nm]', None),
+            laser_pulse_time=get_value(data, 'Laser pulse time [ps]', None),
+            laser_pulse_frequency=get_value(data, 'Laser pulse frequency [kHz]', None),
+            speed=get_value(data, 'Speed [mm/s]', None),
+            fluence=get_value(data, 'Fluence [J/cm2]', None),
+            power_in_percent=get_value(data, 'Power [%]', None),
+        )
+    )
+
+    return (f"{i}_{j}_laser_scribing", archive)
 
 def map_generic(i, j, lab_ids, data, upload_id):
     archive = HySprint_Process(
