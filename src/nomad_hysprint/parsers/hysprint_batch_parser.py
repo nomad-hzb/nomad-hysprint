@@ -416,10 +416,6 @@ def map_laser_scribing(i, j, lab_ids, data, upload_id):
     return (f'{i}_{j}_laser_scribing', archive)
 
 def map_atomic_layer_deposition(i, j, lab_ids, data, upload_id):
-    #"ALD": {"steps": ["Material name", "Layer type", "Source", "Thickness [nm]", "Temperature [°C]", "Rate [A/s]",
-                    #   "Time [s]", "Number of cycles", "Precursor 1", "Pulse duration 1 [s]",
-                    #   "Manifold temperature 1 [°C]", "Bottle temperature 1 [°C]", "Precursor 2", "Pulse duration 2 [s]",
-                    #   "Maniforld temperature 2 [°C]"]}
 
     archive = IRIS_AtomicLayerDeposition(
         name="atomic layer deposition " + get_value(data, "Material name", "", number = False),
