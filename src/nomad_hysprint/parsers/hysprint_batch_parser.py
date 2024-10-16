@@ -435,7 +435,7 @@ def map_atomic_layer_deposition(i, j, lab_ids, data, upload_id):
         time = get_value(data, "Time [s]", None),
         number_of_cycles = get_value(data, "Number of cycles", None),
         material = ALDMaterial(
-            material = PubChemPureSubstanceSection(name=get_value(data, "Precursor 1", None, number = False), load_data=False),
+            material = PubChemPureSubstanceSectionCustom(name=get_value(data, "Precursor 1", None, number = False), load_data=False),
             pulse_duration = get_value(data, "Pulse duration 1 [s]", None),
             manifold_temperature = get_value(data, "Manifold temperature 1 [°C]", None),
             bottle_temperature = get_value(data, "Bottle temperature 1 [°C]", None)
@@ -443,7 +443,7 @@ def map_atomic_layer_deposition(i, j, lab_ids, data, upload_id):
             
                                
         oxidizer = ALDMaterial(
-            material = PubChemPureSubstanceSection(name=get_value(data, "Precursor 2", None, number = False), load_data=False),
+            material = PubChemPureSubstanceSectionCustom(name=get_value(data, "Precursor 2", None, number = False), load_data=False),
             pulse_duration = get_value(data, "Pulse duration 2 [s]", None),
             manifold_temperature = get_value(data, "Manifold temperature 2 [°C]", None)
             )
