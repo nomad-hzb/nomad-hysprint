@@ -443,15 +443,14 @@ def map_atomic_layer_deposition(i, j, lab_ids, data, upload_id):
             
                                
         oxidizer = ALDMaterial(
-            material = PubChemPureSubstanceSectionCustom(name=get_value(data, "Precursor 2", None, number = False), load_data=False),
+            material = PubChemPureSubstanceSectionCustom(name=get_value(data, "Precursor 2 (Oxidizer/Reducer)", None, number = False), load_data=False),
             pulse_duration = get_value(data, "Pulse duration 2 [s]", None),
             manifold_temperature = get_value(data, "Manifold temperature 2 [°C]", None)
             )
         )
     archive.processes = [process]
-    material = get_value(data, 'Material name', '', False)
-    return (f"{i}_{j}_ALD_{material}", archive)
-
+    return (f"{i}_{j}_ALD_{get_value(data, 'Material name', '', False)}", archive)
+    
 
 def map_generic(i, j, lab_ids, data, upload_id):
     archive = HySprint_Process(
