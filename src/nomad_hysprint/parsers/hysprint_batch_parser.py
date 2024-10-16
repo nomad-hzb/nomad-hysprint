@@ -65,6 +65,7 @@ from baseclasses.material_processes_misc import Annealing,  AirKnifeGasQuenching
 from baseclasses.wet_chemical_deposition import PrecursorSolution
 from baseclasses.wet_chemical_deposition.slot_die_coating import SlotDieCoatingProperties
 from baseclasses.wet_chemical_deposition.spin_coating import SpinCoatingRecipeSteps
+from baseclasse.material_processes_misc.laser_scribing import LaserScribing, LaserScribingProperties
 
 
 '''
@@ -322,6 +323,20 @@ def map_sputtering(i, j, lab_ids, data, upload_id):
     archive.processes = [process]
     return (f"{i}_{j}_sputtering_{get_value(data, 'Material name', '', False)}", archive)
 
+def map_laser_scribing(i, j, lab_ids, data, upload_id):
+    archive = LaserScribing(  # TODO is this the correct one, or we need HySprint/IRIS/PVcomB/..._LaserScribing?
+        # TODO recipe_file in LaserScribing?
+        properties=LaserScribingProperties(
+            laser_wavelength=get_value(data, 'Laser wavelength [nm]', None),
+            laser_pulse_time=get_value(data, 'Laser pulse time [ps]', None),
+            laser_pulse_frequency=get_value(data, 'Laser pulse frequency [kHz]', None),
+            speed=get_value(data, 'Speed [mm/s]', None),
+            fluence=get_value(data, 'Fluence [J/cm^2]', None),
+            power_in_percent=get_value(data, 'Power in percent', None),
+        )
+    )
+
+    return (f"{i}_{j}_laser_scribing", archive)
 
 def map_generic(i, j, lab_ids, data, upload_id):
     archive = HySprint_Process(name=get_value(data, "Name", "", False),
