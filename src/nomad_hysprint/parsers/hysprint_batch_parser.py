@@ -367,7 +367,7 @@ def map_atomic_layer_deposition(i, j, lab_ids, data, upload_id):
             ),
             oxidizer_reducer=ALDMaterial(
                 material=PubChemPureSubstanceSectionCustom(
-                    name=get_value(data, 'Precursor 2', None, number=False),
+                    name=get_value(data, 'Precursor 2 (Oxidizer/Reducer)', None, number=False),
                     load_data=False,
                 ),
                 pulse_duration=get_value(data, 'Pulse duration 2 [s]', None),
