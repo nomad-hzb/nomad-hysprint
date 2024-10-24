@@ -65,7 +65,7 @@ from baseclasses.material_processes_misc import Annealing,  AirKnifeGasQuenching
 from baseclasses.wet_chemical_deposition import PrecursorSolution
 from baseclasses.wet_chemical_deposition.slot_die_coating import SlotDieCoatingProperties
 from baseclasses.wet_chemical_deposition.spin_coating import SpinCoatingRecipeSteps
-from baseclasse.material_processes_misc.laser_scribing import LaserScribing, LaserScribingProperties
+from baseclasses.material_processes_misc.laser_scribing import LaserScribing, LaserScribingProperties
 
 
 '''
