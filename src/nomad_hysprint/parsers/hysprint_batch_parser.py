@@ -507,12 +507,13 @@ class HySprintExperimentParser(MatchingParser):
 
             df_dropped = df[col].drop_duplicates()
             for j, row in df_dropped.iterrows():
+               
                 lab_ids = [
-                    x['Experiment Info']['Nomad ID']
-                    for _, x in df[['Experiment Info', col]].iterrows()
-                    if x[col].equals(row)
+                    x["Experiment Info"]["Nomad ID"]
+                   for _, x in df[["Experiment Info", col]].iterrows() 
+                   if x[col].astype("object").equals(row.astype("object"))
                 ]
-                if 'Cleaning' in col:
+                if "Cleaning" in col:
                     archives.append(map_cleaning(i, j, lab_ids, row, upload_id))
                     
                 if "Laser Scribing" in col:
