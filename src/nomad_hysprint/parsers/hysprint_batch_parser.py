@@ -328,8 +328,7 @@ def map_generic(i, j, lab_ids, data, upload_id):
                                positon_in_experimental_plan=i,
                                description=get_value(data, "Notes", "", False),
                                samples=[CompositeSystemReference(reference=get_reference(
-                                   upload_id, f"{lab_id}.archive.json"), lab_id=lab_id) for lab_id in lab_ids],
-                               datetime=datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f"))
+                                   upload_id, f"{lab_id}.archive.json"), lab_id=lab_id) for lab_id in lab_ids])
     return (f"{i}_{j}_generic_process", archive)
 
 
@@ -403,6 +402,10 @@ class HySprintExperimentParser(MatchingParser):
                            for _, x in df[["Experiment Info", col]].iterrows() if x[col].equals(row)]
                 if "Cleaning" in col:
                     archives.append(map_cleaning(i, j, lab_ids, row, upload_id))
+                
+                if "Generic Process" in col:  # move up
+                    archives.append(map_generic(i, j, lab_ids, row, upload_id))
+                
                 if pd.isna(row.get("Material name")):
                     continue
                 if "Evaporation" in col:
@@ -417,8 +420,7 @@ class HySprintExperimentParser(MatchingParser):
                 if "Sputtering" in col:
                     archives.append(map_sputtering(i, j, lab_ids, row, upload_id))
 
-                if "Generic Process" in col:  # move up
-                    archives.append(map_generic(i, j, lab_ids, row, upload_id))
+                
 
         refs = []
         for subs in substrates:
