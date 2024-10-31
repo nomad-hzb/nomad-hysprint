@@ -96,7 +96,7 @@ def get_archive(file_base, monkeypatch):
 
 def test_hy_jv_parser(monkeypatch):
     file = 'SE-ALM_RM_20231004_RM_KW40_0_8.jv.txt'
-    archive = get_archive(file, monkeypatch)
+    get_archive(file, monkeypatch)
     
 
 

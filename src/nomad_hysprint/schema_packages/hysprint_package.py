@@ -112,7 +112,7 @@ class HySprint_VoilaNotebook(VoilaNotebook, EntryData):
     )
 
     def normalize(self, archive, logger):
-        super(HySprint_VoilaNotebook, self).normalize(archive, logger)
+        super().normalize(archive, logger)
 
 
 class HySprint_ExperimentalPlan(ExperimentalPlan, EntryData):
@@ -134,7 +134,7 @@ class HySprint_ExperimentalPlan(ExperimentalPlan, EntryData):
         section_def=SolarCellProperties)
 
     def normalize(self, archive, logger):
-        super(HySprint_ExperimentalPlan, self).normalize(archive, logger)
+        super().normalize(archive, logger)
 
         from baseclasses.helper.execute_solar_sample_plan import (
             execute_solar_sample_plan,
@@ -877,8 +877,7 @@ class HySprint_trSPVmeasurement(trSPVMeasurement, EntryData):
 
                 spv_dict, spv_data = get_spv_data(f.read())
                 get_spv_archive(spv_dict, spv_data, f.name, self)
-        super(HySprint_trSPVmeasurement,
-              self).normalize(archive, logger)
+        super().normalize(archive, logger)
 
 
 class HySprint_JVmeasurement(JVMeasurement, EntryData):
@@ -933,8 +932,7 @@ class HySprint_JVmeasurement(JVMeasurement, EntryData):
                 self.location = location
                 get_jv_archive(jv_dict, self.data_file, self)
 
-        super(HySprint_JVmeasurement,
-              self).normalize(archive, logger)
+        super().normalize(archive, logger)
 
 
 class HySprint_SimpleMPPTracking(MPPTracking, EntryData):
@@ -982,8 +980,7 @@ class HySprint_SimpleMPPTracking(MPPTracking, EntryData):
                 time=data["total_time"],
                 perturbation_voltage=data["step_size"]
             )
-        super(HySprint_SimpleMPPTracking,
-              self).normalize(archive, logger)
+        super().normalize(archive, logger)
 
 
 class HySprint_MPPTracking(MPPTrackingHsprintCustom, PlotSection, EntryData):
@@ -1065,8 +1062,7 @@ class HySprint_MPPTracking(MPPTrackingHsprintCustom, PlotSection, EntryData):
             fig.update_layout(showlegend=True, xaxis=dict(fixedrange=False), yaxis=dict(fixedrange=False))
             self.figures.append(PlotlyFigure(label='Best Pixel', index=1, figure=fig.to_plotly_json()))
 
-        super(HySprint_MPPTracking,
-              self).normalize(archive, logger)
+        super().normalize(archive, logger)
 
 
 class HySprint_TimeResolvedPhotoluminescence(
@@ -1208,7 +1204,7 @@ class HySprint_EQEmeasurement(EQEMeasurement, EntryData):
 
             add_band_gap(archive, band_gaps[np.isfinite(band_gaps)].mean())
 
-        super(HySprint_EQEmeasurement, self).normalize(archive, logger)
+        super().normalize(archive, logger)
 
 
 class HySprint_PLmeasurement(PLMeasurement, EntryData):
@@ -1273,7 +1269,7 @@ class HySprint_SEM(SEM_Microscope_Merlin, EntryData):
 
     def normalize(self, archive, logger):
         self.method = "SEM"
-        super(HySprint_SEM, self).normalize(archive, logger)
+        super().normalize(archive, logger)
 
 
 class HySprint_XRD_XY(XRD, EntryData):
@@ -1321,7 +1317,7 @@ class HySprint_XRD_XY(XRD, EntryData):
                         data = pd.read_csv(f, sep=" |\t", header=None, skiprows=skiprows)
                     print(data)
                     self.data = XRDData(angle=data[0], intensity=data[1])
-        super(HySprint_XRD_XY, self).normalize(archive, logger)
+        super().normalize(archive, logger)
 
 
 class HySprint_PLImaging(PLImaging, EntryData):
@@ -1413,7 +1409,7 @@ class HZB_NKData(NKData, EntryData):
         self.name = metadata["Name"] if "Name" in metadata else ""
         self.data = get_nk_archive(nk_data)
 
-        super(HZB_NKData, self).normalize(archive, logger)
+        super().normalize(archive, logger)
 
 
 # %%####################################### Generic Entries

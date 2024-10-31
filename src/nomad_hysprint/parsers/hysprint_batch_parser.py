@@ -364,9 +364,6 @@ class HySprintExperimentParser(MatchingParser):
     def parse(self, mainfile: str, archive: EntryArchive, logger):
         # Log a hello world, just to get us started. TODO remove from an actual parser.
 
-        mainfile_split = os.path.basename(mainfile).split('.')
-
-        base = ".."
         upload_id = archive.metadata.upload_id
         # xls = pd.ExcelFile(mainfile)
         df = pd.read_excel(mainfile, header=[0, 1])
