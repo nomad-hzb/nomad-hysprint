@@ -4,7 +4,7 @@ from nomad.config.models.plugins import ParserEntryPoint
 class HySprintParserEntryPoint(ParserEntryPoint):
 
     def load(self):
-        from nomad_hysprint.parsers.hysprint_parser import HySprintParser
+        from nomad_hysprint.parsers.hysprint_measurement_parser import HySprintParser
         return HySprintParser(**self.dict())
 
 

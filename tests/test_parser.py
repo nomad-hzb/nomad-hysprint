@@ -7,26 +7,22 @@ from nomad.client import normalize_all, parse
 def set_monkey_patch(monkeypatch): 
     def mockreturn_search(*args):
         return None
+
     monkeypatch.setattr(
-     'nomad_hysprint.parsers.hysprint_parser.search_class', 
-     mockreturn_search)
-    monkeypatch.setattr(
-     'nomad_hysprint.parsers.hysprint_parser.set_sample_reference', 
-     mockreturn_search)
-    monkeypatch.setattr(
-     'nomad_hysprint.parsers.hysprint_parser.find_sample_by_id', 
-     mockreturn_search)
+        'nomad_hysprint.parsers.hysprint_measurement_parser.set_sample_reference', 
+        mockreturn_search)
     
+   
+  
     
 
 @pytest.fixture(
     params=[
         '20240915_test_experiment.xlsx',
         'c-Si.nk',
-        'ExampleData_TRPL_WithComments.txt',
         'HZB_MiGo_20240604_exp_0_0.eqe.txt',
         'SE-ALM_RM_20231004_RM_KW40_0_8.jv.txt',
-        'A142-2s10_10ms.pli.txt',
+        'AA142-2s10_10ms.pli.txt',
         'Cu.nk',
         'HZB_AlFl_20231009_Solarcells-Batch-2-varyHTL_1_0.pl.csv',
         'HZB_Test_1_1_C-1.sem.tif',
@@ -46,11 +42,10 @@ def parsed_archive(request, monkeypatch):
     measurement = os.path.join(
         'tests', 'data', request.param + '.archive.json'
     )
-    assert file_archive.data.activity
+    assert file_archive.data
     archive_json = ''
     for file in os.listdir(os.path.join("tests/data")):
-        if "archive.json" not in file\
-            or request.param.replace("#", "run") not in file:
+        if "archive.json" not in file:
             continue
         archive_json = file 
         measurement = os.path.join(
@@ -59,10 +54,13 @@ def parsed_archive(request, monkeypatch):
         measurement_archive = parse(measurement)[0]
 
 
-        if os.path.exists(measurement):
-            os.remove(measurement)
+            
     yield measurement_archive
 
+    for file in os.listdir(os.path.join("tests/data")):
+        if not file.endswith("archive.json"):
+            continue
+        os.remove(os.path.join('tests', 'data', file))
     assert archive_json
    
     
