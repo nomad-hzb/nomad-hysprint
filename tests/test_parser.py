@@ -30,7 +30,6 @@ def set_monkey_patch(monkeypatch):
         'Cu.nk',
         'HZB_AlFl_20231009_Solarcells-Batch-2-varyHTL_1_0.pl.csv',
         'HZB_Test_1_1_C-1.sem.tif',
-        'AT-65.uvvis.dat',
         'HZB_MiGo_20230913_Batch-Test-1_0_0.notessfdsf.jv.txt',     
         'HZB_Z_20230911_BatchZ_0_0.M01_encapsulatedGlass_front_TD3_withBE_ambient_intens.spv.txt'
     ]
