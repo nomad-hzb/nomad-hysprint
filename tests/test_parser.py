@@ -12,7 +12,26 @@ def set_monkey_patch(monkeypatch):
         'nomad_hysprint.parsers.hysprint_measurement_parser.set_sample_reference', 
         mockreturn_search)
     
-   
+def get_archive(file_base, monkeypatch):
+    set_monkey_patch(monkeypatch)
+    file_name =  os.path.join('tests', 'data',file_base)
+    file_archive = parse(file_name)[0]
+    assert file_archive.data
+
+    for file in os.listdir(os.path.join("tests/data")):
+        if "archive.json" not in file:
+            continue
+        measurement = os.path.join(
+            'tests', 'data', file
+        )
+        measurement_archive = parse(measurement)[0]
+
+    for file in os.listdir(os.path.join("tests/data")):
+        if not file.endswith("archive.json"):
+            continue
+        os.remove(os.path.join('tests', 'data', file))
+        
+    return measurement_archive
   
     
 
@@ -33,67 +52,21 @@ def set_monkey_patch(monkeypatch):
 def parsed_archive(request, monkeypatch):
     """
     Sets up data for testing and cleans up after the test.
-    """
-   
-    set_monkey_patch(monkeypatch)
-
-    rel_file = os.path.join('tests', 'data', request.param)
-    file_archive = parse(rel_file)[0]
-    measurement = os.path.join(
-        'tests', 'data', request.param + '.archive.json'
-    )
-    assert file_archive.data
-    archive_json = ''
-    for file in os.listdir(os.path.join("tests/data")):
-        if "archive.json" not in file:
-            continue
-        archive_json = file 
-        measurement = os.path.join(
-            'tests', 'data', archive_json
-        )
-        measurement_archive = parse(measurement)[0]
-
-
-            
-    yield measurement_archive
-
-    for file in os.listdir(os.path.join("tests/data")):
-        if not file.endswith("archive.json"):
-            continue
-        os.remove(os.path.join('tests', 'data', file))
-    assert archive_json
-   
-    
-
+    """         
+    yield  get_archive(request.param, monkeypatch)
 
 def test_normalize_all(parsed_archive, monkeypatch):
     normalize_all(parsed_archive)
 
     
-def get_archive(file_base, monkeypatch):
-    set_monkey_patch(monkeypatch)
-    file_name =  os.path.join('tests', 'data',file_base)
-    parse(file_name)[0]
-    for file in os.listdir(os.path.join("tests/data")):
-        if "archive.json" not in file\
-            or file_base.replace("#", "run") not in file:
-            continue
-        archive_json = file 
-        measurement = os.path.join(
-            'tests', 'data', archive_json
-        )
-        measurement_archive = parse(measurement)[0]
-
-
-        if os.path.exists(measurement):
-            os.remove(measurement)
-        break
-    normalize_all(measurement_archive)
-    return measurement_archive
-
 def test_hy_jv_parser(monkeypatch):
     file = 'SE-ALM_RM_20231004_RM_KW40_0_8.jv.txt'
-    get_archive(file, monkeypatch)
+    archive =  get_archive(file, monkeypatch)
+    normalize_all(archive)
+
+    assert archive.data
+    assert archive.data.jv_curve[0].voltage[0]
+    assert abs(archive.data.jv_curve[2].efficiency -  0.37030243333333296) < 1e-6 
     
 
 
