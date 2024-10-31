@@ -11,7 +11,9 @@ class HySprintParserEntryPoint(ParserEntryPoint):
 class HySprintExperimentParserEntryPoint(ParserEntryPoint):
 
     def load(self):
-        from nomad_hysprint.parsers.hysprint_batch_parser import HySprintExperimentParser
+        from nomad_hysprint.parsers.hysprint_batch_parser import (
+            HySprintExperimentParser,
+        )
         return HySprintExperimentParser(**self.dict())
 
 

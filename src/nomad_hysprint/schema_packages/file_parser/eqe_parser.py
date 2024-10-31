@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright The NOMAD Authors.
 #
@@ -23,9 +22,10 @@
 # Initially translated to Python by Christian Wolff
 
 
+from io import StringIO
+
 import numpy as np
 import pandas as pd
-from io import StringIO
 
 # Constants
 temperature = 300  # in [°K]

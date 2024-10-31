@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on Thu Sep  7 11:44:19 2023
 
 @author: a2853
 """
 
-import pandas as pd
 from io import StringIO
+
+import pandas as pd
 
 
 def find_data(filedata):

@@ -16,38 +16,44 @@
 # limitations under the License.
 #
 
-from nomad.datamodel import EntryArchive
-from nomad.parsing import MatchingParser
+import datetime
+import os
 
-from nomad_hysprint.schema_packages.hysprint_package import (
-    HySprint_JVmeasurement,
-    HySprint_TimeResolvedPhotoluminescence,
-    HySprint_EQEmeasurement,
-    HySprint_PLmeasurement, HySprint_PLImaging,
-    HySprint_Measurement,
-    HySprint_UVvismeasurement,
-    HySprint_trSPVmeasurement,
-    HZB_EnvironmentMeasurement,
-    HZB_NKData, HySprint_SEM, HySprint_XRD_XY, HySprint_SimpleMPPTracking
+from baseclasses.helper.utilities import (
+    create_archive,
+    get_entry_id_from_file_name,
+    get_reference,
+    set_sample_reference,
 )
-
-
-from baseclasses.helper.utilities import set_sample_reference, create_archive, get_entry_id_from_file_name, get_reference
+from nomad.datamodel import EntryArchive
 from nomad.datamodel.data import (
     EntryData,
-)
-from nomad.metainfo import (
-    Quantity,
-)
-from nomad.datamodel.metainfo.basesections import (
-    Entity,
 )
 from nomad.datamodel.metainfo.annotations import (
     ELNAnnotation,
 )
+from nomad.datamodel.metainfo.basesections import (
+    Entity,
+)
+from nomad.metainfo import (
+    Quantity,
+)
+from nomad.parsing import MatchingParser
 
-import os
-import datetime
+from nomad_hysprint.schema_packages.hysprint_package import (
+    HySprint_EQEmeasurement,
+    HySprint_JVmeasurement,
+    HySprint_Measurement,
+    HySprint_PLImaging,
+    HySprint_PLmeasurement,
+    HySprint_SEM,
+    HySprint_SimpleMPPTracking,
+    HySprint_trSPVmeasurement,
+    HySprint_UVvismeasurement,
+    HySprint_XRD_XY,
+    HZB_EnvironmentMeasurement,
+    HZB_NKData,
+)
 
 '''
 This is a hello world style example for an example parser/converter.
@@ -100,14 +106,14 @@ class HySprintParser(MatchingParser):
             entry = HySprint_SimpleMPPTracking()
         archive.metadata.entry_name = os.path.basename(mainfile)
 
-        if not mainfile_split[-1] in ["nk"]:
+        if mainfile_split[-1] not in ["nk"]:
             search_id = mainfile_split[0]
             set_sample_reference(archive, entry, search_id)
 
             entry.name = f"{search_id} {notes}"
             entry.description = f"Notes from file name: {notes}"
 
-        if not measurment_type in ["uvvis", "sem", "SEM"]:
+        if measurment_type not in ["uvvis", "sem", "SEM"]:
             entry.data_file = os.path.basename(mainfile)
         entry.datetime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
 

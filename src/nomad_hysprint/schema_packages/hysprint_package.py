@@ -16,95 +16,85 @@
 # limitations under the License.
 #
 
-from nomad.datamodel.metainfo.annotations import ELNAnnotation, ELNComponentEnum
 import os
 import random
 import string
-from io import StringIO
-
-from nomad.metainfo import (
-    Quantity,
-    Package,
-    Section,
-    MSection,
-    SubSection,
-)
-
-from baseclasses.helper.add_solar_cell import add_band_gap
-
 
 import numpy as np
-from nomad.datamodel.metainfo.plot import PlotSection, PlotlyFigure
 from baseclasses import (
-    BaseProcess, BaseMeasurement, LayerDeposition, Batch, ReadableIdentifiersCustom
+    BaseMeasurement,
+    BaseProcess,
+    Batch,
+    LayerDeposition,
+    ReadableIdentifiersCustom,
 )
 from baseclasses.assays import (
     EnvironmentMeasurement,
 )
-from baseclasses.chemical import (
-    Chemical
-)
-from baseclasses.chemical_energy import (
-    Electrode,
-    ElectroChemicalSetup, Environment
-)
+from baseclasses.characterizations import XRD, XRDData
+from baseclasses.characterizations.electron_microscopy import SEM_Microscope_Merlin
+from baseclasses.chemical import Chemical
+from baseclasses.chemical_energy import ElectroChemicalSetup, Electrode, Environment
 from baseclasses.data_transformations import NKData
 from baseclasses.experimental_plan import ExperimentalPlan
+from baseclasses.helper.add_solar_cell import add_band_gap
 from baseclasses.material_processes_misc import (
     Cleaning,
-    SolutionCleaning,
-    PlasmaCleaning,
-    UVCleaning,
     LaserScribing,
-    Storage)
+    PlasmaCleaning,
+    SolutionCleaning,
+    Storage,
+    UVCleaning,
+)
 from baseclasses.solar_energy import (
-    StandardSampleSolarCell, SolarCellProperties,
+    BasicSampleWithID,
+    EQEMeasurement,
+    JVMeasurement,
+    MPPTracking,
+    MPPTrackingHsprintCustom,
+    MPPTrackingProperties,
+    OpticalMicroscope,
+    PLImaging,
+    PLMeasurement,
+    SolarCellEQECustom,
+    SolarCellProperties,
+    SolcarCellSample,
+    StandardSampleSolarCell,
     Substrate,
     TimeResolvedPhotoluminescence,
-    JVMeasurement,
-    trSPVMeasurement,
-    PLMeasurement, PLImaging,
     UVvisMeasurement,
-    EQEMeasurement, SolarCellEQECustom,
-    OpticalMicroscope,
-    SolcarCellSample, BasicSampleWithID,
-    MPPTrackingHsprintCustom, MPPTracking, MPPTrackingProperties
+    trSPVMeasurement,
 )
-from baseclasses.solution import Solution, Ink, SolutionPreparationStandard
+from baseclasses.solution import Ink, Solution, SolutionPreparationStandard
 from baseclasses.vapour_based_deposition import (
+    ALDPropertiesIris,
+    AtomicLayerDeposition,
     Evaporations,
-    AtomicLayerDeposition, ALDPropertiesIris,
-    Sputtering)
+    Sputtering,
+)
+from baseclasses.voila import VoilaNotebook
 from baseclasses.wet_chemical_deposition import (
+    BladeCoating,
+    Crystallization,
+    DipCoating,
+    LP50InkjetPrinting,
+    SlotDieCoating,
     SpinCoating,
     SpinCoatingRecipe,
-    SlotDieCoating, DipCoating, BladeCoating,
-    LP50InkjetPrinting,
-    VaporizationAndDropCasting,
     SprayPyrolysis,
+    VaporizationAndDropCasting,
     WetChemicalDeposition,
-    Crystallization)
+)
 from nomad.datamodel.data import EntryData
-from nomad.datamodel.results import Results, Properties, Material, ELN
-from nomad.units import ureg
+from nomad.datamodel.metainfo.plot import PlotlyFigure, PlotSection
+from nomad.datamodel.results import ELN, Material, Properties, Results
 from nomad.metainfo import (
-    Package,
     Quantity,
-    SubSection,
+    SchemaPackage,
     Section,
-    SchemaPackage)
-
-from baseclasses.characterizations import (
-    XRD, XRDData
+    SubSection,
 )
-
-from baseclasses.characterizations.electron_microscopy import (
-    SEM_Microscope_Merlin
-)
-
-from baseclasses.voila import (
-    VoilaNotebook
-)
+from nomad.units import ureg
 
 m_package = SchemaPackage()
 
@@ -146,7 +136,9 @@ class HySprint_ExperimentalPlan(ExperimentalPlan, EntryData):
     def normalize(self, archive, logger):
         super(HySprint_ExperimentalPlan, self).normalize(archive, logger)
 
-        from baseclasses.helper.execute_solar_sample_plan import execute_solar_sample_plan
+        from baseclasses.helper.execute_solar_sample_plan import (
+            execute_solar_sample_plan,
+        )
         execute_solar_sample_plan(self, archive, HySprint_Sample, HySprint_Batch, logger)
 
         # actual normalization!!
@@ -875,8 +867,13 @@ class HySprint_trSPVmeasurement(trSPVMeasurement, EntryData):
                 encoding = get_encoding(f)
 
             with archive.m_context.raw_file(self.data_file, "tr", encoding=encoding) as f:
-                from nomad_hysprint.schema_packages.file_parser.spv_parser import get_spv_data
-                from baseclasses.helper.archive_builder.spv_archive import get_spv_archive
+                from baseclasses.helper.archive_builder.spv_archive import (
+                    get_spv_archive,
+                )
+
+                from nomad_hysprint.schema_packages.file_parser.spv_parser import (
+                    get_spv_data,
+                )
 
                 spv_dict, spv_data = get_spv_data(f.read())
                 get_spv_archive(spv_dict, spv_data, f.name, self)
@@ -926,8 +923,11 @@ class HySprint_JVmeasurement(JVMeasurement, EntryData):
                 encoding = get_encoding(f)
 
             with archive.m_context.raw_file(self.data_file, "tr", encoding=encoding) as f:
-                from nomad_hysprint.schema_packages.file_parser.jv_parser import get_jv_data
                 from baseclasses.helper.archive_builder.jv_archive import get_jv_archive
+
+                from nomad_hysprint.schema_packages.file_parser.jv_parser import (
+                    get_jv_data,
+                )
 
                 jv_dict, location = get_jv_data(f.read())
                 self.location = location
@@ -969,7 +969,9 @@ class HySprint_SimpleMPPTracking(MPPTracking, EntryData):
                 encoding = get_encoding(f)
 
             with archive.m_context.raw_file(self.data_file, "tr", encoding=encoding) as f:
-                from nomad_hysprint.schema_packages.file_parser.mppt_simple import read_mppt_file
+                from nomad_hysprint.schema_packages.file_parser.mppt_simple import (
+                    read_mppt_file,
+                )
                 data = read_mppt_file(f.read())
 
             self.time = data["time_data"]
@@ -1019,13 +1021,17 @@ class HySprint_MPPTracking(MPPTrackingHsprintCustom, PlotSection, EntryData):
             with archive.m_context.raw_file(self.data_file, "tr", encoding="ascii") as f:
                 if os.path.splitext(f.name)[-1] != ".csv":
                     return
-                from nomad_hysprint.schema_packages.file_parser.load_mpp_hysprint import load_mpp_file
+                from nomad_hysprint.schema_packages.file_parser.load_mpp_hysprint import (
+                    load_mpp_file,
+                )
                 data = load_mpp_file(f.read())  # , encoding)
 
-            from baseclasses.helper.archive_builder.mpp_hysprint_archive import get_mpp_hysprint_samples
+            from baseclasses.helper.archive_builder.mpp_hysprint_archive import (
+                get_mpp_hysprint_samples,
+            )
             self.samples = get_mpp_hysprint_samples(self, data)
-        import plotly.express as px
         import pandas as pd
+        import plotly.express as px
         column_names = ["Time [hr]", "Efficiency [%]", "P"]
         self.figures = []
         if self.averages:
@@ -1170,7 +1176,9 @@ class HySprint_EQEmeasurement(EQEMeasurement, EntryData):
             with archive.m_context.raw_file(self.data_file, "br") as f:
                 encoding = get_encoding(f)
             with archive.m_context.raw_file(self.data_file, "tr", encoding=encoding) as f:
-                from nomad_hysprint.schema_packages.file_parser.eqe_parser import read_file_multiple
+                from nomad_hysprint.schema_packages.file_parser.eqe_parser import (
+                    read_file_multiple,
+                )
                 data_list = read_file_multiple(f.read())
             eqe_data = []
             for d in data_list:
@@ -1388,8 +1396,9 @@ class HZB_NKData(NKData, EntryData):
             encoding = get_encoding(f)
 
         with archive.m_context.raw_file(self.data_file, "tr", encoding=encoding) as f:
-            from nomad_hysprint.schema_packages.file_parser.nk_parser import get_nk_data
             from baseclasses.helper.archive_builder.nk_archive import get_nk_archive
+
+            from nomad_hysprint.schema_packages.file_parser.nk_parser import get_nk_data
 
             nk_data, metadata = get_nk_data(f.read())
 

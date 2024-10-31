@@ -19,5 +19,5 @@ def get_trpl_measurement(filedata):
                 float(
                     (l_idx + 1 - count_line)
                     * ns_per_bin) if ns_per_bin > 0 else float(
-                    (l_idx + 1 - count_line)))
+                    l_idx + 1 - count_line))
     return {"counts": counts, "time": time, "ns_per_bin": ns_per_bin}

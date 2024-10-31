@@ -16,10 +16,9 @@
 # limitations under the License.
 #
 
-import pandas as pd
-import numpy as np
-import ast
 from io import StringIO
+
+import pandas as pd
 
 
 def get_pl_data_iris(filedata):

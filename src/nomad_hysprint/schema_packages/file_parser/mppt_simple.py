@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on Mon Sep  2 13:48:09 2024
 
 @author: a2853
 """
-import pandas as pd
-import numpy as np
 from io import StringIO
+
+import numpy as np
+import pandas as pd
 
 
 def get_value(val):

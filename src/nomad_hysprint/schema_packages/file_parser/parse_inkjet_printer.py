@@ -1,13 +1,13 @@
-# -*- coding: utf-8 -*-
 """
 Created on Fri May  1 10:15:10 2020
 
 @author: Edgar Nandayapa
 """
 
-import pandas as pd
-import xml.etree.ElementTree as et
 import os
+import xml.etree.ElementTree as et
+
+import pandas as pd
 
 
 def gather_data(file):

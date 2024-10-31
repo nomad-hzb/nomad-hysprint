@@ -16,8 +16,9 @@
 # limitations under the License.
 #
 
-import pandas as pd
 from io import StringIO
+
+import pandas as pd
 
 
 def find_row_with_data(file_lines):

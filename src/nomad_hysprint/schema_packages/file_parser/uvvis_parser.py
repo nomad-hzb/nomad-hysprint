@@ -1,11 +1,9 @@
 # from xarray import Dataset
 # from scipy.signal import savgol_filter
-from scipy.interpolate import interp1d
-import numpy as np
-import pandas as pd
 import os
 from datetime import datetime
-from typing import Dict, List, Any, Tuple
+
+import pandas as pd
 
 
 def get_data_of_uvvis_csv_file(filename, start, end):

@@ -80,9 +80,13 @@ select = [
     "PL",
 ]
 
+pylint.max-branches = 20
+pylint.max-statements = 65
 ignore = [
     "F403", # 'from module import *' used; unable to detect undefined names
+    "PLR2004"
 ]
+
 
 fixable = ["ALL"]
 

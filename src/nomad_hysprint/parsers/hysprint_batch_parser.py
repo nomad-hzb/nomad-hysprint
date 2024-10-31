@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on Fri Sep 27 09:08:03 2024
 
@@ -24,48 +23,51 @@ Created on Fri Sep 27 09:08:03 2024
 # limitations under the License.
 #
 
-import datetime
 import os
-from nomad.datamodel.metainfo.annotations import (
-    ELNAnnotation,
+
+import pandas as pd
+from baseclasses import LayerProperties, PubChemPureSubstanceSectionCustom
+from baseclasses.helper.utilities import create_archive
+from baseclasses.material_processes_misc import (
+    AirKnifeGasQuenching,
+    Annealing,
+    AntiSolventQuenching,
+)
+from baseclasses.solution import Solution, SolutionChemical
+from baseclasses.vapour_based_deposition.evaporation import (
+    InorganicEvaporation,
+    OrganicEvaporation,
+)
+from baseclasses.vapour_based_deposition.sputtering import SputteringProcess
+from baseclasses.wet_chemical_deposition import PrecursorSolution
+from baseclasses.wet_chemical_deposition.slot_die_coating import (
+    SlotDieCoatingProperties,
+)
+from baseclasses.wet_chemical_deposition.spin_coating import SpinCoatingRecipeSteps
+from nomad.datamodel import EntryArchive
+from nomad.datamodel.data import (
+    EntryData,
 )
 from nomad.datamodel.metainfo.basesections import (
+    CompositeSystemReference,
     Entity,
 )
 from nomad.metainfo import (
     Quantity,
 )
-from nomad.datamodel.data import (
-    EntryData,
-)
-from baseclasses.helper.utilities import create_archive
-from baseclasses.solution import Solution, SolutionChemical
-import pandas as pd
-from nomad.datamodel import EntryArchive
 from nomad.parsing import MatchingParser
-from nomad.datamodel.metainfo.basesections import CompositeSystemReference
-from baseclasses import PubChemPureSubstanceSectionCustom
 
 from nomad_hysprint.schema_packages.hysprint_package import (
-    HySprint_SpinCoating,
-    HySprint_SlotDieCoating,
-    HySprint_Sputtering,
-    HySprint_Evaporation, HySprint_Cleaning,
-    HySprint_Process,
     HySprint_Batch,
+    HySprint_Cleaning,
+    HySprint_Evaporation,
+    HySprint_Process,
     HySprint_Sample,
-    HySprint_Substrate
+    HySprint_SlotDieCoating,
+    HySprint_SpinCoating,
+    HySprint_Sputtering,
+    HySprint_Substrate,
 )
-
-
-from baseclasses import LayerProperties
-from baseclasses.vapour_based_deposition.evaporation import OrganicEvaporation, InorganicEvaporation
-from baseclasses.vapour_based_deposition.sputtering import SputteringProcess
-from baseclasses.material_processes_misc import Annealing,  AirKnifeGasQuenching, AntiSolventQuenching
-from baseclasses.wet_chemical_deposition import PrecursorSolution
-from baseclasses.wet_chemical_deposition.slot_die_coating import SlotDieCoatingProperties
-from baseclasses.wet_chemical_deposition.spin_coating import SpinCoatingRecipeSteps
-
 
 '''
 This is a hello world style example for an example parser/converter.
