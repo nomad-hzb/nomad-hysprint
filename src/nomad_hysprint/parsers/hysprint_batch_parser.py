@@ -24,16 +24,15 @@ Created on Fri Sep 27 09:08:03 2024
 #
 
 import pandas as pd
+from baseclasse.material_processes_misc.laser_scribing import (
+    LaserScribingProperties,
+)
 from baseclasses import LayerProperties, PubChemPureSubstanceSectionCustom
 from baseclasses.helper.utilities import create_archive
 from baseclasses.material_processes_misc import (
     AirKnifeGasQuenching,
     Annealing,
     AntiSolventQuenching,
-)
-from baseclasse.material_processes_misc.laser_scribing import (
-    LaserScribing, 
-    LaserScribingProperties
 )
 from baseclasses.solution import Solution, SolutionChemical
 from baseclasses.vapour_based_deposition.evaporation import (
@@ -69,7 +68,7 @@ from nomad_hysprint.schema_packages.hysprint_package import (
     HySprint_SlotDieCoating,
     HySprint_SpinCoating,
     HySprint_Sputtering,
-    HySprint_Substrate
+    HySprint_Substrate,
 )
 
 """
