@@ -23,16 +23,20 @@ Created on Fri Sep 27 09:08:03 2024
 # limitations under the License.
 #
 
-from baseclasses import LayerProperties
+import os
+
+import pandas as pd
+from baseclasses import LayerProperties, PubChemPureSubstanceSectionCustom
+from baseclasses.helper.utilities import create_archive
 from baseclasses.material_processes_misc import (
     AirKnifeGasQuenching,
     Annealing,
     AntiSolventQuenching,
 )
+from baseclasses.solution import Solution, SolutionChemical
 from baseclasses.vapour_based_deposition.atomic_layer_deposition import (
-    ALDProperties, 
-    ALDPropertiesIris, 
     ALDMaterial,
+    ALDPropertiesIris,
 )
 from baseclasses.vapour_based_deposition.evaporation import (
     InorganicEvaporation,
@@ -42,6 +46,11 @@ from baseclasses.vapour_based_deposition.sputtering import SputteringProcess
 from baseclasses.wet_chemical_deposition import PrecursorSolution
 from baseclasses.wet_chemical_deposition.slot_die_coating import (
     SlotDieCoatingProperties,
+)
+from baseclasses.wet_chemical_deposition.spin_coating import SpinCoatingRecipeSteps
+from nomad.datamodel import EntryArchive
+from nomad.datamodel.data import (
+    EntryData,
 )
 from baseclasses.wet_chemical_deposition.spin_coating import SpinCoatingRecipeSteps
 from nomad.datamodel.metainfo.basesections import (
@@ -573,9 +582,11 @@ class HySprintExperimentParser(MatchingParser):
 
                 if 'Sputtering' in col:
                     archives.append(map_sputtering(i, j, lab_ids, row, upload_id))
-                    
-                if "ALD" in col:
-                    archives.append(map_atomic_layer_deposition(i, j, lab_ids, row, upload_id))
+
+                if 'ALD' in col:
+                    archives.append(
+                        map_atomic_layer_deposition(i, j, lab_ids, row, upload_id)
+                    )
 
         refs = []
         for subs in substrates:
