@@ -23,7 +23,6 @@ Created on Fri Sep 27 09:08:03 2024
 # limitations under the License.
 #
 
-import os
 
 import pandas as pd
 from baseclasses import LayerProperties, PubChemPureSubstanceSectionCustom
@@ -52,7 +51,6 @@ from nomad.datamodel import EntryArchive
 from nomad.datamodel.data import (
     EntryData,
 )
-from baseclasses.wet_chemical_deposition.spin_coating import SpinCoatingRecipeSteps
 from nomad.datamodel.metainfo.basesections import (
     CompositeSystemReference,
     Entity,
@@ -448,9 +446,8 @@ def map_atomic_layer_deposition(i, j, lab_ids, data, upload_id):
             pulse_duration = get_value(data, "Pulse duration 1 [s]", None),
             manifold_temperature = get_value(data, "Manifold temperature 1 [°C]", None),
             bottle_temperature = get_value(data, "Bottle temperature 1 [°C]", None)
-            )
-            
-                               
+            ),
+                             
         oxidizer = ALDMaterial(
             material = PubChemPureSubstanceSectionCustom(name=get_value(data, "Precursor 2 (Oxidizer/Reducer)", None, number = False), load_data=False),
             pulse_duration = get_value(data, "Pulse duration 2 [s]", None),
