@@ -64,6 +64,7 @@ from nomad_hysprint.schema_packages.hysprint_package import (
     HySprint_Batch,
     HySprint_Cleaning,
     HySprint_Evaporation,
+    HySprint_LaserScribing,
     HySprint_Process,
     HySprint_Sample,
     HySprint_SlotDieCoating,
