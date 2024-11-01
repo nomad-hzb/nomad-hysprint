@@ -396,23 +396,30 @@ def map_sputtering(i, j, lab_ids, data, upload_id):
     material = get_value(data, 'Material name', '', False)
     return (f'{i}_{j}_sputtering_{material}', archive)
 
+
 def map_laser_scribing(i, j, lab_ids, data, upload_id):
     archive = HySprint_LaserScribing(
-        name = "laser scribing",
-        positon_in_experimental_plan = i,
-        samples=[CompositeSystemReference(reference=get_reference(
-            upload_id, f"{lab_id}.archive.json"), lab_id=lab_id) for lab_id in lab_ids],
+        name='laser scribing',
+        positon_in_experimental_plan=i,
+        samples=[
+            CompositeSystemReference(
+                reference=get_reference(upload_id, f'{lab_id}.archive.json'),
+                lab_id=lab_id,
+            )
+            for lab_id in lab_ids
+        ],
         properties=LaserScribingProperties(
-            laser_wavelength=get_value(data, "Laser wavelength [nm]", None),
-            laser_pulse_time=get_value(data, "Laser pulse time [ps]", None),
-            laser_pulse_frequency=get_value(data, "Laser pulse frequency [kHz]", None),
-            speed=get_value(data, "Speed [mm/s]", None),
-            fluence=get_value(data, "Fluence [J/cm2]", None),
-            power_in_percent=get_value(data, "Power [%]", None),
-        )
+            laser_wavelength=get_value(data, 'Laser wavelength [nm]', None),
+            laser_pulse_time=get_value(data, 'Laser pulse time [ps]', None),
+            laser_pulse_frequency=get_value(data, 'Laser pulse frequency [kHz]', None),
+            speed=get_value(data, 'Speed [mm/s]', None),
+            fluence=get_value(data, 'Fluence [J/cm2]', None),
+            power_in_percent=get_value(data, 'Power [%]', None),
+        ),
     )
 
-    return (f"{i}_{j}_laser_scribing", archive)
+    return (f'{i}_{j}_laser_scribing', archive)
+
 
 def map_generic(i, j, lab_ids, data, upload_id):
     archive = HySprint_Process(
@@ -506,25 +513,23 @@ class HySprintExperimentParser(MatchingParser):
 
             df_dropped = df[col].drop_duplicates()
             for j, row in df_dropped.iterrows():
-               
                 lab_ids = [
-                    x["Experiment Info"]["Nomad ID"]
-                   for _, x in df[["Experiment Info", col]].iterrows() 
-                   if x[col].astype("object").equals(row.astype("object"))
+                    x['Experiment Info']['Nomad ID']
+                    for _, x in df[['Experiment Info', col]].iterrows()
+                    if x[col].astype('object').equals(row.astype('object'))
                 ]
-                if "Cleaning" in col:
+                if 'Cleaning' in col:
                     archives.append(map_cleaning(i, j, lab_ids, row, upload_id))
-                    
-                if "Laser Scribing" in col:
+
+                if 'Laser Scribing' in col:
                     archives.append(map_laser_scribing(i, j, lab_ids, row, upload_id))
-                
 
                 if 'Generic Process' in col:  # move up
                     archives.append(map_generic(i, j, lab_ids, row, upload_id))
 
-                if pd.isna(row.get('Material name')): 
+                if pd.isna(row.get('Material name')):
                     continue
-                
+
                 if 'Evaporation' in col:
                     archives.append(map_evaporation(i, j, lab_ids, row, upload_id))
 
