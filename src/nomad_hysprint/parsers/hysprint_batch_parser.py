@@ -31,6 +31,7 @@ from baseclasses.material_processes_misc import (
     Annealing,
     AntiSolventQuenching,
 )
+from baseclasses.material_processes_misc.laser_scribing import LaserScribingProperties
 from baseclasses.solution import Solution, SolutionChemical
 from baseclasses.vapour_based_deposition.atomic_layer_deposition import (
     ALDMaterial,
