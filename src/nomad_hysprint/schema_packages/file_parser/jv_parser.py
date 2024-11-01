@@ -27,7 +27,7 @@ def get_jv_data_hysprint(filedata):
     # Block to clean up some bad characters found in the file which gives
     # trouble reading.
 
-    filedata = filedata.replace("²", "^2")
+    filedata = filedata.replace('²', '^2')
 
     df = pd.read_csv(
         StringIO(filedata),
@@ -36,27 +36,32 @@ def get_jv_data_hysprint(filedata):
         sep='\t',
         index_col=0,
         engine='python',
-        encoding='unicode_escape')
-    df_header = pd.read_csv(StringIO(filedata),
-                            skiprows=1,
-                            nrows=6,
-                            header=None,
-                            sep=':|\t',
-                            index_col=0,
-                            encoding='unicode_escape',
-                            engine='python')
-    df_curves = pd.read_csv(StringIO(filedata),
-                            header=19,
-                            skiprows=[20],
-                            sep='\t',
-                            encoding='unicode_escape',
-                            engine='python')
+        encoding='unicode_escape',
+    )
+    df_header = pd.read_csv(
+        StringIO(filedata),
+        skiprows=1,
+        nrows=6,
+        header=None,
+        sep=':|\t',
+        index_col=0,
+        encoding='unicode_escape',
+        engine='python',
+    )
+    df_curves = pd.read_csv(
+        StringIO(filedata),
+        header=19,
+        skiprows=[20],
+        sep='\t',
+        encoding='unicode_escape',
+        engine='python',
+    )
     df_curves = df_curves.dropna(how='all', axis=1)
 
     df_header.replace([np.inf, -np.inf, np.nan], 0, inplace=True)
     df.replace([np.inf, -np.inf, np.nan], 0, inplace=True)
 
-    number_of_curves = len(df_curves.columns)-1
+    number_of_curves = len(df_curves.columns) - 1
 
     jv_dict = {}
     jv_dict['active_area'] = df_header.iloc[0, 1]
@@ -79,9 +84,12 @@ def get_jv_data_hysprint(filedata):
     jv_dict['jv_curve'] = []
     for column in range(1, len(df_curves.columns)):
         jv_dict['jv_curve'].append(
-            {'name': df_curves.columns[column],
-             'voltage': df_curves[df_curves.columns[0]].values,
-             'current_density': df_curves[df_curves.columns[column]].values})
+            {
+                'name': df_curves.columns[column],
+                'voltage': df_curves[df_curves.columns[0]].values,
+                'current_density': df_curves[df_curves.columns[column]].values,
+            }
+        )
 
     return jv_dict
 
@@ -90,7 +98,7 @@ def get_jv_data_iris(filedata):
     # Block to clean up some bad characters found in the file which gives
     # trouble reading.
 
-    filedata = filedata.replace("²", "^2")
+    filedata = filedata.replace('²', '^2')
 
     df = pd.read_csv(
         StringIO(filedata),
@@ -100,7 +108,8 @@ def get_jv_data_iris(filedata):
         sep='\t',
         index_col=0,
         engine='python',
-        encoding='unicode_escape')
+        encoding='unicode_escape',
+    )
 
     df_header = pd.read_csv(
         StringIO(filedata),
@@ -110,7 +119,8 @@ def get_jv_data_iris(filedata):
         sep='\t',
         index_col=0,
         encoding='unicode_escape',
-        engine='python')  # , on_bad_lines=lambda x: x[:2])
+        engine='python',
+    )  # , on_bad_lines=lambda x: x[:2])
 
     df_curves = pd.read_csv(
         StringIO(filedata),
@@ -118,7 +128,8 @@ def get_jv_data_iris(filedata):
         skiprows=43,
         sep='\t',
         encoding='unicode_escape',
-        engine='python')
+        engine='python',
+    )
     df_curves = df_curves.dropna(how='all', axis=1)
 
     df_header.replace([np.inf, -np.inf, np.nan], 0, inplace=True)
@@ -127,8 +138,8 @@ def get_jv_data_iris(filedata):
     jv_dict = {}
     jv_dict['active_area'] = list(ast.literal_eval(df_header.iloc[12, 0]))[0]
     jv_dict['intensity'] = float(df_header.iloc[27, 0]) / 100 * 100
-    jv_dict['integration_time'] = float(df_header.iloc[9, 0])*1000
-    jv_dict['settling_time'] = float(df_header.iloc[10, 0])*1000
+    jv_dict['integration_time'] = float(df_header.iloc[9, 0]) * 1000
+    jv_dict['settling_time'] = float(df_header.iloc[10, 0]) * 1000
     jv_dict['averaging'] = float(df_header.iloc[8, 0])
     # jv_dict['compliance'] = df_header.iloc[5, 1]
     jv_dict['J_sc'] = list(abs(df.iloc[1].astype(np.float64)))
@@ -145,17 +156,20 @@ def get_jv_data_iris(filedata):
 
     for column in range(0, len(df_curves.columns) // 2):
         jv_dict['jv_curve'].append(
-            {'name': "_".join(df_curves.columns[2*column].split("_")[-3:]),
-             'dark': True
-             if "dark" in df_curves.columns[2*column].lower() else False,
-             'voltage': df_curves[df_curves.columns[2*column]].values,
-             'current_density':
-                 df_curves[df_curves.columns[2*column+1]].values})
+            {
+                'name': '_'.join(df_curves.columns[2 * column].split('_')[-3:]),
+                'dark': True
+                if 'dark' in df_curves.columns[2 * column].lower()
+                else False,
+                'voltage': df_curves[df_curves.columns[2 * column]].values,
+                'current_density': df_curves[df_curves.columns[2 * column + 1]].values,
+            }
+        )
 
     return jv_dict
 
 
 def get_jv_data(filedata):
-    if filedata.startswith("Keithley"):
-        return get_jv_data_hysprint(filedata), "HySprint HyVap"
+    if filedata.startswith('Keithley'):
+        return get_jv_data_hysprint(filedata), 'HySprint HyVap'
     return get_jv_data_iris(filedata), 'IRIS HZBGloveBoxes Pero4SOSIMStorage'

@@ -4,6 +4,7 @@ Created on Mon Sep  2 13:48:09 2024
 
 @author: a2853
 """
+
 from io import StringIO
 
 import numpy as np
@@ -18,7 +19,7 @@ def get_value(val):
 
 
 def read_mppt_file(filedata):
-    filedata = filedata.replace("²", "^2")
+    filedata = filedata.replace('²', '^2')
 
     df = pd.read_csv(
         StringIO(filedata),
@@ -28,14 +29,16 @@ def read_mppt_file(filedata):
         sep=':\t',
         index_col=0,
         engine='python',
-        encoding='unicode_escape')
+        encoding='unicode_escape',
+    )
     df_curve = pd.read_csv(
         StringIO(filedata),
         header=6,
         skiprows=[7],
         sep='\t',
         encoding='unicode_escape',
-        engine='python')
+        engine='python',
+    )
     df_curve = df_curve.dropna(how='any', axis=0)
 
     mppt_dict = {}
@@ -45,11 +48,11 @@ def read_mppt_file(filedata):
     mppt_dict['active_area'] = get_value(df.iloc[3, 0])
     mppt_dict['voltage'] = get_value(df.iloc[4, 0])
 
-    mppt_dict['time_data'] = np.array(df_curve["time"], dtype=np.float64)
-    mppt_dict['voltage_data'] = np.array(df_curve["voltage"], dtype=np.float64)
+    mppt_dict['time_data'] = np.array(df_curve['time'], dtype=np.float64)
+    mppt_dict['voltage_data'] = np.array(df_curve['voltage'], dtype=np.float64)
     mppt_dict['current_density_data'] = np.array(
-        df_curve["current density"],
-        dtype=np.float64)
-    mppt_dict['power_data'] = np.array(df_curve["power"], dtype=np.float64)
+        df_curve['current density'], dtype=np.float64
+    )
+    mppt_dict['power_data'] = np.array(df_curve['power'], dtype=np.float64)
 
     return mppt_dict

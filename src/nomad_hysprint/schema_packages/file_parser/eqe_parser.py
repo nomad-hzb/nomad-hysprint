@@ -42,14 +42,9 @@ hc_eVnm = h_Js * c / q * 1e9  # % [eV nm]  Planck's constant
 
 def interpolate_eqe(photon_energy_raw, eqe_raw):
     photon_energy_interpolated = np.linspace(
-        min(photon_energy_raw),
-        max(photon_energy_raw), 1000,
-        endpoint=True)
-    eqe_interpolated = np.interp(
-        photon_energy_interpolated,
-        photon_energy_raw,
-        eqe_raw
+        min(photon_energy_raw), max(photon_energy_raw), 1000, endpoint=True
     )
+    eqe_interpolated = np.interp(photon_energy_interpolated, photon_energy_raw, eqe_raw)
 
     return photon_energy_interpolated, eqe_interpolated
 
@@ -97,7 +92,11 @@ def read_file(file_path, header_lines=None):
         header_lines = 0
     if header_lines == 0:  # in case you have a header
         try:
-            df = pd.read_csv(file_path, header=None, sep='\t',)
+            df = pd.read_csv(
+                file_path,
+                header=None,
+                sep='\t',
+            )
             if len(df.columns) < 2:
                 raise IndexError
         except IndexError:
@@ -115,11 +114,7 @@ def read_file(file_path, header_lines=None):
                     raise IndexError
             except IndexError:
                 try:
-                    df = pd.read_csv(
-                        file_path,
-                        header=int(header_lines),
-                        sep='\t'
-                    )
+                    df = pd.read_csv(file_path, header=int(header_lines), sep='\t')
                     if len(df.columns) < 2:
                         raise IndexError
                 except IndexError:
@@ -134,12 +129,12 @@ def read_file(file_path, header_lines=None):
 
 
 def read_file_multiple(filedata):
-    df = pd.read_csv(StringIO(filedata), sep="\t")
+    df = pd.read_csv(StringIO(filedata), sep='\t')
     result = []
     for i in range(0, len(df.columns), 6):
         try:
             x = np.array(df[df.columns[i]][4:], dtype=np.float64)
-            y = np.array(df[df.columns[i+1]][4:], dtype=np.float64)
+            y = np.array(df[df.columns[i + 1]][4:], dtype=np.float64)
 
             x = x[np.isfinite(x)]
             y = y[np.isfinite(y)]
@@ -158,12 +153,14 @@ def read_file_multiple(filedata):
                 y = np.flip(y)
             photon_energy, intensity = interpolate_eqe(x, y)
 
-            result.append({
-                "photon_energy_raw": x,
-                "intensty_raw": y,
-                "photon_energy": photon_energy,
-                "intensity": intensity,
-            })
+            result.append(
+                {
+                    'photon_energy_raw': x,
+                    'intensty_raw': y,
+                    'photon_energy': photon_energy,
+                    'intensity': intensity,
+                }
+            )
         except Exception:
             continue
     return result

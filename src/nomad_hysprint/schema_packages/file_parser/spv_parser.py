@@ -22,24 +22,27 @@ def is_float(string):
 
 def find_footer(file_lines):
     for num, line in enumerate(file_lines, 1):
-        if "BEGIN_METADATA" in line:
-            return num-5
+        if 'BEGIN_METADATA' in line:
+            return num - 5
 
 
 def get_spv_data(filedata):
-    file_lines = filedata.split("\n")
+    file_lines = filedata.split('\n')
     nrows = find_footer(file_lines)
     if nrows is None:
         return
-    data = pd.read_csv(StringIO(filedata), sep="\t", nrows=nrows)
+    data = pd.read_csv(StringIO(filedata), sep='\t', nrows=nrows)
 
     md_dict = {}
     for num, line in enumerate(file_lines, 1):
-        if num < nrows or ":" not in line:
+        if num < nrows or ':' not in line:
             continue
-        line_split = line.split(":")
-        line_split[0] = line_split[0].replace("#", "")
-        value = float(line_split[1].strip())\
-            if is_float(line_split[1].strip()) else line_split[1].strip()
+        line_split = line.split(':')
+        line_split[0] = line_split[0].replace('#', '')
+        value = (
+            float(line_split[1].strip())
+            if is_float(line_split[1].strip())
+            else line_split[1].strip()
+        )
         md_dict.update({line_split[0].strip(): value})
     return md_dict, data

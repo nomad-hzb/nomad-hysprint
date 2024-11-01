@@ -25,7 +25,7 @@ def get_pl_data_iris(filedata):
     # Block to clean up some bad characters found in the file which gives
     # trouble reading.
 
-    filedata = filedata.replace("²", "^2")
+    filedata = filedata.replace('²', '^2')
 
     df_header = pd.read_csv(
         StringIO(filedata),
@@ -35,7 +35,8 @@ def get_pl_data_iris(filedata):
         sep=',',
         index_col=0,
         encoding='unicode_escape',
-        engine='python')
+        engine='python',
+    )
 
     df_data = pd.read_csv(
         StringIO(filedata),
@@ -43,7 +44,8 @@ def get_pl_data_iris(filedata):
         skiprows=22,
         sep=',',
         encoding='unicode_escape',
-        engine='python')
+        engine='python',
+    )
 
     pl_dict = {}
     pl_dict['name'] = df_header.iloc[0, 0]
@@ -55,7 +57,7 @@ def get_pl_data_iris(filedata):
     pl_dict['number_of_averages'] = float(df_header.iloc[12, 0])
     pl_dict['lamp'] = df_header.iloc[14, 0]
 
-    pl_dict['data'] = {"wavelength": df_data[0],  "intensity": df_data[1]}
+    pl_dict['data'] = {'wavelength': df_data[0], 'intensity': df_data[1]}
 
     return pl_dict
 
@@ -64,6 +66,6 @@ def get_pl_data(filedata):
     # Block to clean up some bad characters found in the file which gives
     # trouble reading.
 
-    if filedata.startswith("Labels"):
-        return get_pl_data_iris(filedata), "IRIS HZBGloveBoxes"
+    if filedata.startswith('Labels'):
+        return get_pl_data_iris(filedata), 'IRIS HZBGloveBoxes'
     return None, None

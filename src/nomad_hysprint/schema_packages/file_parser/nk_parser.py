@@ -34,16 +34,15 @@ def find_row_with_data(file_lines):
 def get_nk_data(filedata):
     # Block to clean up some bad characters found in the file which gives
     # trouble reading.
-    file_lines = filedata.split("\n")
-    first_line = file_lines[0].strip("#").split(";")
+    file_lines = filedata.split('\n')
+    first_line = file_lines[0].strip('#').split(';')
     count = find_row_with_data(file_lines[1:])
 
-    metadata = {"Name": first_line[0].strip() if len(first_line) > 0 else "",
-                "Formula": first_line[1].strip()
-                if len(first_line) > 1 else "",
-                "Reference": first_line[2].strip()
-                if len(first_line) > 2 else "",
-                "Comment": first_line[3].strip() if len(first_line) > 3 else ""
-                }
+    metadata = {
+        'Name': first_line[0].strip() if len(first_line) > 0 else '',
+        'Formula': first_line[1].strip() if len(first_line) > 1 else '',
+        'Reference': first_line[2].strip() if len(first_line) > 2 else '',
+        'Comment': first_line[3].strip() if len(first_line) > 3 else '',
+    }
     data = pd.read_csv(StringIO(filedata), sep='\t', header=0, skiprows=count)
     return data, metadata
