@@ -24,7 +24,7 @@ Created on Fri Sep 27 09:08:03 2024
 #
 
 import pandas as pd
-from baseclasse.material_processes_misc.laser_scribing import (
+from baseclasses.material_processes_misc.laser_scribing import (
     LaserScribingProperties,
 )
 from baseclasses import LayerProperties, PubChemPureSubstanceSectionCustom
