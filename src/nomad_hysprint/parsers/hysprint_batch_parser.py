@@ -31,6 +31,9 @@ from baseclasses.material_processes_misc import (
     Annealing,
     AntiSolventQuenching,
 )
+from baseclasses.material_processes_misc.laser_scribing import (
+    LaserScribingProperties,
+)
 from baseclasses.solution import Solution, SolutionChemical
 from baseclasses.vapour_based_deposition.evaporation import (
     InorganicEvaporation,
@@ -59,6 +62,7 @@ from nomad_hysprint.schema_packages.hysprint_package import (
     HySprint_Batch,
     HySprint_Cleaning,
     HySprint_Evaporation,
+    HySprint_LaserScribing,
     HySprint_Process,
     HySprint_Sample,
     HySprint_SlotDieCoating,
@@ -393,6 +397,30 @@ def map_sputtering(i, j, lab_ids, data, upload_id):
     return (f'{i}_{j}_sputtering_{material}', archive)
 
 
+def map_laser_scribing(i, j, lab_ids, data, upload_id):
+    archive = HySprint_LaserScribing(
+        name='laser scribing',
+        positon_in_experimental_plan=i,
+        samples=[
+            CompositeSystemReference(
+                reference=get_reference(upload_id, f'{lab_id}.archive.json'),
+                lab_id=lab_id,
+            )
+            for lab_id in lab_ids
+        ],
+        properties=LaserScribingProperties(
+            laser_wavelength=get_value(data, 'Laser wavelength [nm]', None),
+            laser_pulse_time=get_value(data, 'Laser pulse time [ps]', None),
+            laser_pulse_frequency=get_value(data, 'Laser pulse frequency [kHz]', None),
+            speed=get_value(data, 'Speed [mm/s]', None),
+            fluence=get_value(data, 'Fluence [J/cm2]', None),
+            power_in_percent=get_value(data, 'Power [%]', None),
+        ),
+    )
+
+    return (f'{i}_{j}_laser_scribing', archive)
+
+
 def map_generic(i, j, lab_ids, data, upload_id):
     archive = HySprint_Process(
         name=get_value(data, 'Name', '', False),
@@ -488,16 +516,20 @@ class HySprintExperimentParser(MatchingParser):
                 lab_ids = [
                     x['Experiment Info']['Nomad ID']
                     for _, x in df[['Experiment Info', col]].iterrows()
-                    if x[col].equals(row)
+                    if x[col].astype('object').equals(row.astype('object'))
                 ]
                 if 'Cleaning' in col:
                     archives.append(map_cleaning(i, j, lab_ids, row, upload_id))
+
+                if 'Laser Scribing' in col:
+                    archives.append(map_laser_scribing(i, j, lab_ids, row, upload_id))
 
                 if 'Generic Process' in col:  # move up
                     archives.append(map_generic(i, j, lab_ids, row, upload_id))
 
                 if pd.isna(row.get('Material name')):
                     continue
+
                 if 'Evaporation' in col:
                     archives.append(map_evaporation(i, j, lab_ids, row, upload_id))
 
