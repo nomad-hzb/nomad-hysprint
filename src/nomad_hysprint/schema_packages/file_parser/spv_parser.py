@@ -39,10 +39,7 @@ def get_spv_data(filedata):
             continue
         line_split = line.split(":")
         line_split[0] = line_split[0].replace("#", "")
-        value = float(line_split[1].strip()) if is_float(line_split[1].strip()) else line_split[1].strip()
+        value = float(line_split[1].strip())\
+            if is_float(line_split[1].strip()) else line_split[1].strip()
         md_dict.update({line_split[0].strip(): value})
     return md_dict, data
-
-
-# md, d = get_spv_data(
-#     "/home/a2853/Documents/Projects/nomad/hysprintlab/valerio/Zahra/M01/M01_encapsulatedGlass_front_TD167_withBE_ambient_intens.txt")

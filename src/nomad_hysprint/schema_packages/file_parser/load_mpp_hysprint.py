@@ -28,7 +28,8 @@ def get_dimensions(columns):
     number_of_pixels = max([get_integer(c.split("_")[3][5:])
                            for c in columns])+1
 
-    return {"box": box, "number_of_samples": number_of_sample, "number_of_pixels": number_of_pixels}
+    return {"box": box, "number_of_samples": number_of_sample,
+            "number_of_pixels": number_of_pixels}
 
 
 def process_timestamp(df):
@@ -60,8 +61,11 @@ def process_mpp_data_jv(df, suffix):
 def rename_columns(df, box, sample_id, pixel_id):
     columns_new = {}
     for column in df.columns:
-        columns_new.update({column: column.replace(f"Anlage_Box{box:02d}_", "").replace(
-            f"Probe({sample_id})_", "").replace(f"Pixel({pixel_id})_", "")})
+        columns_new.update(
+            {
+                column: column.replace(f"Anlage_Box{box:02d}_", "").replace(
+                    f"Probe({sample_id})_", "")
+                .replace(f"Pixel({pixel_id})_", "")})
     columns_new["Zeitstempel"] = "Timestamp"
     df = df.rename(columns=columns_new)
     return df
@@ -78,7 +82,8 @@ def apply_filter_trigger_code(df, box, trigger_code):
 def filter_and_process_mpp_data(df, box, sample_id, pixel_id, trigger_code):
     df_filtered = apply_filter_trigger_code(df, box, trigger_code)
     df_filtered = df.loc[(
-        df[f"Anlage_Box{box:02d}_Probe({sample_id})_Pixel({pixel_id})_InMPPT_I"] > -999)]
+        df[f"Anlage_Box{box:02d}_Probe({sample_id})\_Pixel({pixel_id})_InMPPT_I"]  # noqa: E501
+        > -999)]
 
     df_final = rename_columns(df_filtered, box, sample_id, pixel_id)
 
@@ -95,10 +100,11 @@ def get_jv_data(df, box, sample_id, pixel_id, forward=True):
     suffix = ''
     if not forward:
         suffix = "_rev"
-    columns = ["Zeitstempel", f"Anlage_Box{box:02d}_Probe({sample_id})_Pixel({pixel_id})_InIV_V_oc{suffix}",
-               f"Anlage_Box{box:02d}_Probe({sample_id})_Pixel({pixel_id})_InIV_FF{suffix}",
-               f"Anlage_Box{box:02d}_Probe({sample_id})_Pixel({pixel_id})_InIV_n{suffix}",
-               f"Anlage_Box{box:02d}_Probe({sample_id})_Pixel({pixel_id})_InIV_I_sc{suffix}",
+    columns = ["Zeitstempel",
+               f"Anlage_Box{box:02d}_Probe({sample_id})_Pixel({pixel_id})_InIV_V_oc{suffix}",  # noqa: E501
+               f"Anlage_Box{box:02d}_Probe({sample_id})_Pixel({pixel_id})_InIV_FF{suffix}",  # noqa: E501
+               f"Anlage_Box{box:02d}_Probe({sample_id})_Pixel({pixel_id})_InIV_n{suffix}",  # noqa: E501
+               f"Anlage_Box{box:02d}_Probe({sample_id})_Pixel({pixel_id})_InIV_I_sc{suffix}",  # noqa: E501
                f"Anlage_Box{box:02d}_InTriggerSource"]
     df_raw = df[columns].copy()
 
@@ -112,8 +118,10 @@ def get_jv_data(df, box, sample_id, pixel_id, forward=True):
 
 
 def parse_pixel(box, sample_id, pixel_id, df):
-    columns = ["Zeitstempel", f"Anlage_Box{box:02d}_Probe({sample_id})_Pixel({pixel_id})_InMPPT_I",
-               f"Anlage_Box{box:02d}_Probe({sample_id})_Pixel({pixel_id})_InMPPT_V", f"Anlage_Box{box:02d}_Probe({sample_id})_InEinstrahlung",
+    columns = ["Zeitstempel",
+               f"Anlage_Box{box:02d}_Probe({sample_id})_Pixel({pixel_id})_InMPPT_I",  # noqa: E501
+               f"Anlage_Box{box:02d}_Probe({sample_id})_Pixel({pixel_id})_InMPPT_V",  # noqa: E501
+               f"Anlage_Box{box:02d}_Probe({sample_id})_InEinstrahlung",
                f"Anlage_Box{box:02d}_InTriggerSource"]
     df_raw = df[columns].copy()
     df_final = filter_and_process_mpp_data(
@@ -129,13 +137,18 @@ def parse_pixel(box, sample_id, pixel_id, df):
     data_jv_rev = get_jv_data(df, box, sample_id, pixel_id, forward=False)
 
     data = {"id": pixel_id,
-            "data": df_final, "data_dark": df_final_dark, "data_jv_for": data_jv_for, "data_jv_rev": data_jv_rev}
+            "data": df_final,
+            "data_dark": df_final_dark,
+            "data_jv_for": data_jv_for,
+            "data_jv_rev": data_jv_rev}
     return data
 
 
 def parse_sample(info, sample_id, df):
-    df_sample = df[["Zeitstempel", f"Anlage_Box{info['box']:02d}_Probe({sample_id})_InTemperatur",
-                    f"Anlage_Box{info['box']:02d}_Probe({sample_id})_InEinstrahlung"]].copy()
+    df_sample = df[["Zeitstempel",
+                    f"Anlage_Box{info['box']:02d}_Probe({sample_id})_InTemperatur",  # noqa: E501
+                    f"Anlage_Box{info['box']:02d}_Probe({sample_id})_InEinstrahlung"]].copy()  # noqa: E501
+
     df_sample = rename_columns(df_sample, info['box'], sample_id, None)
     process_timestamp(df_sample)
     data = {

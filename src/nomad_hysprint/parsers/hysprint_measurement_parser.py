@@ -86,7 +86,8 @@ class HySprintParser(MatchingParser):
             entry = HySprint_trSPVmeasurement()
         if mainfile_split[-1] == "txt" and measurment_type == "eqe":
             entry = HySprint_EQEmeasurement()
-        if mainfile_split[-1] in ["tif", "tiff"] and measurment_type.lower() == "sem":
+        if mainfile_split[-1] in ["tif", "tiff"]\
+            and measurment_type.lower() == "sem":
             entry = HySprint_SEM()
             entry.detector_data = [os.path.basename(mainfile)]
         if measurment_type == "pl":
@@ -115,9 +116,12 @@ class HySprintParser(MatchingParser):
 
         if measurment_type not in ["uvvis", "sem", "SEM"]:
             entry.data_file = os.path.basename(mainfile)
-        entry.datetime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
+        entry.datetime = datetime.datetime.now()\
+            .strftime("%Y-%m-%d %H:%M:%S.%f")
 
         file_name = f'{os.path.basename(mainfile)}.archive.json'
         eid = get_entry_id_from_file_name(file_name, archive)
-        archive.data = RawFileHZB(processed_archive=get_reference(archive.metadata.upload_id, eid))
+        archive.data = RawFileHZB(
+            processed_archive=get_reference(archive.metadata.upload_id, eid)
+            )
         create_archive(entry, archive, file_name)

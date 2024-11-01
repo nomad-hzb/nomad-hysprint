@@ -17,8 +17,10 @@
 #
 
 
-# Evaluation of EQE measurement data + Urbach tail to determine the radiative open-circuit voltage.
-# Building from the work of Lisa Krückemeier et al. (https://doi.org/10.1002/aenm.201902573)
+# Evaluation of EQE measurement data + Urbach tail to
+# determine the radiative open-circuit voltage.
+# Building from the work of Lisa Krückemeier et al.
+# (https://doi.org/10.1002/aenm.201902573)
 # Initially translated to Python by Christian Wolff
 
 
@@ -35,12 +37,19 @@ k = 1.38064852e-23  # % [(m^2)kg(s^-2)(K^-1)], Boltzmann constant
 T = temperature
 VT = (k * T) / q  # % [V], 25.8mV thermal voltage at 300K
 c = 299792458  # % [m/s], speed of light c_0
-hc_eVnm = h_Js * c / q * 1e9  # % [eV nm]  Planck's constant for energy to wavelength conversion
+hc_eVnm = h_Js * c / q * 1e9  # % [eV nm]  Planck's constant
 
 
 def interpolate_eqe(photon_energy_raw, eqe_raw):
-    photon_energy_interpolated = np.linspace(min(photon_energy_raw), max(photon_energy_raw), 1000, endpoint=True)
-    eqe_interpolated = np.interp(photon_energy_interpolated, photon_energy_raw, eqe_raw)
+    photon_energy_interpolated = np.linspace(
+        min(photon_energy_raw),
+        max(photon_energy_raw), 1000,
+        endpoint=True)
+    eqe_interpolated = np.interp(
+        photon_energy_interpolated,
+        photon_energy_raw,
+        eqe_raw
+    )
 
     return photon_energy_interpolated, eqe_interpolated
 
@@ -65,10 +74,10 @@ def arrange_eqe_columns(df):
 
     if any(x > 10):  # check if energy (eV) or wavelength (nm)
         x = hc_eVnm / x
-    if any(y > 10):  # check if EQE is given in (%), if so it's translated to abs. numbers
+    # check if EQE is given in (%), if so it's translated to abs. numbers
+    if any(y > 10):
         y = y / 100
 
-    # bring both arrays into correct order (i.e. w.r.t eV increasing) if one started with e.g. wavelength in increasing order e.g. 300nm, 305nm,...
     if x[1] - x[2] > 0:
         x = np.flip(x)
         y = np.flip(y)
@@ -105,12 +114,15 @@ def read_file(file_path, header_lines=None):
                 if len(df.columns) < 2:
                     raise IndexError
             except IndexError:
-                try:  # separator was right, but last header_line is not actually column names?
-                    df = pd.read_csv(file_path, header=int(header_lines), sep='\t')
+                try:
+                    df = pd.read_csv(
+                        file_path,
+                        header=int(header_lines),
+                        sep='\t'
+                    )
                     if len(df.columns) < 2:
                         raise IndexError
                 except IndexError:
-                    # Last guess: separator was wrong AND last header_line is not actually column names?
                     df = pd.read_csv(file_path, header=int(header_lines))
                     if len(df.columns) < 2:
                         raise IndexError
@@ -133,10 +145,14 @@ def read_file_multiple(filedata):
             y = y[np.isfinite(y)]
             if any(x > 10):  # check if energy (eV) or wavelength (nm)
                 x = hc_eVnm / x
-            if any(y > 10):  # check if EQE is given in (%), if so it's translated to abs. numbers
+            # check if EQE is given in (%), if so it's translated to abs.
+            # numbers
+            if any(y > 10):
                 y = y / 100
 
-            # bring both arrays into correct order (i.e. w.r.t eV increasing) if one started with e.g. wavelength in increasing order e.g. 300nm, 305nm,...
+            # bring both arrays into correct order (i.e. w.r.t eV increasing)
+            # if one started with e.g. wavelength in increasing order
+            # e.g. 300nm, 305nm,...
             if x[1] - x[2] > 0:
                 x = np.flip(x)
                 y = np.flip(y)
@@ -148,6 +164,6 @@ def read_file_multiple(filedata):
                 "photon_energy": photon_energy,
                 "intensity": intensity,
             })
-        except:
+        except Exception:
             continue
     return result

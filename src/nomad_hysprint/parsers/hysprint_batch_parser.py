@@ -23,7 +23,6 @@ Created on Fri Sep 27 09:08:03 2024
 # limitations under the License.
 #
 
-import os
 
 import pandas as pd
 from baseclasses import LayerProperties, PubChemPureSubstanceSectionCustom
@@ -87,7 +86,7 @@ def get_reference(upload_id, file_name):
 def convert_quantity(value, factor):
     try:
         return float(value)*factor
-    except:
+    except Exception:
         return None
 
 
@@ -121,7 +120,8 @@ def map_batch(batch_ids, batch_id, upload_id):
         name=batch_id,
         lab_id=batch_id,
         entities=[CompositeSystemReference(reference=get_reference(
-            upload_id, f"{lab_id}.archive.json"), lab_id=lab_id) for lab_id in batch_ids],
+            upload_id, f"{lab_id}.archive.json"), lab_id=lab_id)
+            for lab_id in batch_ids],
     )
     return (batch_id, archive)
 
@@ -138,19 +138,30 @@ def map_solutions(data):
     final_solvents = []
     final_solutes = []
     for solvent in sorted(set(solvents)):
-        if not get_value(data, f"{solvent} name", None, False) and not get_value(data, f"{solvent} volume [uL]", None):
+        if not get_value(data, f"{solvent} name", None, False)\
+                and not get_value(data, f"{solvent} volume [uL]", None):
             continue
-        final_solvents.append(SolutionChemical(chemical_2=PubChemPureSubstanceSectionCustom(name=get_value(data, f"{solvent} name", None, False),
-                                                                                      load_data=False
-                                                                                      ),
-                                               chemical_volume=convert_quantity(get_value(data, f"{solvent} volume [uL]", None), 1/1000)))
+        final_solvents.append(SolutionChemical(
+            chemical_2=PubChemPureSubstanceSectionCustom(name=get_value(
+                data, f"{solvent} name", None, False),
+                load_data=False
+            ),
+            chemical_volume=convert_quantity(get_value(
+                data, f"{solvent} volume [uL]", None), 1/1000)))
     for solute in sorted(set(solutes)):
-        if not get_value(data, f"{solute} type", None, False) and not get_value(data, f"{solute} Concentration [mM]", None):
+        if not get_value(data, f"{solute} type", None, False) \
+                and not get_value(data, f"{solute} Concentration [mM]", None):
             continue
-        final_solutes.append(SolutionChemical(chemical_2=PubChemPureSubstanceSectionCustom(name=get_value(data, f"{solute} type", None, False),
-                                                                                     load_data=False
-                                                                                     ),
-                                              concentration_mol=convert_quantity(get_value(data, f"{solute} Concentration [mM]", None), 1/1000)))
+        final_solutes.append(SolutionChemical(
+            chemical_2=PubChemPureSubstanceSectionCustom(
+                name=get_value(data, f"{solute} type", None, False),
+                load_data=False
+            ),
+            concentration_mol=convert_quantity(
+                get_value(
+                    data,
+                    f"{solute} Concentration [mM]",
+                    None), 1/1000)))
 
     archive = Solution(solvent=final_solvents, solute=final_solutes)
 
@@ -164,33 +175,41 @@ def map_spin_coating(i, j, lab_ids, data, upload_id):
         positon_in_experimental_plan=i,
         description=get_value(data, "Notes", "", False),
         samples=[CompositeSystemReference(reference=get_reference(
-            upload_id, f"{lab_id}.archive.json"), lab_id=lab_id) for lab_id in lab_ids],
-        layer=[LayerProperties(layer_type=get_value(data, "Layer type", None, False),
-                               layer_material_name=get_value(data, "Material name", None, False)
-                               )],
+            upload_id, f"{lab_id}.archive.json"), lab_id=lab_id)
+            for lab_id in lab_ids],
+        layer=[LayerProperties(layer_type=get_value(
+            data, "Layer type", None, False),
+            layer_material_name=get_value(
+            data, "Material name", None, False)
+        )],
         solution=[PrecursorSolution(
             solution_details=map_solutions(data),  # check unit
             # check unit
-            solution_volume=convert_quantity(get_value(data, "Solution volume [um]", None), 1/1000)
+            solution_volume=convert_quantity(
+                get_value(data, "Solution volume [um]", None), 1/1000)
         )],
         quenching=AntiSolventQuenching(
-            anti_solvent_volume=get_value(data, "Anti solvent volume [ml]", None),
-            anti_solvent_dropping_time=get_value(data, "Anti solvent dropping time [s]", None),
-            anti_solvent_2=PubChemPureSubstanceSectionCustom(name=get_value(data, "Anti solvent name", None, False),
-                                                       load_data=False
-                                                       )
+            anti_solvent_volume=get_value(
+                data, "Anti solvent volume [ml]", None),
+            anti_solvent_dropping_time=get_value(
+                data, "Anti solvent dropping time [s]", None),
+            anti_solvent_2=PubChemPureSubstanceSectionCustom(
+                name=get_value(data, "Anti solvent name", None, False),
+                load_data=False
+            )
         ),
         annealing=Annealing(
             temperature=get_value(data, "Annealing temperature [°C]", None),
-            time=convert_quantity(get_value(data, "Annealing time [min]", None), 60)
+            time=convert_quantity(
+                get_value(data, "Annealing time [min]", None), 60)
         ),
         recipe_steps=[SpinCoatingRecipeSteps(
             speed=get_value(data, "Rotation speed [rpm]", None),
             time=get_value(data, "Rotation time [s]", None)
         )]
     )
-
-    return (f"{i}_{j}_spin_coating_{get_value(data, 'Material name', '', False)}", archive)
+    material = get_value(data, 'Material name', '', False)
+    return (f"{i}_{j}_spin_coating_{material}", archive)
 
 
 def map_sdc(i, j, lab_ids, data, upload_id):
@@ -200,34 +219,41 @@ def map_sdc(i, j, lab_ids, data, upload_id):
         positon_in_experimental_plan=i,
         description=get_value(data, "Notes", None, False),
         samples=[CompositeSystemReference(reference=get_reference(
-            upload_id, f"{lab_id}.archive.json"), lab_id=lab_id) for lab_id in lab_ids],
+            upload_id, f"{lab_id}.archive.json"), lab_id=lab_id)
+            for lab_id in lab_ids],
         solution=[PrecursorSolution(
             solution_details=map_solutions(data),  # check unit
             # check unit
-            solution_volume=convert_quantity(get_value(data, "Solution volume [um]", None), 1/1000)
+            solution_volume=convert_quantity(
+                get_value(data, "Solution volume [um]", None), 1/1000)
         )],
-        layer=[LayerProperties(layer_type=get_value(data, "Layer type", None, False),
-                               layer_material_name=get_value(data, "Material name", None, False)
-                               )],
+        layer=[LayerProperties(layer_type=get_value(
+            data, "Layer type", None, False),
+            layer_material_name=get_value(
+            data, "Material name", None, False)
+        )],
         annealing=Annealing(
             temperature=get_value(data, "Annealing temperature [°C]", None),
-            time=convert_quantity(get_value(data, "Annealing time [min]", None), 60)
+            time=convert_quantity(
+                get_value(data, "Annealing time [min]", None), 60)
         ),
         properties=SlotDieCoatingProperties(
-            flow_rate=convert_quantity(data.get("Flow rate [ul/min]", None), 1/1000),
-            slot_die_head_distance_to_thinfilm=get_value(data, "Head gap [mm]"),
+            flow_rate=convert_quantity(
+                data.get("Flow rate [ul/min]", None), 1/1000),
+            slot_die_head_distance_to_thinfilm=get_value(
+                data, "Head gap [mm]"),
             slot_die_head_speed=get_value(data, "Speed [mm/s]")
         ),
         quenching=AirKnifeGasQuenching(
-            # "air_knife_speed":convert_quantity(data.get("Flow rate [ul/min]"), 1/1000)
             air_knife_angle=get_value(data, "Air knife angle [°]", None),
             bead_volume=get_value(data, "Bead volume [mm/s]", None),
             drying_speed=get_value(data, "Drying speed [cm/min]", None),
-            air_knife_distance_to_thin_film=convert_quantity(data.get("Air knife gap [cm]", None), 10000),
+            air_knife_distance_to_thin_film=convert_quantity(
+                data.get("Air knife gap [cm]", None), 10000),
         )
     )
-
-    return (f"{i}_{j}_slot_die_coating_{get_value(data, 'Material name', '', False)}", archive)
+    material = get_value(data, 'Material name', '', False)
+    return (f"{i}_{j}_slot_die_coating_{material}", archive)
 
 
 def map_cleaning(i, j, lab_ids, data, upload_id):
@@ -237,7 +263,8 @@ def map_cleaning(i, j, lab_ids, data, upload_id):
         positon_in_experimental_plan=i,
         description=get_value(data, "Notes", "", False),
         samples=[CompositeSystemReference(reference=get_reference(
-            upload_id, f"{lab_id}.archive.json"), lab_id=lab_id) for lab_id in lab_ids],
+            upload_id, f"{lab_id}.archive.json"), lab_id=lab_id)
+            for lab_id in lab_ids],
     )
     return (f"{i}_{j}_cleaning", archive)
 
@@ -249,7 +276,8 @@ def map_substrate(data):
         get_value(data, "Substrate conductive layer", "", False),
         solar_cell_area=get_value(data, "Sample area [cm^2]", ""),
         substrate=get_value(data, "Substrate material", "", False),
-        conducting_material=[get_value(data, "Substrate conductive layer", "", False)]
+        conducting_material=[
+            get_value(data, "Substrate conductive layer", "", False)]
     )
     return archive
 
@@ -261,10 +289,13 @@ def map_evaporation(i, j, lab_ids, data, upload_id):
         positon_in_experimental_plan=i,
         description=get_value(data, "Notes", "", False),
         samples=[CompositeSystemReference(reference=get_reference(
-            upload_id, f"{lab_id}.archive.json"), lab_id=lab_id) for lab_id in lab_ids],
-        layer=[LayerProperties(layer_type=get_value(data, "Layer type", None, False),
-                               layer_material_name=get_value(data, "Material name", None, False)
-                               )])
+            upload_id, f"{lab_id}.archive.json"), lab_id=lab_id)
+            for lab_id in lab_ids],
+        layer=[LayerProperties(layer_type=get_value(
+            data, "Layer type", None, False),
+            layer_material_name=get_value(
+            data, "Material name", None, False)
+        )])
 
     if get_value(data, "Organic", "", False).lower().startswith("n"):
         inorganic_evaporation = InorganicEvaporation(
@@ -289,8 +320,8 @@ def map_evaporation(i, j, lab_ids, data, upload_id):
             )
         )
         archive.organic_evaporation = [organic_evaporation]
-
-    return (f"{i}_{j}_evaporation_{get_value(data, 'Material name', '', False)}", archive)
+    material = get_value(data, 'Material name', '', False)
+    return (f"{i}_{j}_evaporation_{material}", archive)
 
 
 def map_sputtering(i, j, lab_ids, data, upload_id):
@@ -300,10 +331,13 @@ def map_sputtering(i, j, lab_ids, data, upload_id):
         positon_in_experimental_plan=i,
         description=get_value(data, "Notes", "", False),
         samples=[CompositeSystemReference(reference=get_reference(
-            upload_id, f"{lab_id}.archive.json"), lab_id=lab_id) for lab_id in lab_ids],
-        layer=[LayerProperties(layer_type=get_value(data, "Layer type", None, False),
-                               layer_material_name=get_value(data, "Material name", None, False)
-                               )])
+            upload_id, f"{lab_id}.archive.json"), lab_id=lab_id)
+            for lab_id in lab_ids],
+        layer=[LayerProperties(layer_type=get_value(
+            data, "Layer type", None, False),
+            layer_material_name=get_value(
+            data, "Material name", None, False)
+        )])
     process = SputteringProcess(
         thickness=get_value(data, "Thickness [nm]"),
         gas_flow_rate=get_value(data, "Gas flow rate [cm^3/min]"),
@@ -313,24 +347,30 @@ def map_sputtering(i, j, lab_ids, data, upload_id):
         deposition_time=get_value(data, "Deposition time [s]"),
         burn_in_time=get_value(data, "Burn in time [s]"),
         pressure=get_value(data, "Pressure [mbar]"),
-        target_2=PubChemPureSubstanceSectionCustom(name=get_value(data, "Material name", None, False),
-                                             load_data=False
-                                             ),
+        target_2=PubChemPureSubstanceSectionCustom(
+            name=get_value(data, "Material name", None, False),
+            load_data=False
+        ),
         gas_2=PubChemPureSubstanceSectionCustom(
             name=get_value(data, "Gas", None, False),
             load_data=False
         )
     )
     archive.processes = [process]
-    return (f"{i}_{j}_sputtering_{get_value(data, 'Material name', '', False)}", archive)
+    material = get_value(data, 'Material name', '', False)
+    return (f"{i}_{j}_sputtering_{material}", archive)
 
 
 def map_generic(i, j, lab_ids, data, upload_id):
     archive = HySprint_Process(name=get_value(data, "Name", "", False),
                                positon_in_experimental_plan=i,
                                description=get_value(data, "Notes", "", False),
-                               samples=[CompositeSystemReference(reference=get_reference(
-                                   upload_id, f"{lab_id}.archive.json"), lab_id=lab_id) for lab_id in lab_ids])
+                               samples=[CompositeSystemReference(
+                                   reference=get_reference(
+                                       upload_id,
+                                       f"{lab_id}.archive.json"),
+                                   lab_id=lab_id)
+                                   for lab_id in lab_ids])
     return (f"{i}_{j}_generic_process", archive)
 
 
@@ -351,18 +391,18 @@ class HySprintExperimentParser(MatchingParser):
         decoded_buffer: str,
         compression: str = None,
     ):
-        is_mainfile_super = super().is_mainfile(filename, mime, buffer, decoded_buffer, compression)
+        is_mainfile_super = super().is_mainfile(
+            filename, mime, buffer, decoded_buffer, compression)
         if not is_mainfile_super:
             return False
         try:
             df = pd.read_excel(filename, header=[0, 1])
             df["Experiment Info"]["Nomad ID"].dropna().to_list()
-        except:
+        except Exception:
             return False
         return True
 
     def parse(self, mainfile: str, archive: EntryArchive, logger):
-        # Log a hello world, just to get us started. TODO remove from an actual parser.
 
         upload_id = archive.metadata.upload_id
         # xls = pd.ExcelFile(mainfile)
@@ -372,8 +412,10 @@ class HySprintExperimentParser(MatchingParser):
         batch_id = "_".join(sample_ids[0].split("_")[:-1])
         archives = [map_batch(sample_ids, batch_id, upload_id)]
         substrates = []
-
-        for i, sub in df["Experiment Info"][["Sample dimension", "Sample area [cm^2]", "Substrate material", "Substrate conductive layer"]].drop_duplicates().iterrows():
+        substrates_col = ["Sample dimension", "Sample area [cm^2]",
+                          "Substrate material", "Substrate conductive layer"]
+        for i, sub in df["Experiment Info"][substrates_col]\
+                .drop_duplicates().iterrows():
             if pd.isna(sub).all():
                 continue
             substrates.append((f"{i}_substrate", sub, map_substrate(sub)))
@@ -388,7 +430,8 @@ class HySprintExperimentParser(MatchingParser):
                 continue
             substrate_name = find_substrate(
                 row[["Sample dimension", "Sample area [cm^2]",
-                     "Substrate material", "Substrate conductive layer"]]) + ".archive.json"
+                     "Substrate material", "Substrate conductive layer"]]) \
+                + ".archive.json"
             archives.append(map_basic_sample(row, substrate_name, upload_id))
 
         for i, col in enumerate(df.columns.get_level_values(0).unique()):
@@ -398,28 +441,31 @@ class HySprintExperimentParser(MatchingParser):
             df_dropped = df[col].drop_duplicates()
             for j, row in df_dropped.iterrows():
                 lab_ids = [x["Experiment Info"]["Nomad ID"]
-                           for _, x in df[["Experiment Info", col]].iterrows() if x[col].equals(row)]
+                           for _, x in df[["Experiment Info", col]].iterrows()
+                           if x[col].equals(row)]
                 if "Cleaning" in col:
-                    archives.append(map_cleaning(i, j, lab_ids, row, upload_id))
-                
+                    archives.append(map_cleaning(
+                        i, j, lab_ids, row, upload_id))
+
                 if "Generic Process" in col:  # move up
                     archives.append(map_generic(i, j, lab_ids, row, upload_id))
-                
+
                 if pd.isna(row.get("Material name")):
                     continue
                 if "Evaporation" in col:
-                    archives.append(map_evaporation(i, j, lab_ids, row, upload_id))
+                    archives.append(map_evaporation(
+                        i, j, lab_ids, row, upload_id))
 
                 if "Spin Coating" in col:
-                    archives.append(map_spin_coating(i, j, lab_ids, row, upload_id))
+                    archives.append(map_spin_coating(
+                        i, j, lab_ids, row, upload_id))
 
                 if "Slot Die Coating" in col:
                     archives.append(map_sdc(i, j, lab_ids, row, upload_id))
 
                 if "Sputtering" in col:
-                    archives.append(map_sputtering(i, j, lab_ids, row, upload_id))
-
-                
+                    archives.append(map_sputtering(
+                        i, j, lab_ids, row, upload_id))
 
         refs = []
         for subs in substrates:

@@ -78,9 +78,10 @@ def get_jv_data_hysprint(filedata):
 
     jv_dict['jv_curve'] = []
     for column in range(1, len(df_curves.columns)):
-        jv_dict['jv_curve'].append({'name': df_curves.columns[column],
-                                    'voltage': df_curves[df_curves.columns[0]].values,
-                                    'current_density': df_curves[df_curves.columns[column]].values})
+        jv_dict['jv_curve'].append(
+            {'name': df_curves.columns[column],
+             'voltage': df_curves[df_curves.columns[0]].values,
+             'current_density': df_curves[df_curves.columns[column]].values})
 
     return jv_dict
 
@@ -143,10 +144,13 @@ def get_jv_data_iris(filedata):
     jv_dict['jv_curve'] = []
 
     for column in range(0, len(df_curves.columns) // 2):
-        jv_dict['jv_curve'].append({'name': "_".join(df_curves.columns[2*column].split("_")[-3:]),
-                                    'dark': True if "dark" in df_curves.columns[2*column].lower() else False,
-                                    'voltage': df_curves[df_curves.columns[2*column]].values,
-                                    'current_density': df_curves[df_curves.columns[2*column+1]].values})
+        jv_dict['jv_curve'].append(
+            {'name': "_".join(df_curves.columns[2*column].split("_")[-3:]),
+             'dark': True
+             if "dark" in df_curves.columns[2*column].lower() else False,
+             'voltage': df_curves[df_curves.columns[2*column]].values,
+             'current_density':
+                 df_curves[df_curves.columns[2*column+1]].values})
 
     return jv_dict
 
@@ -154,5 +158,4 @@ def get_jv_data_iris(filedata):
 def get_jv_data(filedata):
     if filedata.startswith("Keithley"):
         return get_jv_data_hysprint(filedata), "HySprint HyVap"
-    else:
-        return get_jv_data_iris(filedata), 'IRIS HZBGloveBoxes Pero4SOSIMStorage'
+    return get_jv_data_iris(filedata), 'IRIS HZBGloveBoxes Pero4SOSIMStorage'

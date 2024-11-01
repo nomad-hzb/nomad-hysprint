@@ -39,13 +39,11 @@ def get_nk_data(filedata):
     count = find_row_with_data(file_lines[1:])
 
     metadata = {"Name": first_line[0].strip() if len(first_line) > 0 else "",
-                "Formula": first_line[1].strip() if len(first_line) > 1 else "",
-                "Reference": first_line[2].strip() if len(first_line) > 2 else "",
+                "Formula": first_line[1].strip()
+                if len(first_line) > 1 else "",
+                "Reference": first_line[2].strip()
+                if len(first_line) > 2 else "",
                 "Comment": first_line[3].strip() if len(first_line) > 3 else ""
                 }
     data = pd.read_csv(StringIO(filedata), sep='\t', header=0, skiprows=count)
     return data, metadata
-
-# data, m = get_nk_data('/home/a2853/Documents/Projects/nomad/hysprintlab/klaus/BCP.nk')
-# print(data.columns[0])
-# print(m)

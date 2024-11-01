@@ -25,7 +25,7 @@ def get_uvvis_measurement_csv(file_obj):
         file_obj.name, sections["SpectrumHeader"], sections["Data"])
     data = get_data_of_uvvis_csv_file(
         file_obj.name, sections["Data"], sections["EndOfFile"])
-    datetime_str = f"{metadata[metadata[0] == '#Date'][1].iloc[0]}_{metadata[metadata[0] == '#GMTTime'][1].iloc[0]}"
+    datetime_str = f"{metadata[metadata[0] == '#Date'][1].iloc[0]}_{metadata[metadata[0] == '#GMTTime'][1].iloc[0]}"  # noqa: E501
     datetime_object = datetime.strptime(
         datetime_str, '%Y%m%d_%H%M%S%f')
     return data, datetime_object

@@ -13,7 +13,7 @@ import pandas as pd
 def get_value(val):
     try:
         return float(val)
-    except:
+    except Exception:
         return None
 
 
@@ -47,13 +47,9 @@ def read_mppt_file(filedata):
 
     mppt_dict['time_data'] = np.array(df_curve["time"], dtype=np.float64)
     mppt_dict['voltage_data'] = np.array(df_curve["voltage"], dtype=np.float64)
-    mppt_dict['current_density_data'] = np.array(df_curve["current density"], dtype=np.float64)
+    mppt_dict['current_density_data'] = np.array(
+        df_curve["current density"],
+        dtype=np.float64)
     mppt_dict['power_data'] = np.array(df_curve["power"], dtype=np.float64)
 
     return mppt_dict
-
-
-# file = "/home/a2853/Documents/Projects/nomad/hysprintlab/mppt/0a4d713aea22a9edaf1ac8b98fd5e44e.20211129_ re_02-2.mppt.txt"
-# with open(file, 'br') as f:
-#     en = chardet.detect(f.read())["encoding"]
-# read_mppt_file(file, en)
