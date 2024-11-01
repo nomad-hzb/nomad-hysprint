@@ -24,15 +24,15 @@ Created on Fri Sep 27 09:08:03 2024
 #
 
 import pandas as pd
-from baseclasses.material_processes_misc.laser_scribing import (
-    LaserScribingProperties,
-)
 from baseclasses import LayerProperties, PubChemPureSubstanceSectionCustom
 from baseclasses.helper.utilities import create_archive
 from baseclasses.material_processes_misc import (
     AirKnifeGasQuenching,
     Annealing,
     AntiSolventQuenching,
+)
+from baseclasses.material_processes_misc.laser_scribing import (
+    LaserScribingProperties,
 )
 from baseclasses.solution import Solution, SolutionChemical
 from baseclasses.vapour_based_deposition.evaporation import (
