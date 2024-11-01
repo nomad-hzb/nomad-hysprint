@@ -1,0 +1,55 @@
+# This workflow will install Python dependencies, run tests, and lint with multiple version of Python
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+
+name: Python test
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+env:
+  UV_SYSTEM_PYTHON: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python_version: ["3.9", "3.10", "3.11"]
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python ${{matrix.python_version}}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{matrix.python_version}}
+    - name: Install uv
+      run: |
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+    - name: Install dependencies
+      run: |
+        uv pip install -e '.[dev]'
+    - name: Test with pytest
+      run: |
+        pytest
+
+  ruff-linting:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: chartboost/ruff-action@v1
+        with:
+          args: "check ."
+
+  ruff-formatting:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: chartboost/ruff-action@v1
+        with:
+          args: "format . --check"
