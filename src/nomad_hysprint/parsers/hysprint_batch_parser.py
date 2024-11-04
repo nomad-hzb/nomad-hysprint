@@ -428,7 +428,7 @@ def map_atomic_layer_deposition(i, j, lab_ids, data, upload_id):
     archive = IRIS_AtomicLayerDeposition(
         name='atomic layer deposition '
         + get_value(data, 'Material name', '', number=False),
-        position_in_experimental_plan=i,
+        positon_in_experimental_plan=i,
         description=get_value(data, 'Notes', '', number=False),
         samples=[
             CompositeSystemReference(
@@ -445,35 +445,39 @@ def map_atomic_layer_deposition(i, j, lab_ids, data, upload_id):
                 ),
             )
         ],
-    )
-
-    process = ALDPropertiesIris(
-        source=get_value(data, 'Source', None, number=False),
-        thickness=get_value(data, 'Thickness [nm]', None),
-        temperature=get_value(data, 'Temperature [°C]', None),
-        rate=get_value(data, 'Rate [A/s]', None),
-        time=get_value(data, 'Time [s]', None),
-        number_of_cycles=get_value(data, 'Number of cycles', None),
-        material=ALDMaterial(
-            material=PubChemPureSubstanceSectionCustom(
-                name=get_value(data, 'Precursor 1', None, number=False), load_data=False
-            ),
-            pulse_duration=get_value(data, 'Pulse duration 1 [s]', None),
-            manifold_temperature=get_value(data, 'Manifold temperature 1 [°C]', None),
-            bottle_temperature=get_value(data, 'Bottle temperature 1 [°C]', None),
-        ),
-        oxidizer=ALDMaterial(
-            material=PubChemPureSubstanceSectionCustom(
-                name=get_value(
-                    data, 'Precursor 2 (Oxidizer/Reducer)', None, number=False
+        properties=ALDPropertiesIris(
+            source=get_value(data, 'Source', None, number=False),
+            thickness=get_value(data, 'Thickness [nm]', None),
+            temperature=get_value(data, 'Temperature [°C]', None),
+            rate=get_value(data, 'Rate [A/s]', None),
+            time=get_value(data, 'Time [s]', None),
+            number_of_cycles=get_value(data, 'Number of cycles', None),
+            material=ALDMaterial(
+                material=PubChemPureSubstanceSectionCustom(
+                    name=get_value(data, 'Precursor 1', None, number=False),
+                    load_data=False,
                 ),
-                load_data=False,
+                pulse_duration=get_value(data, 'Pulse duration 1 [s]', None),
+                manifold_temperature=get_value(
+                    data, 'Manifold temperature 1 [°C]', None
+                ),
+                bottle_temperature=get_value(data, 'Bottle temperature 1 [°C]', None),
             ),
-            pulse_duration=get_value(data, 'Pulse duration 2 [s]', None),
-            manifold_temperature=get_value(data, 'Manifold temperature 2 [°C]', None),
+            oxidizer_reducer=ALDMaterial(
+                material=PubChemPureSubstanceSectionCustom(
+                    name=get_value(
+                        data, 'Precursor 2 (Oxidizer/Reducer)', None, number=False
+                    ),
+                    load_data=False,
+                ),
+                pulse_duration=get_value(data, 'Pulse duration 2 [s]', None),
+                manifold_temperature=get_value(
+                    data, 'Manifold temperature 2 [°C]', None
+                ),
+            ),
         ),
     )
-    archive.processes = [process]
+    # archive.processes = [process]
     material = get_value(data, 'Material name', '', number=False)
     return (f'{i}_{j}_ALD_{material}', archive)
 
