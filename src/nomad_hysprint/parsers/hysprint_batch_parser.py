@@ -477,7 +477,6 @@ def map_atomic_layer_deposition(i, j, lab_ids, data, upload_id):
             ),
         ),
     )
-    # archive.processes = [process]
     material = get_value(data, 'Material name', '', number=False)
     return (f'{i}_{j}_ALD_{material}', archive)
 
