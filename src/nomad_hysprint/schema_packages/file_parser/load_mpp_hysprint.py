@@ -84,7 +84,7 @@ def filter_and_process_mpp_data(df, box, sample_id, pixel_id, trigger_code):
     df_filtered = apply_filter_trigger_code(df, box, trigger_code)
     df_filtered = df.loc[
         (
-            df[f'Anlage_Box{box:02d}_Probe({sample_id})\_Pixel({pixel_id})_InMPPT_I']  # noqa: E501
+            df[f'Anlage_Box{box:02d}_Probe({sample_id})_Pixel({pixel_id})_InMPPT_I']  # noqa: E501
             > -999
         )
     ]
