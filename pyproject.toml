@@ -31,7 +31,8 @@ license = { file = "LICENSE" }
 dependencies = [
     "nomad-lab>=1.3.10",
     'nomad-baseclasses @ git+https://github.com/nomad-hzb/nomad-baseclasses.git',
-    'nomad-measurements']
+    'nomad-measurements',
+    'httpx==0.27.2']
 [project.urls]
 Repository = "https://github.com/nomad-hzb/nomad-hysprint"
 
