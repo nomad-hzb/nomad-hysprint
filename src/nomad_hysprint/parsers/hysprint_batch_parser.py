@@ -176,7 +176,8 @@ def map_solutions(data):
                     get_value(data, f'{solute} Concentration [mM]', None), 1 / 1000
                 ),
                 concentration_mass=get_value(
-                    data, f'{solute} Concentration [wt%]', None)
+                    data, f'{solute} Concentration [wt%]', None
+                ),
             )
         )
 
