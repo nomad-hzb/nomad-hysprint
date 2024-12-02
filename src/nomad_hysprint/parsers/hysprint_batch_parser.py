@@ -139,9 +139,9 @@ def map_solutions(data):
     solvents = []
     solutes = []
     for col in data.index:
-        if 'solvent' in col.lower():
+        if col.lower().startswith('solvent'):
             solvents.append(' '.join(col.split(' ')[:2]))
-        if 'solute' in col.lower():
+        if col.lower().startswith('solute'):
             solutes.append(' '.join(col.split(' ')[:2]))
 
     final_solvents = []
