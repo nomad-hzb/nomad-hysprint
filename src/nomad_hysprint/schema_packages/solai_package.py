@@ -107,7 +107,7 @@ class SOLAI_SolarCell(CompositeSystem, PlotSection, EntryData):
         # overview
         overview = pd.DataFrame(columns=['Synthesis', 'JV', 'PLI'])
         overview.loc[len(overview)] = [
-            f'{len(self.synthesis_processes) if self.synthesis_processes else 0}\ Synthesis Processes',  # noqa E501
+            f'{len(self.synthesis_processes) if self.synthesis_processes else 0} Synthesis Processes',  # noqa E501
             f'{len(self.pl_images) if self.pl_images else 0} PL Images',
             f'{len(self.jv_measurements) if self.jv_measurements else 0} JV curves',
         ]
