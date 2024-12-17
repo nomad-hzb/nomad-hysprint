@@ -89,8 +89,8 @@ select = [
     "PL",
 ]
 
-pylint.max-branches = 20
-pylint.max-statements = 65
+pylint.max-branches = 25
+pylint.max-statements = 75
 ignore = [
     "F403", # 'from module import *' used; unable to detect undefined names
     "PLR2004"
@@ -124,5 +124,6 @@ where = ["src"]
 
 [project.entry-points.'nomad.plugin']
 hysprint_package = "nomad_hysprint.schema_packages:hysprint_package"
+solai_package = "nomad_hysprint.schema_packages:solai_package"
 hysprint_parser = "nomad_hysprint.parsers:hysprint_parser"
 hysprint_experiment_parser = "nomad_hysprint.parsers:hysprint_experiment_parser"

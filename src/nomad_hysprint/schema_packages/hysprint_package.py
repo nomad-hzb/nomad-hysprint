@@ -89,12 +89,7 @@ from baseclasses.wet_chemical_deposition import (
 from nomad.datamodel.data import EntryData
 from nomad.datamodel.metainfo.plot import PlotlyFigure, PlotSection
 from nomad.datamodel.results import ELN, Material, Properties, Results
-from nomad.metainfo import (
-    Quantity,
-    SchemaPackage,
-    Section,
-    SubSection,
-)
+from nomad.metainfo import Quantity, SchemaPackage, Section, SubSection
 from nomad.units import ureg
 
 m_package = SchemaPackage()
