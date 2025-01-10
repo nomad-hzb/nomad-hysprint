@@ -17,14 +17,8 @@
 #
 
 
-import numpy as np
-from baseclasses import (
-    BaseProcess,
-)
-from nomad.datamodel.data import ArchiveSection, EntryData
 from nomad.datamodel.metainfo.simulation.workflow import SimulationWorkflow
-
-from nomad.metainfo import MEnum, Quantity, SchemaPackage, Section, SubSection
+from nomad.metainfo import SchemaPackage
 
 m_package = SchemaPackage()
 

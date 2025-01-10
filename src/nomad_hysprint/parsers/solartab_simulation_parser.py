@@ -23,23 +23,21 @@ Created on Fri Sep 27 09:08:03 2024
 # limitations under the License.
 #
 
-import pandas as pd
-from nomad.datamodel.data import ArchiveSection, EntryData
-from nomad.parsing import MatchingParser
-from nomad.datamodel import EntryArchive
 import os
 
-from nomad.metainfo import MEnum, Quantity, SchemaPackage, Section, SubSection
+from nomad.datamodel import EntryArchive
+from nomad.datamodel.data import EntryData
+from nomad.metainfo import Quantity
+from nomad.parsing import MatchingParser
 
 
 class SolarTabRawFile(EntryData):
-    data_file = Quantity(type=str,
-                         a_browser=dict(adaptor='RawFileAdaptor'),
-                         )
+    data_file = Quantity(
+        type=str,
+        a_browser=dict(adaptor='RawFileAdaptor'),
+    )
 
 
 class SolarTabSimulationParser(MatchingParser):
-
     def parse(self, mainfile: str, archive: EntryArchive, logger):
-
         archive.data = SolarTabRawFile(data_file=os.path.basename(mainfile))
