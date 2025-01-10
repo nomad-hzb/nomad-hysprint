@@ -17,6 +17,15 @@ class HySprintExperimentParserEntryPoint(ParserEntryPoint):
         return HySprintExperimentParser(**self.dict())
 
 
+class SolarTabSimulationParserEntryPoint(ParserEntryPoint):
+    def load(self):
+        from nomad_hysprint.parsers.solartab_simulation_parser import (
+            SolarTabSimulationParser,
+        )
+
+        return SolarTabSimulationParser(**self.dict())
+
+
 hysprint_parser = HySprintParserEntryPoint(
     name='HySprintParser',
     description='Parser for Hysprint files',
@@ -31,4 +40,11 @@ hysprint_experiment_parser = HySprintExperimentParserEntryPoint(
     mainfile_name_re='^(.+\.xlsx)$',
     # mainfile_contents_re='Experiment Info',
     mainfile_mime_re='(application|text|image)/.*',
+)
+
+
+solartab_sim_parser = SolarTabSimulationParserEntryPoint(
+    name='SolarTabSimulationParser',
+    description='Parser for Solartab simulation files',
+    mainfile_name_re='^.*solartab.*$',
 )

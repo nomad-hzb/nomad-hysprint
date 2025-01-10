@@ -15,6 +15,13 @@ class SOLAIPackageEntryPoint(SchemaPackageEntryPoint):
         return m_package
 
 
+class SolarTabPackageEntryPoint(SchemaPackageEntryPoint):
+    def load(self):
+        from nomad_hysprint.schema_packages.solartab_package import m_package
+
+        return m_package
+
+
 hysprint_package = HySprintPackageEntryPoint(
     name='HySprint',
     description='Package for HZB HySprint Lab',
@@ -23,4 +30,9 @@ hysprint_package = HySprintPackageEntryPoint(
 solai_package = SOLAIPackageEntryPoint(
     name='SolAI',
     description='Package for SOLAI specific schema',
+)
+
+solartab_package = SolarTabPackageEntryPoint(
+    name='SolarTab',
+    description='Package for SolarTab specific schema',
 )

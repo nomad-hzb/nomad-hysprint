@@ -126,4 +126,6 @@ where = ["src"]
 hysprint_package = "nomad_hysprint.schema_packages:hysprint_package"
 solai_package = "nomad_hysprint.schema_packages:solai_package"
 hysprint_parser = "nomad_hysprint.parsers:hysprint_parser"
+solartab_sim_parser = "nomad_hysprint.parsers:solartab_sim_parser"
+solartab_package = "nomad_hysprint.schema_packages:solartab_package"
 hysprint_experiment_parser = "nomad_hysprint.parsers:hysprint_experiment_parser"
