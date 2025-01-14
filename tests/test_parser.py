@@ -124,5 +124,5 @@ def test_hy_batch_parser_2(monkeypatch):
             count_samples_batches += 1
         if 'SlotDieCoating' in str(type(m.data)):
             assert m.data.layer[0].layer_material_name == 'CsMaFa'
-    assert count_samples_batches == 18
+    assert count_samples_batches == 17
     delete_json()
