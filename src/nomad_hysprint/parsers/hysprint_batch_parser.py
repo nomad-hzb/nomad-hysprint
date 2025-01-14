@@ -198,8 +198,9 @@ class HySprintExperimentParser(MatchingParser):
 
                 if 'Sputtering' in col:
                     archives.append(
-                        map_sputtering(i, j, lab_ids, row, upload_id,
-                                       HySprint_Sputtering)
+                        map_sputtering(
+                            i, j, lab_ids, row, upload_id, HySprint_Sputtering
+                        )
                     )
 
                 if 'Inkjet Printing' in col:
