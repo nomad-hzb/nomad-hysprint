@@ -100,3 +100,29 @@ def test_hy_batch_parser(monkeypatch):
             )
     assert count_samples_batches == 5
     delete_json()
+
+
+def test_hy_batch_parser_2(monkeypatch):
+    file = '20250114_experiment_file.xlsx'
+    file_name = os.path.join('tests', 'data', file)
+    file_archive = parse(file_name)[0]
+    assert len(file_archive.data.processed_archive) == 13
+
+    measurement_archives = []
+    for file in os.listdir(os.path.join('tests/data')):
+        if 'archive.json' not in file:
+            continue
+        measurement = os.path.join('tests', 'data', file)
+        measurement_archives.append(parse(measurement)[0])
+    measurement_archives.sort(key=lambda x: x.metadata.mainfile)
+
+    count_samples_batches = 0
+    for m in measurement_archives:
+        if 'HySprint_Sample' in str(type(m.data)) or 'HySprint_Batch' in str(
+            type(m.data)
+        ):
+            count_samples_batches += 1
+        if 'SlotDieCoating' in str(type(m.data)):
+            assert m.data.layer[0].layer_material_name == 'CsMaFa'
+    assert count_samples_batches == 18
+    delete_json()
