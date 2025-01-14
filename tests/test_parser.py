@@ -106,7 +106,7 @@ def test_hy_batch_parser_2(monkeypatch):
     file = '20250114_experiment_file.xlsx'
     file_name = os.path.join('tests', 'data', file)
     file_archive = parse(file_name)[0]
-    assert len(file_archive.data.processed_archive) == 13
+    assert len(file_archive.data.processed_archive) == 27
 
     measurement_archives = []
     for file in os.listdir(os.path.join('tests/data')):
