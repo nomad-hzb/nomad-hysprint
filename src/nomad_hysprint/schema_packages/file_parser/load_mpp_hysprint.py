@@ -160,8 +160,8 @@ def parse_sample(info, sample_id, df):
     df_sample = df[
         [
             'Zeitstempel',
-            f"Anlage_Box{info['box']:02d}_Probe({sample_id})_InTemperatur",  # noqa: E501
-            f"Anlage_Box{info['box']:02d}_Probe({sample_id})_InEinstrahlung",
+            f'Anlage_Box{info["box"]:02d}_Probe({sample_id})_InTemperatur',  # noqa: E501
+            f'Anlage_Box{info["box"]:02d}_Probe({sample_id})_InEinstrahlung',
         ]
     ].copy()  # noqa: E501
 

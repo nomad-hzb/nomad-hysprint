@@ -13,7 +13,7 @@ def get_trpl_measurement(filedata):
             ns_per_bin = float(line)
         if line.startswith('#counts'):
             count_line = l_idx + 1
-        if l_idx >= count_line and count_line >= 0:
+        if l_idx >= count_line >= 0:
             counts.append(float(line))
             time.append(
                 float((l_idx + 1 - count_line) * ns_per_bin)

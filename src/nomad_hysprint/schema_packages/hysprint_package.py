@@ -512,7 +512,8 @@ class HySprint_SpinCoating(SpinCoating, EntryData):
                     'name',
                     'location',
                     'present',
-                    'recipe' 'datetime',
+                    'recipe',
+                    'datetime',
                     'previous_process',
                     'batch',
                     'samples',
@@ -1516,7 +1517,8 @@ class HySprint_Process(BaseProcess, EntryData):
                 'instruments',
                 'results',
             ],
-            properties=dict(order=['name', 'present', 'data_file', 'batch', 'samples']),
+            properties=dict(
+                order=['name', 'present', 'data_file', 'batch', 'samples']),
         )
     )
 
