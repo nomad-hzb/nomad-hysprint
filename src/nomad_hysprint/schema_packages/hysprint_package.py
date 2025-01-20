@@ -1517,8 +1517,7 @@ class HySprint_Process(BaseProcess, EntryData):
                 'instruments',
                 'results',
             ],
-            properties=dict(
-                order=['name', 'present', 'data_file', 'batch', 'samples']),
+            properties=dict(order=['name', 'present', 'data_file', 'batch', 'samples']),
         )
     )
 
