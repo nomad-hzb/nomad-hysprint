@@ -38,7 +38,7 @@ from baseclasses.chemical_energy import ElectroChemicalSetup, Electrode, Environ
 from baseclasses.data_transformations import NKData
 from baseclasses.experimental_plan import ExperimentalPlan
 from baseclasses.helper.add_solar_cell import add_band_gap
-from baseclasses.helper.utilities import get_encoding
+from baseclasses.helper.utilities import get_encoding, set_sample_reference
 from baseclasses.material_processes_misc import (
     Cleaning,
     LaserScribing,
@@ -956,6 +956,10 @@ class HySprint_JVmeasurement(JVMeasurement, EntryData):
             get_jv_data,
         )
 
+        if not self.samples and self.data_file:
+            search_id = self.data_file.split('.')[0]
+            set_sample_reference(archive, self, search_id)
+
         if self.data_file:
             # todo detect file format
             with archive.m_context.raw_file(self.data_file, 'br') as f:
@@ -1003,6 +1007,10 @@ class HySprint_SimpleMPPTracking(MPPTracking, EntryData):
         from nomad_hysprint.schema_packages.file_parser.mppt_simple import (
             read_mppt_file,
         )
+
+        if not self.samples and self.data_file:
+            search_id = self.data_file.split('.')[0]
+            set_sample_reference(archive, self, search_id)
 
         if self.data_file:
             with archive.m_context.raw_file(self.data_file, 'br') as f:
@@ -1174,6 +1182,12 @@ class HySprint_TimeResolvedPhotoluminescence(TimeResolvedPhotoluminescence, Entr
         ],
     )
 
+    def normalize(self, archive, logger):
+        if not self.samples and self.data_file:
+            search_id = self.data_file.split('.')[0]
+            set_sample_reference(archive, self, search_id)
+        super().normalize(archive, logger)
+
 
 class HySprint_OpticalMicroscope(OpticalMicroscope, EntryData):
     m_def = Section(
@@ -1194,6 +1208,12 @@ class HySprint_OpticalMicroscope(OpticalMicroscope, EntryData):
             properties=dict(order=['name', 'data_file', 'samples', 'solution']),
         ),
     )
+
+    def normalize(self, archive, logger):
+        if not self.samples and self.data_file:
+            search_id = self.data_file.split('.')[0]
+            set_sample_reference(archive, self, search_id)
+        super().normalize(archive, logger)
 
 
 class HySprint_EQEmeasurement(EQEMeasurement, EntryData):
@@ -1230,6 +1250,10 @@ class HySprint_EQEmeasurement(EQEMeasurement, EntryData):
         from nomad_hysprint.schema_packages.file_parser.eqe_parser import (
             read_file_multiple,
         )
+
+        if not self.samples and self.data_file:
+            search_id = self.data_file.split('.')[0]
+            set_sample_reference(archive, self, search_id)
 
         if self.data_file:
             with archive.m_context.raw_file(self.data_file, 'br') as f:
@@ -1285,6 +1309,12 @@ class HySprint_PLmeasurement(PLMeasurement, EntryData):
         ],
     )
 
+    def normalize(self, archive, logger):
+        if not self.samples and self.data_file:
+            search_id = self.data_file.split('.')[0]
+            set_sample_reference(archive, self, search_id)
+        super().normalize(archive, logger)
+
 
 class HySprint_SEM(SEM_Microscope_Merlin, EntryData):
     m_def = Section(
@@ -1306,6 +1336,9 @@ class HySprint_SEM(SEM_Microscope_Merlin, EntryData):
 
     def normalize(self, archive, logger):
         self.method = 'SEM'
+        if not self.samples and self.data_file:
+            search_id = self.data_file.split('.')[0]
+            set_sample_reference(archive, self, search_id)
         super().normalize(archive, logger)
 
 
@@ -1344,6 +1377,10 @@ class HySprint_XRD_XY(XRD, EntryData):
     def normalize(self, archive, logger):
         import pandas as pd
 
+        if not self.samples and self.data_file:
+            search_id = self.data_file.split('.')[0]
+            set_sample_reference(archive, self, search_id)
+
         if self.data_file:
             with archive.m_context.raw_file(self.data_file, 'tr') as f:
                 if os.path.splitext(self.data_file)[-1] == '.xy' and self.data is None:
@@ -1379,6 +1416,12 @@ class HySprint_PLImaging(PLImaging, EntryData):
         )
     )
 
+    def normalize(self, archive, logger):
+        if not self.samples and self.data_file:
+            search_id = self.data_file.split('.')[0]
+            set_sample_reference(archive, self, search_id)
+        super().normalize(archive, logger)
+
 
 class HySprint_UVvismeasurement(UVvisMeasurement, EntryData):
     m_def = Section(
@@ -1395,6 +1438,12 @@ class HySprint_UVvismeasurement(UVvisMeasurement, EntryData):
             properties=dict(order=['name', 'data_file', 'samples', 'solution']),
         )
     )
+
+    def normalize(self, archive, logger):
+        if not self.samples and self.data_file:
+            search_id = self.data_file.split('.')[0]
+            set_sample_reference(archive, self, search_id)
+        super().normalize(archive, logger)
 
 
 # %%####################################### Data Transformations
@@ -1571,6 +1620,12 @@ class HySprint_Measurement(BaseMeasurement, EntryData):
         a_eln=dict(component='FileEditQuantity'),
         a_browser=dict(adaptor='RawFileAdaptor'),
     )
+
+    def normalize(self, archive, logger):
+        if not self.samples and self.data_file:
+            search_id = self.data_file.split('.')[0]
+            set_sample_reference(archive, self, search_id)
+        super().normalize(archive, logger)
 
 
 m_package.__init_metainfo__()
