@@ -284,16 +284,19 @@ class SOLAI_SolarCell(CompositeSystem, PlotSection, EntryData):
                 ]
 
             for process in self.synthesis_processes:
-                if process.layer:
-                    addLayerDepositionToStack(archive, process.m_to_dict())
+                try:
+                    if process.layer:
+                        addLayerDepositionToStack(archive, process.m_to_dict())
 
-                if (
-                    process.m_parent.results.material
-                    and process.m_parent.results.material.elements
-                ):
-                    archive.results.material.elements.extend(
-                        process.m_parent.results.material.elements
-                    )
+                    if (
+                        process.m_parent.results.material
+                        and process.m_parent.results.material.elements
+                    ):
+                        archive.results.material.elements.extend(
+                            process.m_parent.results.material.elements
+                        )
+                except Exception:
+                    continue
 
 
 m_package.__init_metainfo__()
