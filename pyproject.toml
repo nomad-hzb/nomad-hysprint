@@ -90,7 +90,7 @@ select = [
 ]
 
 pylint.max-branches = 25
-pylint.max-statements = 75
+pylint.max-statements = 100
 ignore = [
     "F403", # 'from module import *' used; unable to detect undefined names
     "PLR2004"
