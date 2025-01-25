@@ -276,7 +276,7 @@ class SOLAI_SolarCell(CompositeSystem, PlotSection, EntryData):
         archive.results.properties.optoelectronic.solar_cell.device_stack = []
         archive.results.properties.optoelectronic.solar_cell.substrate = []
         if self.substrate_reference:
-            if self.substrate_reference.substrate is not None:
+            if getattr(self.substrate_reference, 'substrate', None):
                 if self.substrate_reference.substrate.substrate is not None:
                     archive.results.properties.optoelectronic.solar_cell.substrate = [
                         self.substrate_reference.substrate.substrate
@@ -292,10 +292,10 @@ class SOLAI_SolarCell(CompositeSystem, PlotSection, EntryData):
                         self.substrate_reference.substrate.conducting_material
                     )
 
-            if self.substrate_reference.architecture:
+            if getattr(self.substrate_reference, 'architecture', None):
                 archive.results.properties.optoelectronic.solar_cell.device_architecture = self.substrate_reference.architecture  # noqa E501
 
-            if self.substrate_reference.substrate:
+            if getattr(self.substrate_reference, 'substrate', None):
                 if self.substrate_reference.substrate.pixel_area:
                     archive.results.properties.optoelectronic.solar_cell.device_area = (  # noqa E501
                         self.substrate_reference.substrate.pixel_area
