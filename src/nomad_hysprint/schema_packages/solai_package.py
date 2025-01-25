@@ -148,9 +148,11 @@ class SOLAI_SolarCell(CompositeSystem, PlotSection, EntryData):
             solar_cell.short_circuit_current_density = self.jv_measurements[
                 max_idx
             ].jv_measurement.short_circuit_current_density
-            solar_cell.fill_factor = (
-                self.jv_measurements[max_idx].jv_measurement.fill_factor_percent / 100
-            )
+            solar_cell.fill_factor = self.jv_measurements[
+                max_idx
+            ].jv_measurement.fill_factor_in_percent
+            if solar_cell.fill_factor:
+                solar_cell.fill_factor /= 100
             solar_cell.efficiency = self.jv_measurements[
                 max_idx
             ].jv_measurement.efficiency_in_percent
@@ -268,10 +270,7 @@ class SOLAI_SolarCell(CompositeSystem, PlotSection, EntryData):
             try:
                 self.get_solar_cell_params_1(archive)
             except Exception:
-                try:
-                    self.get_solar_cell_params_2(archive)
-                except Exception:
-                    pass
+                self.get_solar_cell_params_2(archive)
 
         archive.results.properties.optoelectronic.solar_cell.device_stack = []
         archive.results.properties.optoelectronic.solar_cell.substrate = []
