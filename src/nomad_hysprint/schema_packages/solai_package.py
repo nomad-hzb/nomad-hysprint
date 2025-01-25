@@ -98,6 +98,66 @@ class SOLAI_SolarCell(CompositeSystem, PlotSection, EntryData):
     pl_images = SubSection(section_def=SOLAI_PLImage, repeats=True)
     jv_measurements = SubSection(section_def=SOLAI_JVMeasurement, repeats=True)
 
+    def get_solar_cell_params_1(self, archive):
+        # export to results section
+        max_idx = -1
+        eff = -1
+        add_solar_cell(archive)
+        for i, curve in enumerate(self.jv_measurements):
+            if (
+                getattr(curve.jv_measurement, 'efficiency', None) is not None
+                and curve.jv_measurement.efficiency > eff
+            ):
+                eff = curve.jv_measurement.efficiency
+                max_idx = i
+        if max_idx >= 0:
+            solar_cell = archive.results.properties.optoelectronic.solar_cell
+            solar_cell.open_circuit_voltage = self.jv_measurements[
+                max_idx
+            ].jv_measurement.open_circuit_voltage
+            solar_cell.short_circuit_current_density = self.jv_measurements[
+                max_idx
+            ].jv_measurement.short_circuit_current_density
+            solar_cell.fill_factor = self.jv_measurements[
+                max_idx
+            ].jv_measurement.fill_factor
+            solar_cell.efficiency = self.jv_measurements[
+                max_idx
+            ].jv_measurement.efficiency
+            solar_cell.illumination_intensity = self.jv_measurements[
+                max_idx
+            ].jv_measurement.light_intensity
+
+    def get_solar_cell_params_2(self, archive):
+        # export to results section
+        max_idx = -1
+        eff = -1
+        add_solar_cell(archive)
+        for i, curve in enumerate(self.jv_measurements):
+            if (
+                getattr(curve.jv_measurement, 'efficiency_in_percent', None) is not None
+                and curve.jv_measurement.efficiency_in_percent > eff
+            ):
+                eff = curve.jv_measurement.efficiency_in_percent
+                max_idx = i
+        if max_idx >= 0:
+            solar_cell = archive.results.properties.optoelectronic.solar_cell
+            solar_cell.open_circuit_voltage = self.jv_measurements[
+                max_idx
+            ].jv_measurement.open_circuit_voltage
+            solar_cell.short_circuit_current_density = self.jv_measurements[
+                max_idx
+            ].jv_measurement.short_circuit_current_density
+            solar_cell.fill_factor = (
+                self.jv_measurements[max_idx].jv_measurement.fill_factor_percent / 100
+            )
+            solar_cell.efficiency = self.jv_measurements[
+                max_idx
+            ].jv_measurement.efficiency_in_percent
+            solar_cell.illumination_intensity = self.jv_measurements[
+                max_idx
+            ].jv_measurement.light_intensity
+
     def normalize(self, archive, logger):
         super(CompositeSystem, self).normalize(archive, logger)
         import pandas as pd
@@ -204,35 +264,14 @@ class SOLAI_SolarCell(CompositeSystem, PlotSection, EntryData):
             )
         self.figures = result_figures
 
-        # export to results section
-        max_idx = -1
-        eff = -1
-        add_solar_cell(archive)
         if self.jv_measurements:
-            for i, curve in enumerate(self.jv_measurements):
-                if (
-                    curve.jv_measurement.efficiency is not None
-                    and curve.jv_measurement.efficiency > eff
-                ):
-                    eff = curve.jv_measurement.efficiency
-                    max_idx = i
-            if max_idx >= 0:
-                solar_cell = archive.results.properties.optoelectronic.solar_cell
-                solar_cell.open_circuit_voltage = self.jv_measurements[
-                    max_idx
-                ].jv_measurement.open_circuit_voltage
-                solar_cell.short_circuit_current_density = self.jv_measurements[
-                    max_idx
-                ].jv_measurement.short_circuit_current_density
-                solar_cell.fill_factor = self.jv_measurements[
-                    max_idx
-                ].jv_measurement.fill_factor
-                solar_cell.efficiency = self.jv_measurements[
-                    max_idx
-                ].jv_measurement.efficiency
-                solar_cell.illumination_intensity = self.jv_measurements[
-                    max_idx
-                ].jv_measurement.light_intensity
+            try:
+                self.get_solar_cell_params_1(archive)
+            except Exception:
+                try:
+                    self.get_solar_cell_params_2(archive)
+                except Exception:
+                    pass
 
         archive.results.properties.optoelectronic.solar_cell.device_stack = []
         archive.results.properties.optoelectronic.solar_cell.substrate = []
