@@ -113,7 +113,7 @@ class SOLAI_SolarCell(CompositeSystem, PlotSection, EntryData):
         eff = -1
         for i, curve in enumerate(self.jv_measurements):
             if (
-                getattr(curve.jv_measurement, 'efficiency', None)
+                curve.jv_measurement.efficiency
                 and curve.jv_measurement.efficiency > eff
             ):
                 eff = curve.jv_measurement.efficiency
@@ -136,7 +136,7 @@ class SOLAI_SolarCell(CompositeSystem, PlotSection, EntryData):
         eff = -1
         for i, curve in enumerate(self.jv_measurements):
             if (
-                getattr(curve.jv_measurement, 'efficiency_in_percent', None)
+                curve.jv_measurement.efficiency_in_percent
                 and curve.jv_measurement.efficiency_in_percent > eff
             ):
                 eff = curve.jv_measurement.efficiency_in_percent
