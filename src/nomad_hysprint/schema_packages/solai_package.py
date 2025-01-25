@@ -120,6 +120,7 @@ class SOLAI_SolarCell(CompositeSystem, PlotSection, EntryData):
                 max_idx = i
         if max_idx >= 0:
             self.set_solar_cell_params(
+                archive,
                 self.jv_measurements[max_idx].jv_measurement.open_circuit_voltage,
                 self.jv_measurements[
                     max_idx
@@ -142,6 +143,7 @@ class SOLAI_SolarCell(CompositeSystem, PlotSection, EntryData):
                 max_idx = i
         if max_idx >= 0:
             self.set_solar_cell_params(
+                archive,
                 self.jv_measurements[max_idx].jv_measurement.open_circuit_voltage,
                 self.jv_measurements[
                     max_idx
