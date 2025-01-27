@@ -78,6 +78,44 @@ class SOLAI_JVMeasurement(ArchiveSection):
     )
 
 
+class SOLAI_UVVISMeasurement(ArchiveSection):
+    m_def = Section(label_quantity='name')
+    name = Quantity(type=str)
+    # scan_type = Quantity(
+    #     type=MEnum('Forward Light', 'Reverse Light', 'Forward Dark', 'Reverse Dark')
+    # )
+
+    uvvis_measurement = Quantity(
+        type=ArchiveSection,
+    )
+    intensity = Quantity(
+        links=['https://purl.archive.org/tfsco/TFSCO_00001128'],
+        type=np.dtype(np.float64),
+        shape=['*'],
+    )
+
+    wavelength = Quantity(
+        links=[
+            'http://purl.obolibrary.org/obo/PATO_0001242',
+            'https://purl.archive.org/tfsco/TFSCO_00002040',
+        ],
+        type=np.dtype(np.float64),
+        shape=['*'],
+        unit='nm',
+        a_plot=[
+            {
+                'x': 'wavelength',
+                'y': 'intensity',
+                'layout': {
+                    'yaxis': {'fixedrange': False},
+                    'xaxis': {'fixedrange': False},
+                },
+                'config': {'editable': True, 'scrollZoom': True},
+            }
+        ],
+    )
+
+
 class SOLAI_SolarCell(CompositeSystem, PlotSection, EntryData):
     m_def = Section(
         a_eln=dict(
@@ -98,6 +136,7 @@ class SOLAI_SolarCell(CompositeSystem, PlotSection, EntryData):
     pl_images = SubSection(section_def=SOLAI_PLImage, repeats=True)
     jv_measurements = SubSection(section_def=SOLAI_JVMeasurement, repeats=True)
     jv_measurements_dark = SubSection(section_def=SOLAI_JVMeasurement, repeats=True)
+    uvvis_measurements = SubSection(section_def=SOLAI_UVVISMeasurement, repeats=True)
 
     def set_solar_cell_params(self, archive, voc, jsc, ff, eff, intensity):
         solar_cell = archive.results.properties.optoelectronic.solar_cell
@@ -258,6 +297,46 @@ class SOLAI_SolarCell(CompositeSystem, PlotSection, EntryData):
                     figure=fig2.to_plotly_json(),
                 )
             )
+
+        if self.uvvis_measurements:
+            import pandas as pd
+
+            # Light JV curves
+            fig2 = go.Figure()
+            traces = []
+            for curve in self.uvvis_measurements:
+                show = True
+                traces.append(
+                    go.Scatter(
+                        x=curve.wavelength.to('nm'),
+                        y=curve.intensity,
+                        name=curve.name,
+                        visible=show,
+                    )
+                )
+            fig2.add_traces(traces)
+            layout_settings = {
+                'title': 'UVVis Curves',
+                'xaxis': {'title': 'Wavelength (nm)', 'gridcolor': 'lightgrey'},
+                'yaxis': {
+                    'title': 'Intensity',
+                    'showgrid': True,
+                    'gridcolor': 'lightgrey',
+                },
+                'showlegend': True,
+                'legend': {'x': 0.02, 'y': 0.98},
+                'plot_bgcolor': 'white',
+            }
+            fig2.update_layout(layout_settings)
+            result_figures.append(
+                PlotlyFigure(
+                    label='UVVis Curves',
+                    index=2,
+                    open=True,
+                    figure=fig2.to_plotly_json(),
+                )
+            )
+
         self.figures = result_figures
         add_solar_cell(archive)
         if self.jv_measurements:
