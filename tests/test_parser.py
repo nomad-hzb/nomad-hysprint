@@ -127,8 +127,10 @@ def test_hy_batch_parser(monkeypatch):  # noqa: PLR0915
             assert m.data.solution[0].solution_volume == (1 * ureg('uL')).to('ml')
             assert m.data.solution[0].solution_details.solvent[0].chemical_2.name == 'Ethanol'
             assert m.data.solution[0].solution_details.solvent[0].chemical_volume == (1 * ureg('uL')).to('ml')
+            assert m.data.solution[0].solution_details.solvent[0].amount_relative == 1
             assert m.data.solution[0].solution_details.solute[0].chemical_2.name == 'PbI2'
             assert m.data.solution[0].solution_details.solute[0].concentration_mol == 2 * ureg('mM')
+            assert m.data.solution[0].solution_details.solute[0].amount_relative == 0.5
             assert m.data.recipe_steps[0].speed == 100 * ureg('rpm')
             assert m.data.recipe_steps[0].time == 10 * ureg('s')
             assert m.data.recipe_steps[0].acceleration == 100 * ureg('rpm/s')
