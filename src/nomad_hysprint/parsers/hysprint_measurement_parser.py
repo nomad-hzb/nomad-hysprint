@@ -18,6 +18,7 @@
 
 import datetime
 import os
+import sys
 
 from baseclasses.helper.utilities import (
     create_archive,
@@ -41,9 +42,12 @@ from nomad.metainfo import (
 from nomad.parsing import MatchingParser
 
 from nomad_hysprint.schema_packages.hysprint_package import (
+    HySprint_CyclicVoltammetry,
+    HySprint_ElectrochemicalImpedanceSpectroscopy,
     HySprint_EQEmeasurement,
     HySprint_JVmeasurement,
     HySprint_Measurement,
+    HySprint_OpenCircuitVoltage,
     HySprint_PLImaging,
     HySprint_PLmeasurement,
     HySprint_SEM,
@@ -69,6 +73,44 @@ class RawFileHZB(EntryData):
     )
 
 
+def update_general_process_entries(entry, entry_id, archive, logger):
+    from nomad import files
+    from nomad.search import search
+
+    query = {
+        'entry_id': entry_id,
+    }
+    search_result = search(
+        owner='all', query=query, user_id=archive.metadata.main_author.user_id
+    )
+    entry_type = (
+        search_result.data[0].get('entry_type')
+        if len(search_result.data) == 1
+        else None
+    )
+    if entry_type != 'HySprint_Measurement':
+        return None
+    new_entry_dict = entry.m_to_dict()
+    res = search_result.data[0]
+    try:
+        # Open Archives
+        with files.UploadFiles.get(upload_id=res['upload_id']).read_archive(
+            entry_id=res['entry_id']
+        ) as ar:
+            entry_id = res['entry_id']
+            entry_data = ar[entry_id]['data']
+            entry_data.pop('m_def', None)
+            new_entry_dict.update(entry_data)
+    except Exception:
+        pass
+        # logger.error('Error in processing data: ', e)
+    print(type(entry).__name__)
+    new_entry = getattr(sys.modules[__name__], type(entry).__name__).m_from_dict(
+        new_entry_dict
+    )
+    return new_entry
+
+
 class HySprintParser(MatchingParser):
     def parse(self, mainfile: str, archive: EntryArchive, logger):
         # Log a hello world, just to get us started. TODO remove from an actual parser.
@@ -79,6 +121,19 @@ class HySprintParser(MatchingParser):
             notes = '.'.join(mainfile_split[1:-2])
         measurment_type = mainfile_split[-2].lower()
         entry = HySprint_Measurement()
+        if mainfile_split[-1] == 'mpt' and measurment_type == 'hy':
+            from nomad_hysprint.schema_packages.file_parser.mps_file_parser import (
+                read_mpt_file,
+            )
+
+            with open(mainfile) as f:
+                metadata, _, technique = read_mpt_file(f)
+            if 'Cyclic Voltammetry' in technique:
+                entry = HySprint_CyclicVoltammetry()
+            if 'Open Circuit Voltage' in technique:
+                entry = HySprint_OpenCircuitVoltage()
+            if 'Potentio Electrochemical Impedance Spectroscopy' in technique:
+                entry = HySprint_ElectrochemicalImpedanceSpectroscopy()
         if mainfile_split[-1] == 'txt' and measurment_type == 'jv':
             entry = HySprint_JVmeasurement()
         if mainfile_split[-1] == 'txt' and measurment_type == 'spv':
@@ -121,4 +176,8 @@ class HySprintParser(MatchingParser):
         archive.data = RawFileHZB(
             processed_archive=get_reference(archive.metadata.upload_id, eid)
         )
-        create_archive(entry, archive, file_name)
+        new_entry_created = create_archive(entry, archive, file_name)
+        if not new_entry_created:
+            new_entry = update_general_process_entries(entry, eid, archive, logger)
+            if new_entry is not None:
+                create_archive(new_entry, archive, file_name, overwrite=True)

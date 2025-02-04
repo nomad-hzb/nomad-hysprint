@@ -34,7 +34,14 @@ from baseclasses.assays import (
 from baseclasses.characterizations import XRD, XRDData
 from baseclasses.characterizations.electron_microscopy import SEM_Microscope_Merlin
 from baseclasses.chemical import Chemical
-from baseclasses.chemical_energy import ElectroChemicalSetup, Electrode, Environment
+from baseclasses.chemical_energy import (
+    CyclicVoltammetry,
+    ElectrochemicalImpedanceSpectroscopy,
+    ElectroChemicalSetup,
+    Electrode,
+    Environment,
+    OpenCircuitVoltage,
+)
 from baseclasses.data_transformations import NKData
 from baseclasses.experimental_plan import ExperimentalPlan
 from baseclasses.helper.add_solar_cell import add_band_gap
@@ -1444,6 +1451,208 @@ class HySprint_UVvismeasurement(UVvisMeasurement, EntryData):
         if not self.samples and self.data_file:
             search_id = self.data_file.split('.')[0]
             set_sample_reference(archive, self, search_id)
+        super().normalize(archive, logger)
+
+
+class HySprint_CyclicVoltammetry(CyclicVoltammetry, EntryData):
+    m_def = Section(
+        a_eln=dict(
+            hide=[
+                'lab_id',
+                'solution',
+                'users',
+                'location',
+                'end_time',
+                'steps',
+                'instruments',
+                'results',
+                'metadata_file',
+                'station',
+                'voltage',
+                'current',
+                'current_density',
+                'charge_density',
+                'control',
+                'charge',
+                'time',
+                'voltage_rhe_uncompensated',
+                'voltage_ref_compensated',
+                'voltage_rhe_compensated',
+            ],
+            properties=dict(
+                order=['name', 'data_file', 'environment', 'setup', 'samples']
+            ),
+        ),
+        a_plot=[
+            {
+                'x': 'cycles/:/voltage',
+                'y': 'cycles/:/current',
+                'layout': {
+                    'showlegend': True,
+                    'yaxis': {'fixedrange': False},
+                    'xaxis': {'fixedrange': False},
+                },
+            },
+            {
+                'label': 'Current Density over Voltage RHE',
+                'x': 'cycles/:/voltage_rhe_compensated',
+                'y': 'cycles/:/current_density',
+                'layout': {
+                    'showlegend': True,
+                    'yaxis': {'fixedrange': False},
+                    'xaxis': {'fixedrange': False},
+                },
+            },
+        ],
+    )
+
+    def normalize(self, archive, logger):
+        if self.data_file:
+            with archive.m_context.raw_file(self.data_file, 'rt') as f:
+                if os.path.splitext(self.data_file)[-1] == '.mpt':
+                    from baseclasses.helper.archive_builder.mpt_get_archive import (
+                        get_cv_properties,
+                        get_voltammetry_data,
+                    )
+
+                    from nomad_hysprint.schema_packages.file_parser.mps_file_parser import (
+                        read_mpt_file,
+                    )
+
+                    metadata, data, technique = read_mpt_file(f)
+                    get_voltammetry_data(data, self)
+
+                    if 'Cyclic' in technique and self.properties is None:
+                        self.properties = get_cv_properties(metadata)
+        super().normalize(archive, logger)
+
+
+class HySprint_ElectrochemicalImpedanceSpectroscopy(
+    ElectrochemicalImpedanceSpectroscopy, EntryData
+):
+    m_def = Section(
+        a_eln=dict(
+            hide=[
+                'lab_id',
+                'solution',
+                'users',
+                'location',
+                'end_time',
+                'steps',
+                'instruments',
+                'results',
+                'metadata_file',
+                'station',
+            ],
+            properties=dict(
+                order=['name', 'data_file', 'environment', 'setup', 'samples']
+            ),
+        ),
+        a_plot=[
+            {
+                'label': 'Nyquist Plot',
+                'x': 'z_real',
+                'y': 'z_imaginary',
+                'layout': {
+                    'yaxis': {'fixedrange': False, 'title': '-Im(Z) (Ω)'},
+                    'xaxis': {'fixedrange': False, 'title': 'Re(Z) (Ω)'},
+                },
+            },
+            {
+                'label': 'Bode Plot',
+                'x': ['frequency', 'frequency'],
+                'y': ['./z_modulus', './z_angle'],
+                'layout': {
+                    'showlegend': True,
+                    'yaxis': {'fixedrange': False},
+                    'xaxis': {'fixedrange': False, 'type': 'log'},
+                },
+            },
+        ],
+    )
+
+    def normalize(self, archive, logger):
+        if self.data_file:
+            with archive.m_context.raw_file(self.data_file, 'rt') as f:
+                if os.path.splitext(self.data_file)[-1] == '.mpt':
+                    from baseclasses.helper.archive_builder.mpt_get_archive import (
+                        get_eis_data,
+                        get_eis_properties,
+                        get_meta_data,
+                    )
+
+                    from nomad_hysprint.schema_packages.file_parser.mps_file_parser import (
+                        read_mpt_file,
+                    )
+
+                    metadata, data, technique = read_mpt_file(f)
+                    get_eis_data(data, self)
+                    get_meta_data(metadata, self)
+
+                    if 'Potentio' in technique and self.properties is None:
+                        self.properties = get_eis_properties(metadata)
+
+        super().normalize(
+            archive, logger
+        )
+
+
+class HySprint_OpenCircuitVoltage(OpenCircuitVoltage, EntryData):
+    m_def = Section(
+        a_eln=dict(
+            hide=[
+                'lab_id',
+                'solution',
+                'users',
+                'location',
+                'end_time',
+                'steps',
+                'instruments',
+                'results',
+                'metadata_file',
+                'station',
+            ],
+            properties=dict(
+                order=[
+                    'name',
+                    'data_file',
+                    'environment',
+                    'setup',
+                    'samples',
+                ]
+            ),
+        ),
+        a_plot=[
+            {
+                'label': 'Voltage',
+                'x': 'time',
+                'y': 'voltage',
+                'layout': {
+                    'yaxis': {'fixedrange': False},
+                    'xaxis': {'fixedrange': False},
+                },
+            }
+        ],
+    )
+
+    def normalize(self, archive, logger):
+        if self.data_file:
+            with archive.m_context.raw_file(self.data_file, 'rt') as f:
+                if os.path.splitext(self.data_file)[-1] == '.mpt':
+                    from baseclasses.helper.archive_builder.mpt_get_archive import (
+                        get_ocv_properties,
+                        get_voltammetry_data,
+                    )
+
+                    from nomad_hysprint.schema_packages.file_parser.mps_file_parser import (
+                        read_mpt_file,
+                    )
+
+                    metadata, data, technique = read_mpt_file(f)
+                    get_voltammetry_data(data, self)
+
+                    if 'Open Circuit Voltage' in technique and self.properties is None:
+                        self.properties = get_ocv_properties(metadata)
         super().normalize(archive, logger)
 
 
