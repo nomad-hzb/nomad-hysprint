@@ -50,9 +50,7 @@ def read_mppt_file(filedata):
 
     mppt_dict['time_data'] = np.array(df_curve['time'], dtype=np.float64)
     mppt_dict['voltage_data'] = np.array(df_curve['voltage'], dtype=np.float64)
-    mppt_dict['current_density_data'] = np.array(
-        df_curve['current density'], dtype=np.float64
-    )
+    mppt_dict['current_density_data'] = np.array(df_curve['current density'], dtype=np.float64)
     mppt_dict['power_data'] = np.array(df_curve['power'], dtype=np.float64)
 
     return mppt_dict

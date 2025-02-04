@@ -226,9 +226,7 @@ def get_jv_data_iris(filedata):
         jv_dict['jv_curve'].append(
             {
                 'name': '_'.join(df_curves.columns[2 * column].split('_')[-3:]),
-                'dark': True
-                if 'dark' in df_curves.columns[2 * column].lower()
-                else False,
+                'dark': True if 'dark' in df_curves.columns[2 * column].lower() else False,
                 'voltage': df_curves[df_curves.columns[2 * column]].values,
                 'current_density': df_curves[df_curves.columns[2 * column + 1]].values,
             }

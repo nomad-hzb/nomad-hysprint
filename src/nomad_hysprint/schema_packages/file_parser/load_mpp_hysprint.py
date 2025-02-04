@@ -132,16 +132,12 @@ def parse_pixel(box, sample_id, pixel_id, df):
         f'Anlage_Box{box:02d}_InTriggerSource',
     ]
     df_raw = df[columns].copy()
-    df_final = filter_and_process_mpp_data(
-        df_raw, box, sample_id, pixel_id, trigger_code=0
-    )
+    df_final = filter_and_process_mpp_data(df_raw, box, sample_id, pixel_id, trigger_code=0)
 
     columns_dark = columns.copy()
     columns_dark.append(f'Anlage_Box{box:02d}_InShutterState')
     df_raw_dark = df[columns_dark].copy()
-    df_final_dark = filter_and_process_mpp_data(
-        df_raw_dark, box, sample_id, pixel_id, trigger_code=10000
-    )
+    df_final_dark = filter_and_process_mpp_data(df_raw_dark, box, sample_id, pixel_id, trigger_code=10000)
 
     data_jv_for = get_jv_data(df, box, sample_id, pixel_id, forward=True)
     data_jv_rev = get_jv_data(df, box, sample_id, pixel_id, forward=False)

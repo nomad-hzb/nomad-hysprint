@@ -48,9 +48,7 @@ class SOLAI_PLImage(ArchiveSection):
 class SOLAI_JVMeasurement(ArchiveSection):
     m_def = Section(label_quantity='name')
     name = Quantity(type=str)
-    scan_type = Quantity(
-        type=MEnum('Forward Light', 'Reverse Light', 'Forward Dark', 'Reverse Dark')
-    )
+    scan_type = Quantity(type=MEnum('Forward Light', 'Reverse Light', 'Forward Dark', 'Reverse Dark'))
 
     jv_measurement = Quantity(
         type=ArchiveSection,
@@ -151,19 +149,14 @@ class SOLAI_SolarCell(CompositeSystem, PlotSection, EntryData):
         max_idx = -1
         eff = -1
         for i, curve in enumerate(self.jv_measurements):
-            if (
-                curve.jv_measurement.efficiency
-                and curve.jv_measurement.efficiency > eff
-            ):
+            if curve.jv_measurement.efficiency and curve.jv_measurement.efficiency > eff:
                 eff = curve.jv_measurement.efficiency
                 max_idx = i
         if max_idx >= 0:
             self.set_solar_cell_params(
                 archive,
                 self.jv_measurements[max_idx].jv_measurement.open_circuit_voltage,
-                self.jv_measurements[
-                    max_idx
-                ].jv_measurement.short_circuit_current_density,
+                self.jv_measurements[max_idx].jv_measurement.short_circuit_current_density,
                 self.jv_measurements[max_idx].jv_measurement.fill_factor,
                 self.jv_measurements[max_idx].jv_measurement.efficiency,
                 self.jv_measurements[max_idx].jv_measurement.light_intensity,
@@ -184,11 +177,8 @@ class SOLAI_SolarCell(CompositeSystem, PlotSection, EntryData):
             self.set_solar_cell_params(
                 archive,
                 self.jv_measurements[max_idx].jv_measurement.open_circuit_voltage,
-                self.jv_measurements[
-                    max_idx
-                ].jv_measurement.short_circuit_current_density,
-                self.jv_measurements[max_idx].jv_measurement.fill_factor_in_percent
-                / 100,
+                self.jv_measurements[max_idx].jv_measurement.short_circuit_current_density,
+                self.jv_measurements[max_idx].jv_measurement.fill_factor_in_percent / 100,
                 self.jv_measurements[max_idx].jv_measurement.efficiency_in_percent,
                 self.jv_measurements[max_idx].jv_measurement.light_intensity,
             )
@@ -228,11 +218,7 @@ class SOLAI_SolarCell(CompositeSystem, PlotSection, EntryData):
             ]
         )
         fig_overview.update_layout(height=180)
-        result_figures.append(
-            PlotlyFigure(
-                label='Modalities', index=1, figure=fig_overview.to_plotly_json()
-            )
-        )
+        result_figures.append(PlotlyFigure(label='Modalities', index=1, figure=fig_overview.to_plotly_json()))
         # plots
         if self.pl_images:
             from plotly.subplots import make_subplots
@@ -249,17 +235,13 @@ class SOLAI_SolarCell(CompositeSystem, PlotSection, EntryData):
                     if 2 * i + j >= number_of_images:
                         continue
                     fig.add_trace(
-                        go.Heatmap(
-                            z=self.pl_images[i].pl_image_data, colorscale='gray'
-                        ),
+                        go.Heatmap(z=self.pl_images[i].pl_image_data, colorscale='gray'),
                         i + 1,
                         j + 1,
                     )
             fig.update_layout(height=250 * number_of_images)
 
-            result_figures.append(
-                PlotlyFigure(label='PL Image', index=1, figure=fig.to_plotly_json())
-            )
+            result_figures.append(PlotlyFigure(label='PL Image', index=1, figure=fig.to_plotly_json()))
 
         if self.jv_measurements:
             import pandas as pd
@@ -367,7 +349,9 @@ class SOLAI_SolarCell(CompositeSystem, PlotSection, EntryData):
                     )
 
             if getattr(self.substrate_reference, 'architecture', None):
-                archive.results.properties.optoelectronic.solar_cell.device_architecture = self.substrate_reference.architecture  # noqa E501
+                archive.results.properties.optoelectronic.solar_cell.device_architecture = (
+                    self.substrate_reference.architecture
+                )  # noqa E501
 
             if getattr(self.substrate_reference, 'substrate', None):
                 if self.substrate_reference.substrate.pixel_area:
@@ -401,13 +385,8 @@ class SOLAI_SolarCell(CompositeSystem, PlotSection, EntryData):
                     if process.layer:
                         addLayerDepositionToStack(archive, process.m_to_dict())
 
-                    if (
-                        process.m_parent.results.material
-                        and process.m_parent.results.material.elements
-                    ):
-                        archive.results.material.elements.extend(
-                            process.m_parent.results.material.elements
-                        )
+                    if process.m_parent.results.material and process.m_parent.results.material.elements:
+                        archive.results.material.elements.extend(process.m_parent.results.material.elements)
                 except Exception:
                     continue
 

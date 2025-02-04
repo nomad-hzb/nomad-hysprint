@@ -144,9 +144,7 @@ class HySprint_ExperimentalPlan(ExperimentalPlan, EntryData):
             execute_solar_sample_plan,
         )
 
-        execute_solar_sample_plan(
-            self, archive, HySprint_Sample, HySprint_Batch, logger
-        )
+        execute_solar_sample_plan(self, archive, HySprint_Sample, HySprint_Batch, logger)
 
         # actual normalization!!
         archive.results = Results()
@@ -160,9 +158,7 @@ class HySprint_StandardSample(StandardSampleSolarCell, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=['users'],
-            properties=dict(
-                order=['name', 'architecture', 'substrate', 'processes', 'lab_id']
-            ),
+            properties=dict(order=['name', 'architecture', 'substrate', 'processes', 'lab_id']),
         )
     )
 
@@ -179,9 +175,7 @@ class Hysprint_Electrode(Electrode, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=['users', 'components', 'elemental_composition', 'origin'],
-            properties=dict(
-                order=['name', 'lab_id', 'chemical_composition_or_formulas']
-            ),
+            properties=dict(order=['name', 'lab_id', 'chemical_composition_or_formulas']),
         )
     )
 
@@ -375,9 +369,7 @@ class HySprint_Cleaning(Cleaning, EntryData):
         type=str,
         a_eln=dict(
             component='EnumEditQuantity',
-            props=dict(
-                suggestions=['HySprint', 'IRIS Printerlab', 'IRIS Preparationlab']
-            ),
+            props=dict(suggestions=['HySprint', 'IRIS Printerlab', 'IRIS Preparationlab']),
         ),
     )
 
@@ -645,9 +637,7 @@ class HySprint_SlotDieCoating(SlotDieCoating, EntryData):
 
     location = Quantity(
         type=str,
-        a_eln=dict(
-            component='EnumEditQuantity', props=dict(suggestions=['HySprint HySDC'])
-        ),
+        a_eln=dict(component='EnumEditQuantity', props=dict(suggestions=['HySprint HySDC'])),
     )
 
 
@@ -672,9 +662,7 @@ class HySprint_Sputtering(Sputtering, EntryData):
 
     location = Quantity(
         type=str,
-        a_eln=dict(
-            component='EnumEditQuantity', props=dict(suggestions=['IRIS', 'HySprint'])
-        ),
+        a_eln=dict(component='EnumEditQuantity', props=dict(suggestions=['IRIS', 'HySprint'])),
     )
 
 
@@ -699,9 +687,7 @@ class HySprint_AtomicLayerDeposition(AtomicLayerDeposition, EntryData):
 
     location = Quantity(
         type=str,
-        a_eln=dict(
-            component='EnumEditQuantity', props=dict(suggestions=['IRIS', 'HySprint'])
-        ),
+        a_eln=dict(component='EnumEditQuantity', props=dict(suggestions=['IRIS', 'HySprint'])),
     )
 
 
@@ -771,9 +757,7 @@ class HySprint_LaserScribing(LaserScribing, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=['lab_id', 'users', 'end_time', 'steps', 'instruments', 'results'],
-            properties=dict(
-                order=['name', 'location', 'present', 'datetime', 'batch', 'samples']
-            ),
+            properties=dict(order=['name', 'location', 'present', 'datetime', 'batch', 'samples']),
         )
     )
 
@@ -907,9 +891,7 @@ class HySprint_trSPVmeasurement(trSPVMeasurement, EntryData):
             with archive.m_context.raw_file(self.data_file, 'br') as f:
                 encoding = get_encoding(f)
 
-            with archive.m_context.raw_file(
-                self.data_file, 'tr', encoding=encoding
-            ) as f:
+            with archive.m_context.raw_file(self.data_file, 'tr', encoding=encoding) as f:
                 spv_dict, spv_data = get_spv_data(f.read())
                 get_spv_archive(spv_dict, spv_data, f.name, self)
         super().normalize(archive, logger)
@@ -973,9 +955,7 @@ class HySprint_JVmeasurement(JVMeasurement, EntryData):
             with archive.m_context.raw_file(self.data_file, 'br') as f:
                 encoding = get_encoding(f)
 
-            with archive.m_context.raw_file(
-                self.data_file, 'tr', encoding=encoding
-            ) as f:
+            with archive.m_context.raw_file(self.data_file, 'tr', encoding=encoding) as f:
                 jv_dict, location = get_jv_data(f.read())
                 self.location = location
                 get_jv_archive(jv_dict, self.data_file, self)
@@ -1024,9 +1004,7 @@ class HySprint_SimpleMPPTracking(MPPTracking, EntryData):
             with archive.m_context.raw_file(self.data_file, 'br') as f:
                 encoding = get_encoding(f)
 
-            with archive.m_context.raw_file(
-                self.data_file, 'tr', encoding=encoding
-            ) as f:
+            with archive.m_context.raw_file(self.data_file, 'tr', encoding=encoding) as f:
                 data = read_mppt_file(f.read())
 
             self.time = data['time_data']
@@ -1088,9 +1066,7 @@ class HySprint_MPPTracking(MPPTrackingHsprintCustom, PlotSection, EntryData):
             # with archive.m_context.raw_file(self.data_file, "br") as f:
             #     encoding = get_encoding(f)
 
-            with archive.m_context.raw_file(
-                self.data_file, 'tr', encoding='ascii'
-            ) as f:
+            with archive.m_context.raw_file(self.data_file, 'tr', encoding='ascii') as f:
                 if os.path.splitext(f.name)[-1] != '.csv':
                     return
 
@@ -1126,9 +1102,7 @@ class HySprint_MPPTracking(MPPTrackingHsprintCustom, PlotSection, EntryData):
                 xaxis=dict(fixedrange=False),
                 yaxis=dict(fixedrange=False),
             )
-            self.figures.append(
-                PlotlyFigure(label='Averages', index=0, figure=fig.to_plotly_json())
-            )
+            self.figures.append(PlotlyFigure(label='Averages', index=0, figure=fig.to_plotly_json()))
 
         if self.best_pixels:
             df = pd.DataFrame(columns=column_names)
@@ -1153,9 +1127,7 @@ class HySprint_MPPTracking(MPPTrackingHsprintCustom, PlotSection, EntryData):
                 xaxis=dict(fixedrange=False),
                 yaxis=dict(fixedrange=False),
             )
-            self.figures.append(
-                PlotlyFigure(label='Best Pixel', index=1, figure=fig.to_plotly_json())
-            )
+            self.figures.append(PlotlyFigure(label='Best Pixel', index=1, figure=fig.to_plotly_json()))
 
         super().normalize(archive, logger)
 
@@ -1266,9 +1238,7 @@ class HySprint_EQEmeasurement(EQEMeasurement, EntryData):
         if self.data_file:
             with archive.m_context.raw_file(self.data_file, 'br') as f:
                 encoding = get_encoding(f)
-            with archive.m_context.raw_file(
-                self.data_file, 'tr', encoding=encoding
-            ) as f:
+            with archive.m_context.raw_file(self.data_file, 'tr', encoding=encoding) as f:
                 data_list = read_file_multiple(f.read())
             eqe_data = []
             for d in data_list:
@@ -1394,14 +1364,10 @@ class HySprint_XRD_XY(XRD, EntryData):
                 if os.path.splitext(self.data_file)[-1] == '.xy' and self.data is None:
                     if 'Id' in f.readline():
                         skiprows = 1
-                        data = pd.read_csv(
-                            f, sep=' |\t', header=None, skiprows=skiprows
-                        )
+                        data = pd.read_csv(f, sep=' |\t', header=None, skiprows=skiprows)
                     else:
                         skiprows = 0
-                        data = pd.read_csv(
-                            f, sep=' |\t', header=None, skiprows=skiprows
-                        )
+                        data = pd.read_csv(f, sep=' |\t', header=None, skiprows=skiprows)
                     print(data)
                     self.data = XRDData(angle=data[0], intensity=data[1])
         super().normalize(archive, logger)
@@ -1479,9 +1445,7 @@ class HySprint_CyclicVoltammetry(CyclicVoltammetry, EntryData):
                 'voltage_ref_compensated',
                 'voltage_rhe_compensated',
             ],
-            properties=dict(
-                order=['name', 'data_file', 'environment', 'setup', 'samples']
-            ),
+            properties=dict(order=['name', 'data_file', 'environment', 'setup', 'samples']),
         ),
         a_plot=[
             {
@@ -1527,9 +1491,7 @@ class HySprint_CyclicVoltammetry(CyclicVoltammetry, EntryData):
         super().normalize(archive, logger)
 
 
-class HySprint_ElectrochemicalImpedanceSpectroscopy(
-    ElectrochemicalImpedanceSpectroscopy, EntryData
-):
+class HySprint_ElectrochemicalImpedanceSpectroscopy(ElectrochemicalImpedanceSpectroscopy, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=[
@@ -1544,9 +1506,7 @@ class HySprint_ElectrochemicalImpedanceSpectroscopy(
                 'metadata_file',
                 'station',
             ],
-            properties=dict(
-                order=['name', 'data_file', 'environment', 'setup', 'samples']
-            ),
+            properties=dict(order=['name', 'data_file', 'environment', 'setup', 'samples']),
         ),
         a_plot=[
             {
@@ -1592,9 +1552,7 @@ class HySprint_ElectrochemicalImpedanceSpectroscopy(
                     if 'Potentio' in technique and self.properties is None:
                         self.properties = get_eis_properties(metadata)
 
-        super().normalize(
-            archive, logger
-        )
+        super().normalize(archive, logger)
 
 
 class HySprint_OpenCircuitVoltage(OpenCircuitVoltage, EntryData):
@@ -1696,9 +1654,7 @@ class HZB_NKData(NKData, EntryData):
             nk_data, metadata = get_nk_data(f.read())
 
         self.description = metadata['Comment'] if 'Comment' in metadata else ''
-        self.chemical_composition_or_formulas = (
-            metadata['Formula'] if 'Formula' in metadata else ''
-        )
+        self.chemical_composition_or_formulas = metadata['Formula'] if 'Formula' in metadata else ''
         self.name = metadata['Name'] if 'Name' in metadata else ''
         doi = metadata['Reference'] if 'Reference' in metadata else ''
         if doi.startswith('doi:'):

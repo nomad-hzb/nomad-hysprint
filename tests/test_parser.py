@@ -94,9 +94,7 @@ def test_hy_batch_parser(monkeypatch):
 
     count_samples_batches = 0
     for m in measurement_archives:
-        if 'HySprint_Sample' in str(type(m.data)) or 'HySprint_Batch' in str(
-            type(m.data)
-        ):
+        if 'HySprint_Sample' in str(type(m.data)) or 'HySprint_Batch' in str(type(m.data)):
             count_samples_batches += 1
         if 'SlotDieCoating' in str(type(m.data)):
             assert (
@@ -123,9 +121,7 @@ def test_hy_batch_parser_2(monkeypatch):
 
     count_samples_batches = 0
     for m in measurement_archives:
-        if 'HySprint_Sample' in str(type(m.data)) or 'HySprint_Batch' in str(
-            type(m.data)
-        ):
+        if 'HySprint_Sample' in str(type(m.data)) or 'HySprint_Batch' in str(type(m.data)):
             count_samples_batches += 1
         if 'SlotDieCoating' in str(type(m.data)):
             assert m.data.layer[0].layer_material_name == 'CsMaFa'
