@@ -235,7 +235,7 @@ class SOLAI_SolarCell(CompositeSystem, PlotSection, EntryData):
                     if 2 * i + j >= number_of_images:
                         continue
                     fig.add_trace(
-                        go.Heatmap(z=self.pl_images[i].pl_image_data, colorscale='gray'),
+                        go.Heatmap(z=self.pl_images[2 * i + j].pl_image_data, colorscale='gray'),
                         i + 1,
                         j + 1,
                     )
