@@ -107,9 +107,13 @@ class HySprintExperimentParser(MatchingParser):
         substrates_col = [
             'Sample dimension',
             'Sample area [cm^2]',
+            'Pixel area [cm^2]',
+            'Number of pixels',
+            'Notes',
             'Substrate material',
             'Substrate conductive layer',
         ]
+        substrates_col = [s for s in substrates_col if s in df['Experiment Info'].columns]
         for i, sub in df['Experiment Info'][substrates_col].drop_duplicates().iterrows():
             if pd.isna(sub).all():
                 continue
@@ -123,19 +127,7 @@ class HySprintExperimentParser(MatchingParser):
         for i, row in df['Experiment Info'].iterrows():
             if pd.isna(row).all():
                 continue
-            substrate_name = (
-                find_substrate(
-                    row[
-                        [
-                            'Sample dimension',
-                            'Sample area [cm^2]',
-                            'Substrate material',
-                            'Substrate conductive layer',
-                        ]
-                    ]
-                )
-                + '.archive.json'
-            )
+            substrate_name = find_substrate(row[substrates_col]) + '.archive.json'
             archives.append(map_basic_sample(row, substrate_name, upload_id, HySprint_Sample))
 
         for i, col in enumerate(df.columns.get_level_values(0).unique()):

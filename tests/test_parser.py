@@ -99,8 +99,12 @@ def test_hy_batch_parser(monkeypatch):  # noqa: PLR0915
             count_samples_batches += 1
             if 'Sample' in str(type(m.data)):
                 assert m.data.description == 'A'
+                assert m.data.number_of_junctions == 1
         elif 'Substrate' in str(type(m.data)):
-            assert m.data.solar_cell_area.magnitude == 10
+            assert m.data.solar_cell_area == 10 * ureg('cm**2')
+            assert m.data.pixel_area == 0.16 * ureg('cm**2')
+            assert m.data.number_of_pixels == 6
+            assert m.data.description == 'Normal'
             assert m.data.substrate == 'Glass'
             assert m.data.conducting_material[0] == 'ITO'
 
