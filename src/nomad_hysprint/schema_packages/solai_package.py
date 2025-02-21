@@ -498,9 +498,9 @@ class SOLAI_SolarCell(CompositeSystem, PlotSection, EntryData):
                 except Exception:
                     self.get_solar_cell_params_3(archive)
 
-        archive.results.properties.optoelectronic.solar_cell.device_stack = []
-        archive.results.properties.optoelectronic.solar_cell.substrate = []
         if self.substrate_reference:
+            archive.results.properties.optoelectronic.solar_cell.substrate = []
+            archive.results.properties.optoelectronic.solar_cell.device_stack = []
             if getattr(self.substrate_reference, 'substrate', None):
                 if self.substrate_reference.substrate.substrate is not None:
                     archive.results.properties.optoelectronic.solar_cell.substrate = [
