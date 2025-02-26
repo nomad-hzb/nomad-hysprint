@@ -45,6 +45,7 @@ def get_archive(file_base, monkeypatch):
 @pytest.fixture(
     params=[
         '20250226_experiment_file.xlsx',
+        '20250114_experiment_file.xlsx',
         'c-Si.nk',
         'HZB_MiGo_20240604_exp_0_0.eqe.txt',
         'SE-ALM_RM_20231004_RM_KW40_0_8.jv.txt',
@@ -80,7 +81,7 @@ def test_hy_jv_parser(monkeypatch):
 
 
 def test_hy_batch_parser(monkeypatch):  # noqa: PLR0915
-    file = '20250226_experiment_file.xlsx'
+    file = '20250114_experiment_file.xlsx'
     file_name = os.path.join('tests', 'data', file)
     file_archive = parse(file_name)[0]
     print(file_archive.data.processed_archive)
