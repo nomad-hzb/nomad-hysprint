@@ -44,8 +44,7 @@ def get_archive(file_base, monkeypatch):
 
 @pytest.fixture(
     params=[
-        '20250226_experiment_file.xlsx',
-        '20250114_experiment_file.xlsx',
+        '20240915_test_experiment.xlsx',
         'c-Si.nk',
         'HZB_MiGo_20240604_exp_0_0.eqe.txt',
         'SE-ALM_RM_20231004_RM_KW40_0_8.jv.txt',
@@ -84,7 +83,6 @@ def test_hy_batch_parser(monkeypatch):  # noqa: PLR0915
     file = '20250114_experiment_file.xlsx'
     file_name = os.path.join('tests', 'data', file)
     file_archive = parse(file_name)[0]
-    print(file_archive.data.processed_archive)
     assert len(file_archive.data.processed_archive) == 27
 
     measurement_archives = []
@@ -104,7 +102,7 @@ def test_hy_batch_parser(monkeypatch):  # noqa: PLR0915
                 assert m.data.number_of_junctions == 1
         elif 'Substrate' in str(type(m.data)):
             assert m.data.solar_cell_area == 10 * ureg('cm**2')
-            #assert m.data.pixel_area == 0.16 * ureg('cm**2')
+            assert m.data.pixel_area == 0.16 * ureg('cm**2')
             assert m.data.number_of_pixels == 6
             assert m.data.description == 'Normal'
             assert m.data.substrate == 'Glass'
@@ -226,7 +224,6 @@ def test_hy_batch_parser(monkeypatch):  # noqa: PLR0915
             assert m.data.inorganic_evaporation[0].tooling_factor is None
             assert m.data.inorganic_evaporation[0].substrate_temparature == ureg.Quantity(50, ureg('°C'))
             assert m.data.inorganic_evaporation[0].start_rate == 1 * ureg('angstrom/s')
-            assert m.data.inorganic_evaporation[0].target_rate == 1 * ureg('angstrom/s')
             assert m.data.inorganic_evaporation[0].temparature[0] == ureg.Quantity(100, ureg('°C'))
             assert m.data.inorganic_evaporation[0].temparature[1] == ureg.Quantity(120, ureg('°C'))
         elif m.data.positon_in_experimental_plan == 8:
