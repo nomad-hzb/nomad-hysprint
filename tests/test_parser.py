@@ -223,7 +223,8 @@ def test_hy_batch_parser(monkeypatch):  # noqa: PLR0915
             assert m.data.inorganic_evaporation[0].pressure_end == 2 * ureg('mbar')
             assert m.data.inorganic_evaporation[0].tooling_factor is None
             assert m.data.inorganic_evaporation[0].substrate_temparature == ureg.Quantity(50, ureg('°C'))
-            assert m.data.inorganic_evaporation[0].start_rate == 1 * ureg('angstrom/s')
+            assert m.data.inorganic_evaporation[0].start_rate == 0.1 * ureg('angstrom/s')
+            assert m.data.inorganic_evaporation[0].target_rate == 1.5 * ureg('angstrom/s')
             assert m.data.inorganic_evaporation[0].temparature[0] == ureg.Quantity(100, ureg('°C'))
             assert m.data.inorganic_evaporation[0].temparature[1] == ureg.Quantity(120, ureg('°C'))
         elif m.data.positon_in_experimental_plan == 8:
