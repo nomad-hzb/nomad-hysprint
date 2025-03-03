@@ -253,7 +253,7 @@ def test_hy_batch_parser(monkeypatch):  # noqa: PLR0915
     delete_json()
 
 
-def test_hy_batch_parser(monkeypatch):  # noqa: PLR0915
+def test_hy_batch_parser_new_cols(monkeypatch):  
     file = '20250114_experiment_file.xlsx'
     file_name = os.path.join('tests', 'data', file)
     file_archive = parse(file_name)[0]
