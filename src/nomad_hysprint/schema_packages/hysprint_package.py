@@ -1227,9 +1227,7 @@ class HySprint_EQEmeasurement(EQEMeasurement, EntryData):
     )
 
     def normalize(self, archive, logger):
-        from nomad_hysprint.schema_packages.file_parser.eqe_parser import (
-            read_file_multiple,
-        )
+        from nomad_hysprint.schema_packages.file_parser.eqe_parser import read_file, read_file_multiple
 
         if not self.samples and self.data_file:
             search_id = self.data_file.split('.')[0]
@@ -1239,7 +1237,11 @@ class HySprint_EQEmeasurement(EQEMeasurement, EntryData):
             with archive.m_context.raw_file(self.data_file, 'br') as f:
                 encoding = get_encoding(f)
             with archive.m_context.raw_file(self.data_file, 'tr', encoding=encoding) as f:
-                data_list = read_file_multiple(f.read())
+                filedata = f.read()
+                if filedata.startswith('[Header]'):
+                    data_list = [read_file(filedata, 8)]
+                else:
+                    data_list = read_file_multiple(filedata)
             eqe_data = []
             for d in data_list:
                 entry = SolarCellEQECustom(
