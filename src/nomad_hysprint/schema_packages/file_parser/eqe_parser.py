@@ -82,7 +82,7 @@ def arrange_eqe_columns(df):
     return photon_energy_raw, eqe_raw
 
 
-def read_file(file_path, header_lines=None):
+def read_file(filedata, header_lines=None):
     """
     Reads the file and returns the columns in a pandas DataFrame `df`.
     :return: df
@@ -93,39 +93,44 @@ def read_file(file_path, header_lines=None):
     if header_lines == 0:  # in case you have a header
         try:
             df = pd.read_csv(
-                file_path,
+                StringIO(filedata),
                 header=None,
                 sep='\t',
             )
             if len(df.columns) < 2:
                 raise IndexError
         except IndexError:
-            df = pd.read_csv(file_path, header=None)
+            df = pd.read_csv(StringIO(filedata), header=None)
     else:
         try:
             # header_lines - 1 assumes last header line is column names
-            df = pd.read_csv(file_path, header=int(header_lines - 1), sep='\t')
+            df = pd.read_csv(StringIO(filedata), header=int(header_lines - 1), sep='\t')
             if len(df.columns) < 2:
                 raise IndexError
         except IndexError:
             try:  # wrong separator?
-                df = pd.read_csv(file_path, header=int(header_lines - 1))
+                df = pd.read_csv(StringIO(filedata), header=int(header_lines - 1))
                 if len(df.columns) < 2:
                     raise IndexError
             except IndexError:
                 try:
-                    df = pd.read_csv(file_path, header=int(header_lines), sep='\t')
+                    df = pd.read_csv(StringIO(filedata), header=int(header_lines), sep='\t')
                     if len(df.columns) < 2:
                         raise IndexError
                 except IndexError:
-                    df = pd.read_csv(file_path, header=int(header_lines))
+                    df = pd.read_csv(StringIO(filedata), header=int(header_lines))
                     if len(df.columns) < 2:
                         raise IndexError
     df = df.apply(pd.to_numeric, errors='coerce')
     df = df.dropna()
     photon_energy_raw, eqe_raw = arrange_eqe_columns(df)
     photon_energy, intensity = interpolate_eqe(photon_energy_raw, eqe_raw)
-    return photon_energy_raw, eqe_raw, photon_energy, intensity
+    return {
+        'photon_energy_raw': photon_energy_raw,
+        'intensty_raw': eqe_raw,
+        'photon_energy': photon_energy,
+        'intensity': intensity,
+    }
 
 
 def read_file_multiple(filedata):
