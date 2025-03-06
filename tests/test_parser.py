@@ -283,12 +283,11 @@ def test_hy_batch_parser_new_cols(monkeypatch):
             assert m.data.conducting_material[0] == 'ITO'
             # assert m.data.sample_dimension == '1 cm x 1 cm' ##### Not in nomad
             assert m.data.description == 'Test excel'
-            print("hola")
-
+            print('hola')
 
         # Step 1: Cleaning O2-Plasma
         elif m.data.positon_in_experimental_plan == 1:
-            print("test")
+            print('test')
             assert 'Cleaning' in str(type(m.data))
             print('cleaning')
             assert m.data.cleaning[0].solvent_2 == 'Hellmanex'
@@ -468,27 +467,27 @@ def test_hy_batch_parser_new_cols(monkeypatch):
             assert m.data.inorganic_evaporation[0].tooling_factor == 1.5
             assert m.data.description == 'Test note'
 
-        # # Step 9: Seq-Evaporation
-        # elif m.data.positon_in_experimental_plan == 9:
-        #     assert 'SeqEvaporation' in str(type(m.data))
-        #     assert m.data.layer[0].layer_type == 'Electrode'
-        #     assert m.data.layer[0].layer_material_name == 'Aluminium'
-        #     assert m.data.tool_name == 'IRIS Evap'
-        #     assert m.data.base_pressure == 0.000001 * ureg('bar')
-        #     assert m.data.pressure_start == 0.000005 * ureg('bar')
-        #     assert m.data.pressure_end == 0.000003 * ureg('bar')
-        #     assert m.data.substrate_temperature == 25 * ureg('°C')
-        #
-        # # Step 10: Co-Evaporation
-        # elif m.data.positon_in_experimental_plan == 10:
-        #     assert 'CoEvaporation' in str(type(m.data))
-        #     assert m.data.layer[0].layer_type == 'Electrode'
-        #     assert m.data.layer[0].layer_material_name == 'Aluminium'
-        #     assert m.data.tool_name == 'IRIS Evap'
-        #     assert m.data.base_pressure == 0.000001 * ureg('bar')
-        #     assert m.data.pressure_start == 0.000005 * ureg('bar')
-        #     assert m.data.pressure_end == 0.000003 * ureg('bar')
-        #     assert m.data.substrate_temperature == 25 * ureg('°C')
+        # Step 9: Seq-Evaporation
+        elif m.data.positon_in_experimental_plan == 9:
+            assert 'SeqEvaporation' in str(type(m.data))
+            # assert m.data.layer[0].layer_type == 'Electrode'
+            # assert m.data.layer[0].layer_material_name == 'Aluminium'
+            # assert m.data.tool_name == 'IRIS Evap'
+            # assert m.data.base_pressure == 0.000001 * ureg('bar')
+            # assert m.data.pressure_start == 0.000005 * ureg('bar')
+            # assert m.data.pressure_end == 0.000003 * ureg('bar')
+            # assert m.data.substrate_temperature == 25 * ureg('°C')
+
+        # Step 10: Co-Evaporation
+        elif m.data.positon_in_experimental_plan == 10:
+            assert 'CoEvaporation' in str(type(m.data))
+            # assert m.data.layer[0].layer_type == 'Electrode'
+            # assert m.data.layer[0].layer_material_name == 'Aluminium'
+            # assert m.data.tool_name == 'IRIS Evap'
+            # assert m.data.base_pressure == 0.000001 * ureg('bar')
+            # assert m.data.pressure_start == 0.000005 * ureg('bar')
+            # assert m.data.pressure_end == 0.000003 * ureg('bar')
+            # assert m.data.substrate_temperature == 25 * ureg('°C')
 
         # Step 11: Sputtering
         elif m.data.positon_in_experimental_plan == 11:
@@ -544,20 +543,20 @@ def test_hy_batch_parser_new_cols(monkeypatch):
             # assert m.data.manifold_temperature_2 == 70 * ureg('°C') ##### Not in schema
 
         # Step 14: Annealing
-
-        # elif m.data.positon_in_experimental_plan == 14:
-        #     assert 'Annealing' in str(type(m.data)) ##### Not in nomad_hysprint (nomad_material_processing)
-        #     assert m.data.annealing.steps == 60 * ureg('minute')
-        #     assert m.data.annealing.ending_temperature == ureg.Quantity(150, ureg('°C'))
-        #     # assert m.data.annealing.atmosphere == 'Nitrogen' ##### Not in schema
-        #     # assert m.data.relative_humidity == 35 * ureg('%') ##### Not in schema
-        #     assert m.data.description == 'Test annealing process'
+        elif m.data.positon_in_experimental_plan == 14:
+            # Not in nomad_hysprint (nomad_material_processing)
+            assert 'Annealing' in str(type(m.data))
+            # assert m.data.annealing.steps == 60 * ureg('minute')
+            # assert m.data.annealing.ending_temperature == ureg.Quantity(150, ureg('°C'))
+            # # assert m.data.annealing.atmosphere == 'Nitrogen' ##### Not in schema
+            # # assert m.data.relative_humidity == 35 * ureg('%') ##### Not in schema
+            # assert m.data.description == 'Test annealing process'
 
         # Step 15: Generic Process
-        # elif m.data.positon_in_experimental_plan == 15:
-        #     assert 'GenericProcess' in str(type(m.data))
-        #     assert m.data.name == 'Test Generic Process'
-        #     assert m.data.description == 'This is a test generic process'
+        elif m.data.positon_in_experimental_plan == 15:
+            assert 'GenericProcess' in str(type(m.data))
+            # assert m.data.name == 'Test Generic Process'
+            # assert m.data.description == 'This is a test generic process'
 
         else:
             assert False
