@@ -507,7 +507,7 @@ def test_hy_batch_parser_new_cols(monkeypatch):
             assert 'ALD' in str(type(m.data))
             assert m.data.layer[0].layer_type == 'Electron Transport Layer'
             assert m.data.layer[0].layer_material_name == 'Al2O3'
-            assert m.data.location == 'IRIS ALD
+            assert m.data.location == 'IRIS ALD'
             assert m.data.properties.source == 'TMA'
             assert m.data.properties.thickness == 25 * ureg('nm')
             assert m.data.properties.temperature == 150 * ureg('°C')
