@@ -278,7 +278,7 @@ def test_hy_batch_parser_new_cols(monkeypatch):
             assert m.data.number_of_pixels == 6
             assert m.data.substrate == 'Glass'
             assert m.data.conducting_material[0] == 'ITO'
-            assert m.data.sample_dimension == '1 cm x 1 cm'
+            # assert m.data.sample_dimension == '1 cm x 1 cm' ##### Not in nomad
             assert m.data.description == 'Test excel'
 
         # Step 1: Cleaning O2-Plasma
