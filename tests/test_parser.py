@@ -286,6 +286,7 @@ def test_hy_batch_parser_new_cols(monkeypatch):
         # Step 1: Cleaning O2-Plasma
         elif m.data.positon_in_experimental_plan == 1:
             assert 'Cleaning' in str(type(m.data))
+            print('cleaning')
             assert m.data.cleaning[0].solvent_2 == 'Hellmanex'
             assert m.data.cleaning[0].time == 31 * ureg('s')
             assert m.data.cleaning[0].temperature == 61 * ureg('°C')
@@ -299,6 +300,7 @@ def test_hy_batch_parser_new_cols(monkeypatch):
         # Step 2: Cleaning UV-Ozone
         elif m.data.positon_in_experimental_plan == 2:
             assert 'CleaningUVOzone' in str(type(m.data))
+            print('UVOzone')
             assert m.data.cleaning[0].solvent == 'Hellmanex'
             assert m.data.cleaning[0].time == 31 * ureg('s')
             assert m.data.cleaning[0].temperature == 61 * ureg('°C')
@@ -310,6 +312,7 @@ def test_hy_batch_parser_new_cols(monkeypatch):
         # Step 3: Spin Coating
         elif m.data.positon_in_experimental_plan == 3:
             assert 'SpinCoating' in str(type(m.data))
+            print('Spincoating')
             assert m.data.layer[0].layer_type == 'Active Layer'
             assert m.data.layer[0].layer_material_name == 'Perovskite'
             assert m.data.location == 'HyprintBox' # Box
@@ -332,6 +335,7 @@ def test_hy_batch_parser_new_cols(monkeypatch):
         # Step 4: Dip Coating
         elif m.data.positon_in_experimental_plan == 4:
             assert 'DipCoating' in str(type(m.data))
+            print('dipco')
             assert m.data.layer[0].layer_type == 'Active Layer'
             assert m.data.layer[0].layer_material_name == 'Perovskite'
             assert m.data.location == 'HyprintBox'
@@ -360,6 +364,7 @@ def test_hy_batch_parser_new_cols(monkeypatch):
         # Step 5: Slot Die Coating
         elif m.data.positon_in_experimental_plan == 5:
             assert 'SlotDieCoating' in str(type(m.data))
+            print('slotdie')
             assert m.data.layer[0].layer_type == 'Active Layer'
             assert m.data.layer[0].layer_material_name == 'Perovskite'
             assert m.data.location == 'HyprintBox'
@@ -386,6 +391,7 @@ def test_hy_batch_parser_new_cols(monkeypatch):
         # Step 6: Inkjet Printing
         elif m.data.positon_in_experimental_plan == 6:
             assert 'InkjetPrinting' in str(type(m.data))
+            print('ijp')
             assert m.data.layer[0].layer_type == 'Active Layer'
             assert m.data.layer[0].layer_material_name == 'Perovskite'
             assert m.data. location == 'HyprintBox'
@@ -416,6 +422,7 @@ def test_hy_batch_parser_new_cols(monkeypatch):
         # Step 7: Evaporation
         elif m.data.positon_in_experimental_plan == 7:
             assert 'Evaporation' in str(type(m.data))
+            print('evap')
             assert m.data.layer[0].layer_type == 'Electron Transport Layer'
             assert m.data.layer[0].layer_material_name == 'PCBM'
             assert m.data.location == 'Hysprint Evap'
@@ -435,6 +442,7 @@ def test_hy_batch_parser_new_cols(monkeypatch):
         # Step 8: Sublimation
         elif m.data.positon_in_experimental_plan == 8:
             assert 'Sublimation' in str(type(m.data))
+            print('sublim')
             assert m.data.layer[0].layer_type == 'Electron Transport Layer'
             assert m.data.layer[0].layer_material_name == 'PCBM'
             assert m.data.location == 'Hysprint Evap'
@@ -476,6 +484,7 @@ def test_hy_batch_parser_new_cols(monkeypatch):
         # Step 11: Sputtering
         elif m.data.positon_in_experimental_plan == 11:
             assert 'Sputtering' in str(type(m.data))
+            print('sputter')
             assert m.data.layer[0].layer_type == 'Electron Transport Layer'
             assert m.data.layer[0].layer_material_name == 'TiO2'
             assert m.data.location == 'Hysprint tool'
@@ -493,6 +502,7 @@ def test_hy_batch_parser_new_cols(monkeypatch):
         # Step 12: Laser Scribing
         elif m.data.positon_in_experimental_plan == 12:
             assert 'LaserScribing' in str(type(m.data))
+            print('laser')
             assert m.data.properties.laser_wavelength == 532 * ureg('nm')
             assert m.data.properties.laser_pulse_time == 8 * ureg('ps')
             assert m.data.laser_pulse_frequency == 80 * ureg('kHz')
@@ -504,6 +514,7 @@ def test_hy_batch_parser_new_cols(monkeypatch):
         # Step 13: ALD
         elif m.data.positon_in_experimental_plan == 13:
             assert 'ALD' in str(type(m.data))
+            print('ald')
             assert m.data.layer[0].layer_type == 'Electron Transport Layer'
             assert m.data.layer[0].layer_material_name == 'Al2O3'
             assert m.data.location == 'IRIS ALD'
