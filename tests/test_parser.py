@@ -255,7 +255,7 @@ def test_hy_batch_parser_new_cols(monkeypatch):
     file = '20250305_experiment_file.xlsx'
     file_name = os.path.join('tests', 'data', file)
     file_archive = parse(file_name)[0]
-    assert len(file_archive.data.processed_archive) == 27
+    assert len(file_archive.data.processed_archive) == 30
 
     measurement_archives = []
     for file in os.listdir(os.path.join('tests/data')):
