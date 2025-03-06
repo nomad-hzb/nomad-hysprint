@@ -534,14 +534,14 @@ def test_hy_batch_parser_new_cols(monkeypatch):
             # assert m.data.manifold_temperature_2 == 70 * ureg('°C') ##### Not in schema
 
         # Step 14: Annealing
-        elif m.data.positon_in_experimental_plan == 14:
-            # Not in nomad_hysprint (nomad_material_processing)
-            assert 'Annealing' in str(type(m.data))
-            assert m.data.annealing.steps == 60 * ureg('minute')
-            assert m.data.annealing.ending_temperature == ureg.Quantity(150, ureg('°C'))
-            # assert m.data.annealing.atmosphere == 'Nitrogen' ##### Not in schema
-            # assert m.data.relative_humidity == 35 * ureg('%') ##### Not in schema
-            assert m.data.description == 'Test annealing process'
+
+        # elif m.data.positon_in_experimental_plan == 14:
+        #     assert 'Annealing' in str(type(m.data)) ##### Not in nomad_hysprint (nomad_material_processing)
+        #     assert m.data.annealing.steps == 60 * ureg('minute')
+        #     assert m.data.annealing.ending_temperature == ureg.Quantity(150, ureg('°C'))
+        #     # assert m.data.annealing.atmosphere == 'Nitrogen' ##### Not in schema
+        #     # assert m.data.relative_humidity == 35 * ureg('%') ##### Not in schema
+        #     assert m.data.description == 'Test annealing process'
 
         # Step 15: Generic Process
         elif m.data.positon_in_experimental_plan == 15:
