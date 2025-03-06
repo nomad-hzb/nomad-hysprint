@@ -267,6 +267,9 @@ def test_hy_batch_parser_new_cols(monkeypatch):
 
     count_samples_batches = 0
     for m in measurement_archives:
+        print(m)
+        print(m.data)
+        # print(m.data.positon_in_experimental_plan)
         if 'Sample' in str(type(m.data)) or 'Batch' in str(type(m.data)):
             count_samples_batches += 1
             if 'Sample' in str(type(m.data)):
@@ -281,6 +284,7 @@ def test_hy_batch_parser_new_cols(monkeypatch):
             # assert m.data.sample_dimension == '1 cm x 1 cm' ##### Not in nomad
             assert m.data.description == 'Test excel'
             print("hola")
+
 
         # Step 1: Cleaning O2-Plasma
         elif m.data.positon_in_experimental_plan == 1:
