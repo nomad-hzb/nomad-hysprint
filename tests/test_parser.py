@@ -544,10 +544,10 @@ def test_hy_batch_parser_new_cols(monkeypatch):
         #     assert m.data.description == 'Test annealing process'
 
         # Step 15: Generic Process
-        elif m.data.positon_in_experimental_plan == 15:
-            assert 'GenericProcess' in str(type(m.data))
-            assert m.data.name == 'Test Generic Process'
-            assert m.data.description == 'This is a test generic process'
+        # elif m.data.positon_in_experimental_plan == 15:
+        #     assert 'GenericProcess' in str(type(m.data))
+        #     assert m.data.name == 'Test Generic Process'
+        #     assert m.data.description == 'This is a test generic process'
 
         else:
             assert False
