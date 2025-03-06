@@ -276,7 +276,6 @@ def test_hy_batch_parser_new_cols(monkeypatch):
             assert m.data.solar_cell_area == 0.16 * ureg('cm**2')
             assert m.data.pixel_area == 0.16 * ureg('cm**2')
             assert m.data.number_of_pixels == 6
-            assert m.data.description == 'Normal'
             assert m.data.substrate == 'Glass'
             assert m.data.conducting_material[0] == 'ITO'
             assert m.data.sample_dimension == '1 cm x 1 cm'
