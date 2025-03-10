@@ -45,7 +45,7 @@ from baseclasses.chemical_energy import (
 from baseclasses.data_transformations import NKData
 from baseclasses.experimental_plan import ExperimentalPlan
 from baseclasses.helper.add_solar_cell import add_band_gap
-from baseclasses.helper.utilities import get_encoding, set_sample_reference
+from baseclasses.helper.utilities import convert_datetime, get_encoding, set_sample_reference
 from baseclasses.material_processes_misc import (
     Cleaning,
     LaserScribing,
@@ -1490,6 +1490,35 @@ class HySprint_CyclicVoltammetry(CyclicVoltammetry, EntryData):
 
                     if 'Cyclic' in technique and self.properties is None:
                         self.properties = get_cv_properties(metadata)
+            with archive.m_context.raw_file(self.data_file, 'rt') as f:
+                file_content = f.read()
+                if (
+                    os.path.splitext(self.data_file)[-1] == '.csv'
+                    and 'Experiment:' in file_content
+                    and 'Start date:' in file_content
+                    and 'Time (s)' in file_content
+                ):
+                    from io import StringIO
+
+                    import pandas as pd
+                    from baseclasses.chemical_energy.voltammetry import VoltammetryCycleWithPlot
+
+                    data = pd.read_csv(StringIO(file_content), skiprows=3, sep=',', encoding='utf-8')
+                    metadata = pd.read_csv(
+                        StringIO(file_content), nrows=3, sep=',', encoding='utf-8', header=None
+                    )
+                    self.datetime = convert_datetime(
+                        metadata.iloc[1, 1].strip(), datetime_format='%d %B %Y', utc=False
+                    )
+                    self.cycles = [
+                        VoltammetryCycleWithPlot(
+                            time=data['Time (s)'][63:] * ureg('seconds'),
+                            voltage=data[' Voltage (V)'][63:] * ureg('V'),
+                            current=data[' Current (A)'][63:] * ureg('A'),
+                            charge=data[' Charge (C)'][63:] * ureg('C'),
+                        )
+                    ]
+
         super().normalize(archive, logger)
 
 
