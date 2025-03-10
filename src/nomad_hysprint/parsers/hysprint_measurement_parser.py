@@ -124,6 +124,11 @@ class HySprintParser(MatchingParser):
                 entry = HySprint_OpenCircuitVoltage()
             if 'Potentio Electrochemical Impedance Spectroscopy' in technique:
                 entry = HySprint_ElectrochemicalImpedanceSpectroscopy()
+        if mainfile_split[-1] == 'csv' and measurment_type == 'hy':
+            with open(mainfile) as f:
+                file_content = f.read()
+            if 'Experiment:' in file_content and 'Start date:' in file_content and 'Time (s)' in file_content:
+                entry = HySprint_CyclicVoltammetry()
         if mainfile_split[-1] == 'txt' and measurment_type == 'jv':
             entry = HySprint_JVmeasurement()
         if mainfile_split[-1] == 'txt' and measurment_type == 'spv':
