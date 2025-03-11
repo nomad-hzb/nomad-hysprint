@@ -1642,6 +1642,34 @@ class HySprint_OpenCircuitVoltage(OpenCircuitVoltage, EntryData):
 
                     if 'Open Circuit Voltage' in technique and self.properties is None:
                         self.properties = get_ocv_properties(metadata)
+
+            with archive.m_context.raw_file(self.data_file, 'rt') as f:
+                file_content = f.read()
+                if (
+                    os.path.splitext(self.data_file)[-1] == '.csv'
+                    and 'Experiment:' in file_content
+                    and 'Start date:' in file_content
+                    and 'Time (s)' in file_content
+                ):
+                    from io import StringIO
+
+                    import pandas as pd
+
+                    data = pd.read_csv(StringIO(file_content), skiprows=3, sep=',', encoding='utf-8')
+                    metadata = pd.read_csv(
+                        StringIO(file_content), skiprows=1, nrows=1, sep=',', encoding='utf-8', header=None
+                    )
+
+                    self.datetime = convert_datetime(
+                        metadata.iloc[0, 2].strip() + ' ' + str(metadata.iloc[0, 3]).strip(),
+                        datetime_format='%B %d %Y',
+                        utc=False,
+                    )
+
+                    self.time = data['Time (s)'] * ureg('seconds')
+                    self.voltage = data[' Voltage (V)'] * ureg('V')
+                    self.current = data[' Current (A)'] * ureg('A')
+
         super().normalize(archive, logger)
 
 
