@@ -36,11 +36,7 @@ def get_archive(file_base, monkeypatch):
     return measurement_archive
 
 
-@pytest.fixture(
-    params=[
-        'hzb_TestP_AA_2_c-5.mppt.txt'
-    ]
-)
+@pytest.fixture(params=['hzb_TestP_AA_2_c-5.mppt.txt'])
 def parsed_archive(request, monkeypatch):
     """
     Sets up data for testing and cleans up after the test.
@@ -61,5 +57,3 @@ def test_mppt_simple_parser(monkeypatch):
     assert archive.data
     print(archive.data)
     delete_json()
-
-    
