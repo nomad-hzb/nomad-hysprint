@@ -1,53 +1,65 @@
-#!/usr/bin/env python3
-"""
-Created on Day Mon  17 15:43:00 2025
-
-@author: a5263
-"""
-
 import os
 
 import pytest
-import warnings
-from nomad_hysprint.schema_packages.file_parser.mppt_simple import read_mppt_file
-from baseclasses.helper.utilities import get_encoding
+from nomad.client import normalize_all, parse
 
 
-TEST_FILE = '/home/a5263/nomad-distro-dev/packages/nomad-hysprint/tests/data/hzb_TestP_AA_2_c-5.mppt.txt'
+def set_monkey_patch(monkeypatch):
+    def mockreturn_search(*args):
+        return None
 
-# TODO: HySprint_SimpleMPPTracking testing (inheriting from MPPTracking baseclass)
-
-# read_mppt function (is the ² properly replaced? does it have na? if error for name of column, if data type is correct, units are correct?)
-
-def explore_mppt_file(file_path: str) -> str:
-    """ Utility function that identifies the encoding of the experiment file and reads it using the appropriate encoding
-
-Parameters : the path of the experimental file
-----------
-
-Returns : The content of the file in string
--------
-
-"""
-
-    with open(file_path, "rb") as f:
-        encoding = get_encoding(f)
-    with open(file_path, 'tr', encoding=encoding) as f:
-        filedata = f.read()
-    return filedata
+    monkeypatch.setattr(
+        'nomad_hysprint.parsers.hysprint_measurement_parser.set_sample_reference',
+        mockreturn_search,
+    )
 
 
-filedata = explore_mppt_file(TEST_FILE)
-data = read_mppt_file(filedata)
+def delete_json():
+    for file in os.listdir(os.path.join('tests/data')):
+        if not file.endswith('archive.json'):
+            continue
+        os.remove(os.path.join('tests', 'data', file))
 
-def test_dictionary_keys():
-    expected_keys = {'time_data','step_size', 'time_per_track','active_area', 'voltage','time_data','voltage_data','current_density_data','power_data'}
+
+def get_archive(file_base, monkeypatch):
+    set_monkey_patch(monkeypatch)
+    file_name = os.path.join('tests', 'data', file_base)
+    file_archive = parse(file_name)[0]
+    assert file_archive.data
+
+    for file in os.listdir(os.path.join('tests/data')):
+        if 'archive.json' not in file:
+            continue
+        measurement = os.path.join('tests', 'data', file)
+        measurement_archive = parse(measurement)[0]
+
+    return measurement_archive
+
+
+@pytest.fixture(
+    params=[
+        'hzb_TestP_AA_2_c-5.mppt.txt'
+    ]
+)
+def parsed_archive(request, monkeypatch):
+    """
+    Sets up data for testing and cleans up after the test.
+    """
+    yield get_archive(request.param, monkeypatch)
+
+
+def test_normalize_all(parsed_archive, monkeypatch):
+    normalize_all(parsed_archive)
+    delete_json()
+
+
+def test_mppt_simple_parser(monkeypatch):
+    file = 'hzb_TestP_AA_2_c-5.mppt.txt'
+    archive = get_archive(file, monkeypatch)
+    normalize_all(archive)
+
+    assert archive.data
+    print(archive.data)
+    delete_json()
+
     
-    # Check if the returned value is a dictionary
-    assert isinstance(data,dict), "read_mppt_file did not return dictionary"
-
-    # Check if all expected keys are in the dictionary
-    assert expected_keys.issubset(data.keys()), f"Missing read_mmpt_file dictionary keys: {expected_keys - data.keys()}"
-
-# TODO: HySprint_MPPTracking testing (inheriting from MPPTrackingHsprintCustom baseclass). Q: in which case will the parser activate this class?
-
