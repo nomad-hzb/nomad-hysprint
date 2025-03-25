@@ -13,6 +13,11 @@ def set_monkey_patch(monkeypatch):
         mockreturn_search,
     )
 
+    monkeypatch.setattr(
+        'nomad_hysprint.schema_packages.hysprint_package.set_sample_reference',
+        mockreturn_search,
+    )
+
 
 def delete_json():
     for file in os.listdir(os.path.join('tests/data')):
@@ -36,7 +41,12 @@ def get_archive(file_base, monkeypatch):
     return measurement_archive
 
 
-@pytest.fixture(params=['hzb_TestP_AA_2_c-5.mppt.txt'])
+@pytest.fixture(
+    params=[
+        '20240915_test_experiment.xlsx',
+        'hzb_TestP_AA_2_c-5.mppt.txt',
+    ]
+)
 def parsed_archive(request, monkeypatch):
     """
     Sets up data for testing and cleans up after the test.
@@ -49,11 +59,11 @@ def test_normalize_all(parsed_archive, monkeypatch):
     delete_json()
 
 
-def test_mppt_simple_parser(monkeypatch):
+def test_hy_jv_parser(monkeypatch):
     file = 'hzb_TestP_AA_2_c-5.mppt.txt'
     archive = get_archive(file, monkeypatch)
     normalize_all(archive)
-
     assert archive.data
-    print(archive.data)
+    print(archive.data.power_density)
+    #assert abs(archive.data.jv_curve[2].efficiency - 0.37030243333333296) < 1e-6
     delete_json()
