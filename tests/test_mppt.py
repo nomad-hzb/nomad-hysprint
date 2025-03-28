@@ -38,9 +38,9 @@ def delete_json():
 def get_archive(file_base, monkeypatch):
     set_monkey_patch(monkeypatch)
     mainfile_path = os.path.join('tests', 'data', file_base)
-    file_archive = parse(mainfile_path)[0] 
-    assert file_archive.data 
-    assert file_archive.metadata 
+    file_archive = parse(mainfile_path)[0]
+    assert file_archive.data
+    assert file_archive.metadata
 
     for file in os.listdir(os.path.join('tests/data')):
         if 'archive.json' not in file:
@@ -71,10 +71,10 @@ def test_normalize_all(parsed_archive):
 def test_mppt_simple_parser(monkeypatch):
     file = 'hzb_TestP_AA_2_c-5.mppt.txt'
     archive = get_archive(file, monkeypatch)
-    normalize_all(archive) 
+    normalize_all(archive)
     assert archive.data
     assert archive.metadata
-    
+
     # # Test properties
     assert hasattr(archive.data, 'properties')
 
@@ -96,10 +96,10 @@ def test_mppt_simple_parser(monkeypatch):
 
     # Test specific values from the sample data
     # First value tests
-    assert np.isclose(archive.data.time[0].magnitude, 2.8320E-2)
-    assert np.isclose(archive.data.voltage[0].magnitude, 9.5000E-1)
-    assert np.isclose(archive.data.current_density[0].magnitude, -2.2999E+1)
-    assert np.isclose(archive.data.power_density[0].magnitude, -2.1849E+1)
+    assert np.isclose(archive.data.time[0].magnitude, 2.8320e-2)
+    assert np.isclose(archive.data.voltage[0].magnitude, 9.5000e-1)
+    assert np.isclose(archive.data.current_density[0].magnitude, -2.2999e1)
+    assert np.isclose(archive.data.power_density[0].magnitude, -2.1849e1)
 
     # Check units
     assert str(archive.data.time[0].units) == 'second'
@@ -107,10 +107,9 @@ def test_mppt_simple_parser(monkeypatch):
     assert str(archive.data.current_density[0].units) == 'milliampere / centimeter ** 2'
     assert str(archive.data.power_density[0].units) == 'milliwatt / centimeter ** 2'
 
- 
     # Test that all voltage values are within the range they appear in the measurement
     voltage_magnitudes = np.array([v.magnitude for v in archive.data.voltage])
-    assert np.allclose(voltage_magnitudes, 9.5000E-1, rtol=0.3E-1)
+    assert np.allclose(voltage_magnitudes, 9.5000e-1, rtol=0.3e-1)
 
     # Clean up
     delete_json()
