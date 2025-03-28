@@ -10,7 +10,15 @@ import os
 import numpy as np
 import pytest
 from nomad.client import normalize_all, parse
+from nomad.datamodel.metainfo.annotations import ELNAnnotation
 from nomad.units import ureg
+
+
+# Add this function to initialize metainfo before tests
+@pytest.fixture(scope='session', autouse=True)
+def init_metainfo():
+    """Initialize the metainfo system before running tests."""
+    ELNAnnotation.model_rebuild()
 
 
 def set_monkey_patch(monkeypatch):
