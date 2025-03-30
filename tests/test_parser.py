@@ -6,7 +6,7 @@ from nomad.units import ureg
 
 
 def set_monkey_patch(monkeypatch):
-    def mockreturn_search(*args):
+    def mockreturn_search(*args, upload_id=None):
         return None
 
     monkeypatch.setattr(
@@ -25,6 +25,9 @@ def delete_json():
         if not file.endswith('archive.json'):
             continue
         os.remove(os.path.join('tests', 'data', file))
+
+
+delete_json()
 
 
 def get_archive(file_base, monkeypatch):
