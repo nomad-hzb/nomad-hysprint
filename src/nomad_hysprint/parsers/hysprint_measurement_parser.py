@@ -67,9 +67,6 @@ This is a hello world style example for an example parser/converter.
 class RawFileHZB(EntryData):
     processed_archive = Quantity(
         type=Activity,
-        a_eln=ELNAnnotation(
-            component='ReferenceEditQuantity',
-        ),
     )
 
 
