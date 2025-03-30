@@ -949,7 +949,6 @@ class HySprint_JVmeasurement(JVMeasurement, EntryData):
         if not self.samples and self.data_file:
             search_id = self.data_file.split('.')[0]
             set_sample_reference(archive, self, search_id, upload_id=archive.metadata.upload_id)
-
         if self.data_file:
             # todo detect file format
             with archive.m_context.raw_file(self.data_file, 'br') as f:
