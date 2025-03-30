@@ -30,9 +30,6 @@ from nomad.datamodel import EntryArchive
 from nomad.datamodel.data import (
     EntryData,
 )
-from nomad.datamodel.metainfo.annotations import (
-    ELNAnnotation,
-)
 from nomad.datamodel.metainfo.basesections import (
     Activity,
 )
