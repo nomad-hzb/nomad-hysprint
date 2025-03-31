@@ -1,10 +1,3 @@
-# def parser():
-#     entry_archive = EntryArchive(m_context=ParserContext(directory))
-#     entry_archive.metadata = EntryMetadata()
-#     entry_archive.metadata.mainfile = mainfile_path
-#     entry_archives = [entry_archive]
-#     return entry_archives
-
 import os
 
 import numpy as np
