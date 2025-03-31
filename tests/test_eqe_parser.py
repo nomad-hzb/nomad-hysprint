@@ -1,10 +1,12 @@
 import numpy as np
-#from src.nomad_hysprint.schema_packages.file_parser.eqe_parser import interpolate_eqe
-from nomad_hysprint.schema_packages.file_parser.eqe_parser import interpolate_eqe, arrange_eqe_columns, hc_eVnm
 import pandas as pd
 
-
-
+# from src.nomad_hysprint.schema_packages.file_parser.eqe_parser import interpolate_eqe
+from nomad_hysprint.schema_packages.file_parser.eqe_parser import (
+    arrange_eqe_columns,
+    hc_eVnm,
+    interpolate_eqe,
+)
 
 
 def test_interpolate_eqe_basic():
@@ -25,16 +27,12 @@ def test_interpolate_eqe_basic():
 
 
 def test_arrange_eqe_columns_basic():
-    df = pd.DataFrame({
-    'Wavelength (nm)': [1240, 620, 310],
-    'Calculated': [20, 40, 60]
-    })
+    df = pd.DataFrame({'Wavelength (nm)': [1240, 620, 310], 'Calculated': [20, 40, 60]})
 
     photon_energy_raw, eqe_raw = arrange_eqe_columns(df)
 
     expected_photon_energy = hc_eVnm / np.array([1240, 620, 310])  # ✅ Now 3 values
     expected_eqe = np.array([0.2, 0.4, 0.6])
-
 
     assert np.allclose(photon_energy_raw, expected_photon_energy)
     assert np.allclose(eqe_raw, expected_eqe)
