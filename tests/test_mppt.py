@@ -7,7 +7,7 @@ from nomad.units import ureg
 
 
 def set_monkey_patch(monkeypatch):
-    def mockreturn_search(*args):
+    def mockreturn_search(*args, upload_id=None):
         return None
 
     monkeypatch.setattr(
@@ -57,7 +57,7 @@ def parsed_archive(file, monkeypatch):
     yield get_archive(file, monkeypatch)
 
 
-def test_normalize_all(parsed_archive):
+def test_normalize_all(parsed_archive, monkeypatch):
     normalize_all(parsed_archive)
     delete_json()
 
