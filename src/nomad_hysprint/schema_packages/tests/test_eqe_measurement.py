@@ -1,8 +1,8 @@
-import pytest
 import numpy as np
+import pytest
 from nomad.datamodel import EntryArchive
+
 from nomad_hysprint.schema_packages.parsers.eqe_parser import HySprint_EQEmeasurement
-from nomad_hysprint.schema_packages.file_parser.eqe_parser import read_file, read_file_multiple
 
 
 @pytest.fixture
