@@ -52,7 +52,7 @@ def test_read_file_default_header():
 
     np.testing.assert_array_equal(result['photon_energy_raw'], expected_photon_energy)
     np.testing.assert_array_equal(result['intensty_raw'], expected_intensity)
-    # You can skip interpolated ones unless you're testing them too
+    # Skip interpolated ones unless you're testing them too
 
 
 def test_read_file_multiple_parsing_only(monkeypatch):
