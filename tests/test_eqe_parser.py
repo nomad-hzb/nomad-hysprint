@@ -82,3 +82,36 @@ def test_read_file_multiple_parsing_only(monkeypatch):
 
     np.testing.assert_array_almost_equal(parsed['photon_energy_raw'], expected_x)
     np.testing.assert_array_almost_equal(parsed['intensty_raw'], expected_y)
+
+
+def test_sid1_eqe():
+    with open('./tests/data/SID1.eqe.txt') as f:
+        content = f.read()
+
+    # Extract just the data block (after "//DATA//")
+    if '//DATA//' in content:
+        content = content.split('//DATA//', 1)[-1].strip()
+
+    result = read_file(content)
+
+    assert isinstance(result, dict)
+    assert 'photon_energy' in result
+    assert 'intensity' in result
+    assert len(result['photon_energy']) == 1000
+    assert all(isinstance(x, float) for x in result['photon_energy'])
+    assert all(0 <= x <= 1 for x in result['intensity'])
+
+
+def test_hzb_eqe():
+    with open('./tests/data/hzb_TestP_AA_2_c-5.eqe.txt') as f:
+        content = f.read()
+    results = read_file_multiple(content)
+
+    assert isinstance(results, list)
+    assert len(results) > 0
+    for res in results:
+        assert 'photon_energy' in res
+        assert 'intensity' in res
+        assert len(res['photon_energy']) == 1000
+        assert all(isinstance(x, float) for x in res['photon_energy'])
+        assert all(0 <= x <= 1 for x in res['intensity'])
