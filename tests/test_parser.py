@@ -4,8 +4,6 @@ import pytest
 from nomad.client import normalize_all, parse
 from nomad.units import ureg
 
-from utils import delete_json, get_archive
-
 def set_monkey_patch(monkeypatch):
     def mockreturn_search(*args):
         return None
