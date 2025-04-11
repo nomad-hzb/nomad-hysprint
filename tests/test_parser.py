@@ -3,6 +3,7 @@ import os
 import pytest
 from nomad.client import normalize_all, parse
 from nomad.units import ureg
+
 from utils import delete_json, get_archive
 
 
