@@ -12,6 +12,7 @@ def init_cache():
 def get_all_uploads(url, token, number_of_uploads=20):
     response = requests.get(f'{url}/uploads',
                              headers={'Authorization': f'Bearer {token}'},params=dict(page_size=number_of_uploads,order_by='upload_create_time', order="desc"))
+    response.raise_for_status()
     return response.json()["data"]
 
 
@@ -28,6 +29,7 @@ def get_template(url, token, upload_name, method):
     }
     response = requests.post(f'{url}/entries/archive/query',
                              headers={'Authorization': f'Bearer {token}'}, json=query)
+    response.raise_for_status()
     return response.json()["data"]
 
 def get_token(url, name=None):
@@ -37,7 +39,8 @@ def get_token(url, name=None):
     
     # Get a token from the api, login
     response = requests.get(
-        f'{url}/auth/token', params=dict(username=user, password=password))    
+        f'{url}/auth/token', params=dict(username=user, password=password))  
+    response.raise_for_status()  
     return response.json()['access_token']
 
 def get_batch_ids(url, token, batch_type="HySprint_Batch"):
@@ -53,6 +56,7 @@ def get_batch_ids(url, token, batch_type="HySprint_Batch"):
     }
     response = requests.post(
         f'{url}/entries/archive/query', headers={'Authorization': f'Bearer {token}'}, json=query)
+    response.raise_for_status()
     data = response.json()["data"]
     return [d["archive"]["data"]["lab_id"] for d in data if "lab_id" in d["archive"]["data"]]
 
@@ -69,6 +73,7 @@ def get_ids_in_batch(url, token,batch_ids, batch_type="HySprint_Batch"):
     }
     response = requests.post(
         f'{url}/entries/archive/query', headers={'Authorization': f'Bearer {token}'}, json=query)
+    response.raise_for_status()
     data = response.json()["data"]
     assert len(data) == len(batch_ids)
     sample_ids = []
@@ -94,6 +99,7 @@ def get_entry_data(url, token, entry_id):
     }
     response = requests.post(f'{url}/entries/archive/query',
                              headers={'Authorization': f'Bearer {token}'}, json=query)
+    response.raise_for_status()
     assert len(response.json()["data"]) ==1, "Entry not found"
     return response.json()["data"][0]["archive"]["data"]
 
@@ -110,6 +116,7 @@ def get_sample_description(url, token, sample_ids):
     }
     response = requests.post(
         f'{url}/entries/query', headers={'Authorization': f'Bearer {token}'}, json=query)
+    response.raise_for_status()
     entries = response.json()["data"]
     res = {}
     for entry in entries:
@@ -133,6 +140,7 @@ def get_entryid(url, token, sample_id):  # give it a batch id
     }
     response = requests.post(
         f'{url}/entries/query', headers={'Authorization': f'Bearer {token}'}, json=query)
+    response.raise_for_status()
     data = response.json()["data"]
     assert len(data) == 1
     return data[0]["entry_id"]
@@ -151,6 +159,7 @@ def get_nomad_ids_of_entry(url, token, sample_id):  # give it a batch id
     }
     response = requests.post(
         f'{url}/entries/query', headers={'Authorization': f'Bearer {token}'}, json=query)
+    response.raise_for_status()
     data = response.json()["data"]
     assert len(data) == 1
     return data[0]["entry_id"], data[0]["upload_id"]
@@ -170,6 +179,7 @@ def get_entry_meta_data(url, token, entry_id):
     }
     response = requests.post(f'{url}/entries/query',
                              headers={'Authorization': f'Bearer {token}'}, json=query)
+    response.raise_for_status()
     assert len(response.json()["data"]) ==1, "Entry not found"
     return response.json()["data"][0]
 
@@ -220,6 +230,7 @@ def get_specific_data_of_sample(url, token, sample_id, entry_type, with_meta=Fal
     }
     response = requests.post(f'{url}/entries/archive/query',
                              headers={'Authorization': f'Bearer {token}'}, json=query)
+    response.raise_for_status()
     linked_data = response.json()["data"]
     res = []
     for ldata in linked_data:
@@ -245,6 +256,7 @@ def get_all_JV(url, token, sample_ids, jv_type="HySprint_JVmeasurement"):
     }
     response = requests.post(
         f'{url}/entries/query', headers={'Authorization': f'Bearer {token}'}, json=query)
+    response.raise_for_status()
     
     entry_ids = [entry["entry_id"] for entry in response.json()["data"]]
     
@@ -262,6 +274,7 @@ def get_all_JV(url, token, sample_ids, jv_type="HySprint_JVmeasurement"):
     }
     response = requests.post(f'{url}/entries/archive/query',
                              headers={'Authorization': f'Bearer {token}'}, json=query)
+    response.raise_for_status()
     linked_data = response.json()["data"]
     res = {}
     for ldata in linked_data:
@@ -285,6 +298,7 @@ def get_all_measurements_except_JV(url, token, sample_ids):
     }
     response = requests.post(
         f'{url}/entries/query', headers={'Authorization': f'Bearer {token}'}, json=query)
+    response.raise_for_status()
     
     entry_ids = [entry["entry_id"] for entry in response.json()["data"]]
     
@@ -302,6 +316,7 @@ def get_all_measurements_except_JV(url, token, sample_ids):
     }
     response = requests.post(f'{url}/entries/archive/query',
                              headers={'Authorization': f'Bearer {token}'}, json=query)
+    response.raise_for_status()
     linked_data = response.json()["data"]
     res = {}
     for ldata in linked_data:
@@ -327,6 +342,7 @@ def get_all_measurements_except_JV(url, token, sample_ids):
     }
     response = requests.post(
         f'{url}/entries/query', headers={'Authorization': f'Bearer {token}'}, json=query)
+    response.raise_for_status()
     
     entry_ids = [entry["entry_id"] for entry in response.json()["data"]]
     
@@ -344,6 +360,7 @@ def get_all_measurements_except_JV(url, token, sample_ids):
     }
     response = requests.post(f'{url}/entries/archive/query',
                              headers={'Authorization': f'Bearer {token}'}, json=query)
+    response.raise_for_status()
     linked_data = response.json()["data"]
     res = {}
     for ldata in linked_data:
@@ -369,6 +386,7 @@ def get_all_eqe(url, token, sample_ids, eqe_type="HySprint_EQEmeasurement"):
     }
     response = requests.post(
         f'{url}/entries/query', headers={'Authorization': f'Bearer {token}'}, json=query)
+    response.raise_for_status()
     
     entry_ids = [entry["entry_id"] for entry in response.json()["data"]]
     
@@ -386,6 +404,7 @@ def get_all_eqe(url, token, sample_ids, eqe_type="HySprint_EQEmeasurement"):
     }
     response = requests.post(f'{url}/entries/archive/query',
                              headers={'Authorization': f'Bearer {token}'}, json=query)
+    response.raise_for_status()
     linked_data = response.json()["data"]
     res = {}
     for ldata in linked_data:
@@ -409,6 +428,7 @@ def get_all_mppt(url, token, sample_ids, mppt_type="HySprint_SimpleMPPTracking")
     }
     response = requests.post(
         f'{url}/entries/query', headers={'Authorization': f'Bearer {token}'}, json=query)
+    response.raise_for_status()
     entry_ids = [entry["entry_id"] for entry in response.json()["data"]]
     
     query = {
@@ -425,6 +445,7 @@ def get_all_mppt(url, token, sample_ids, mppt_type="HySprint_SimpleMPPTracking")
     }
     response = requests.post(f'{url}/entries/archive/query',
                              headers={'Authorization': f'Bearer {token}'}, json=query)
+    response.raise_for_status()
     linked_data = response.json()["data"]
     res = {}
     for ldata in linked_data:
@@ -448,6 +469,7 @@ def get_processing_steps(url, token, sample_ids, process_type="baseclasses.BaseP
     }
     response = requests.post(
         f'{url}/entries/query', headers={'Authorization': f'Bearer {token}'}, json=query)
+    response.raise_for_status()
     
     entry_ids = [entry["entry_id"] for entry in response.json()["data"]]
     
@@ -463,12 +485,13 @@ def get_processing_steps(url, token, sample_ids, process_type="baseclasses.BaseP
         }
     }
     response = requests.post(f'{url}/entries/archive/query',
-                             headers={'Authorization': f'Bearer {token}'}, json=query).json()["data"]
-    response = list(map(lambda process : process["archive"]["data"], response))
+                             headers={'Authorization': f'Bearer {token}'}, json=query)
+    response.raise_for_status()
+    data = list(map(lambda process : process["archive"]["data"], response.json()["data"]))
     # delete entries for which "position_in_experimental_plan" is not defined, these are likely not proper processing steps
-    response = [step for step in response if "positon_in_experimental_plan" in step]
-    response.sort(key=lambda process : process["positon_in_experimental_plan"])
-    return response
+    data = [step for step in data if "positon_in_experimental_plan" in step]
+    data.sort(key=lambda process : process["positon_in_experimental_plan"])
+    return data
 
 def get_efficiencies(url, token, sample_ids):
     query = {
@@ -477,9 +500,10 @@ def get_efficiencies(url, token, sample_ids):
         'owner': 'visible'
     }
     response = requests.post(f'{url}/entries/archive/query',
-                             headers={'Authorization': f'Bearer {token}'}, json=query).json()["data"]
+                             headers={'Authorization': f'Bearer {token}'}, json=query)
+    response.raise_for_status()
     #return dict with entries lab_id:efficiency
     return dict(map(lambda x:(x["archive"]["results"]["eln"]["lab_ids"][0],
                               x["archive"]["results"]["properties"]["optoelectronic"]["solar_cell"]["efficiency"]),
-                    response
+                    response.json()["data"]
                    ))

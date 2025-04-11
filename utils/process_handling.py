@@ -122,10 +122,13 @@ class batch_process(widgets.GridBox):
                     datapoints_dict[sample_id]={}
                 datapoints_dict[sample_id][str(parameter_object.keychain[-1])] = parameter_object.samples_values_dict[sample_id]
         if only_samples_with_all_values:
+            filtered_dict={}
             for sample_id in datapoints_dict:
-                if list(datapoints_dict[sample_id].keys()) != parameter_name_list:
-                    datapoints_dict.pop(sample_id)
-        return datapoints_dict
+                if list(datapoints_dict[sample_id].keys()) == parameter_name_list:
+                    filtered_dict[sample_id]=datapoints_dict[sample_id]
+            return filtered_dict
+        else:
+            return datapoints_dict
             
 
 class manufacturing_parameter(widgets.ToggleButton):

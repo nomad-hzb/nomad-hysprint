@@ -54,7 +54,7 @@ def stretched_exponential_params(power, times):
     time_extrapolate, pce_extrapolate = extrapolate(times, result)
     T80 = find_T80(time_extrapolate, pce_extrapolate)
     T80_capped = min(T80, times[-1])
-    lifetime_energy = calculate_ley(stretched_exponential, result.best_values.values(), Ts80_capped)
+    lifetime_energy = calculate_ley(stretched_exponential, result.best_values.values(), T80_capped)
     
     #put all relevant parameters into a list, if errors were calculated return parameters as uncertainties.ufloats, otherwise as normal floats
     if result.errorbars:
@@ -62,7 +62,7 @@ def stretched_exponential_params(power, times):
                        result.rsquared, T80_capped, lifetime_energy]
     else:
         result_values=[result.best_values["A"], result.best_values["tau"], result.best_values["beta"], 
-                       result.rsquared, tS_capped, Ts80_capped, lifetime_energy]
+                       result.rsquared, T80_capped, lifetime_energy]
     return result_values, result.best_fit
 
 def linear_params(power, times):
@@ -219,7 +219,7 @@ def find_T80(times, power, reference_power=None, target_decay=0.8):
         reference = np.mean(np.partition(power, -50)[-50:])
     else:
         reference = reference_power
-    t80_index = numpy.argmax(power<=reference*target_decay) #argmax returns the first value for which the expression is true
+    t80_index = np.argmax(power<=reference*target_decay) #argmax returns the first value for which the expression is true
     return times[t80_index]
 
 # finds the global minimum, then finds the global maximum after that, fitted function is extrapolated to 10 times the measurement time
