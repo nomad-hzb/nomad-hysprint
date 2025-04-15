@@ -2,6 +2,7 @@ import numpy as np
 import pytest
 from nomad.client import normalize_all
 from nomad.units import ureg
+
 from utils import delete_json, get_archive
 
 
