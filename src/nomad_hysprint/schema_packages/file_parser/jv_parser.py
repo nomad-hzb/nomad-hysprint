@@ -39,6 +39,9 @@ def get_jv_data_hysprint(filedata):
         engine='python',
         encoding='unicode_escape',
     )
+
+    time_header = filedata.split('\n')[0]
+
     df_header = pd.read_csv(
         StringIO(filedata),
         skiprows=1,
@@ -64,7 +67,10 @@ def get_jv_data_hysprint(filedata):
 
     number_of_curves = len(df_curves.columns) - 1
 
+    timestamp = ''.join(time_header.split('/')[0].split()[-4:])
+
     jv_dict = {}
+    jv_dict['datetime'] = convert_datetime(timestamp, '%b%d%Y%H:%M:%S')
     jv_dict['active_area'] = df_header.iloc[0, 1]
     jv_dict['intensity'] = df_header.iloc[1, 1]
     jv_dict['integration_time'] = df_header.iloc[2, 1]
@@ -204,6 +210,7 @@ def get_jv_data_iris(filedata):
     df.replace([np.inf, -np.inf, np.nan], 0, inplace=True)
 
     jv_dict = {}
+    jv_dict['datetime'] = convert_datetime(df_header.iloc[0, 0], '%H:%M:%S - %d.%m.%Y')
     jv_dict['active_area'] = list(ast.literal_eval(df_header.iloc[12, 0]))[0]
     jv_dict['intensity'] = float(df_header.iloc[27, 0]) / 100 * 100
     jv_dict['integration_time'] = float(df_header.iloc[9, 0]) * 1000
