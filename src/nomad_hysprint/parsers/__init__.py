@@ -5,7 +5,7 @@ class HySprintParserEntryPoint(ParserEntryPoint):
     def load(self):
         from nomad_hysprint.parsers.hysprint_measurement_parser import HySprintParser
 
-        return HySprintParser(**self.dict())
+        return HySprintParser(**self.model_dump())
 
 
 class HySprintExperimentParserEntryPoint(ParserEntryPoint):
@@ -14,7 +14,7 @@ class HySprintExperimentParserEntryPoint(ParserEntryPoint):
             HySprintExperimentParser,
         )
 
-        return HySprintExperimentParser(**self.dict())
+        return HySprintExperimentParser(**self.model_dump())
 
 
 class SolarTabSimulationParserEntryPoint(ParserEntryPoint):
@@ -23,7 +23,7 @@ class SolarTabSimulationParserEntryPoint(ParserEntryPoint):
             SolarTabSimulationParser,
         )
 
-        return SolarTabSimulationParser(**self.dict())
+        return SolarTabSimulationParser(**self.model_dump())
 
 
 hysprint_parser = HySprintParserEntryPoint(

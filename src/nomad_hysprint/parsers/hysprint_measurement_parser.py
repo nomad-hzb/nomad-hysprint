@@ -30,11 +30,8 @@ from nomad.datamodel import EntryArchive
 from nomad.datamodel.data import (
     EntryData,
 )
-from nomad.datamodel.metainfo.annotations import (
-    ELNAnnotation,
-)
 from nomad.datamodel.metainfo.basesections import (
-    Entity,
+    Activity,
 )
 from nomad.metainfo import (
     Quantity,
@@ -66,10 +63,7 @@ This is a hello world style example for an example parser/converter.
 
 class RawFileHZB(EntryData):
     processed_archive = Quantity(
-        type=Entity,
-        a_eln=ELNAnnotation(
-            component='ReferenceEditQuantity',
-        ),
+        type=Activity,
     )
 
 
@@ -124,6 +118,21 @@ class HySprintParser(MatchingParser):
                 entry = HySprint_OpenCircuitVoltage()
             if 'Potentio Electrochemical Impedance Spectroscopy' in technique:
                 entry = HySprint_ElectrochemicalImpedanceSpectroscopy()
+        if mainfile_split[-1] == 'csv' and measurment_type == 'hy':
+            with open(mainfile) as f:
+                file_content = f.read()
+            if (
+                'Experiment:' in file_content
+                and 'Start date:' in file_content
+                and ' Charge (C)' in file_content
+            ):
+                entry = HySprint_CyclicVoltammetry()
+            if (
+                'Experiment:' in file_content
+                and 'Start date:' in file_content
+                and 'Aux A (V)' in file_content
+            ):
+                entry = HySprint_OpenCircuitVoltage()
         if mainfile_split[-1] == 'txt' and measurment_type == 'jv':
             entry = HySprint_JVmeasurement()
         if mainfile_split[-1] == 'txt' and measurment_type == 'spv':
