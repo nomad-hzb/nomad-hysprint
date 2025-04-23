@@ -919,60 +919,6 @@ class HySprint_trSPVmeasurement(trSPVMeasurement, EntryData):
         super().normalize(archive, logger)
 
 
-class HySprint_AbsPLResult(AbsPLResult):
-    m_def = Section(label='AbsPLResult with iVoc')
-
-    i_voc = Quantity(
-        type=np.float64,
-        unit='V',
-        description='iVoc in V, e.g. 1.23.',
-        a_eln=dict(component='NumberEditQuantity', label='iVoc'),
-    )
-
-
-class HySprint_AbsPLMeasurement(AbsPLMeasurement, EntryData):
-    m_def = Section(label='Absolute PL Measurement')
-
-    def normalize(self, archive, logger):  # noqa: PLR0912, PLR0915
-        logger.debug('Starting HySprint_AbsPLMeasurement.normalize', data_file=self.data_file)
-        if self.settings is None:
-            self.settings = AbsPLSettings()
-
-        if self.data_file:
-            try:
-                from nomad_hysprint.schema_packages.file_parser.abspl_normalizer import parse_abspl_data
-
-                # Call the new parser function
-                (
-                    settings_vals,
-                    result_vals,
-                    wavelengths,
-                    lum_flux,
-                    raw_counts,
-                    dark_counts,
-                ) = parse_abspl_data(self.data_file, archive, logger)
-
-                # Set settings
-                for key, val in settings_vals.items():
-                    setattr(self.settings, key, val)
-
-                # Set results header values
-                if not self.results:
-                    self.results = [HySprint_AbsPLResult()]
-                for key, val in result_vals.items():
-                    setattr(self.results[0], key, val)
-
-                # Set spectral array data
-                self.results[0].wavelength = np.array(wavelengths, dtype=float)
-                self.results[0].luminescence_flux_density = np.array(lum_flux, dtype=float)
-                self.results[0].raw_spectrum_counts = np.array(raw_counts, dtype=float)
-                self.results[0].dark_spectrum_counts = np.array(dark_counts, dtype=float)
-
-            except Exception as e:
-                logger.warning(f'Could not parse the data file "{self.data_file}": {e}')
-                print(e)
-        super().normalize(archive, logger)
-
 
 class HySprint_JVmeasurement(JVMeasurement, EntryData):
     m_def = Section(
@@ -1037,6 +983,55 @@ class HySprint_JVmeasurement(JVMeasurement, EntryData):
 
         super().normalize(archive, logger)
 
+class HySprint_AbsPLMeasurement(AbsPLMeasurement, EntryData):
+    m_def = Section(
+        label='Absolute PL Measurement',
+        categories=[NOMADMeasurementsCategory],
+        a_eln=ELNAnnotation(
+            lane_width='800px',
+        ),
+    )
+
+    def normalize(self, archive, logger):  # noqa: PLR0912, PLR0915
+        logger.debug('Starting AbsPLMeasurement.normalize', data_file=self.data_file)
+        if self.settings is None:
+            self.settings = AbsPLSettings()
+
+        if self.data_file:
+            try:
+                # Call the new parser function
+                (
+                    settings_vals,
+                    result_vals,
+                    wavelengths,
+                    lum_flux,
+                    raw_counts,
+                    dark_counts,
+                ) = parse_abspl_data(self.data_file, archive, logger)
+
+                # Set settings
+                for key, val in settings_vals.items():
+                    setattr(self.settings, key, val)
+
+                # Set results header values
+                if not self.results:
+                    self.results = [AbsPLResult()]
+                for key, val in result_vals.items():
+                    setattr(self.results[0], key, val)
+
+                # Set spectral array data
+                self.results[0].wavelength = np.array(wavelengths, dtype=float)
+                self.results[0].luminescence_flux_density = np.array(
+                    lum_flux, dtype=float
+                )
+                self.results[0].raw_spectrum_counts = np.array(raw_counts, dtype=float)
+                self.results[0].dark_spectrum_counts = np.array(
+                    dark_counts, dtype=float
+                )
+
+            except Exception as e:
+                logger.warning(f'Could not parse the data file "{self.data_file}": {e}')
+        super().normalize(archive, logger)    
 
 class HySprint_LuminescenceMeasurement(AbsPLMeasurement, EntryData):
     """
