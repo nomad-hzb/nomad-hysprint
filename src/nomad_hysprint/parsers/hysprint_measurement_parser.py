@@ -137,7 +137,7 @@ class HySprintParser(MatchingParser):
             entry = HySprint_JVmeasurement()
         if mainfile_split[-1] == 'txt' and measurment_type == 'spv':
             entry = HySprint_trSPVmeasurement()
-        if mainfile_split[-1] == 'txt' or mainfile_split[-1] == 'TRQ' and measurment_type == 'eqe':
+        if (mainfile_split[-1] == 'txt' or mainfile_split[-1] == 'TRQ') and measurment_type == 'eqe':
             entry = HySprint_EQEmeasurement()
         if mainfile_split[-1] in ['tif', 'tiff'] and measurment_type.lower() == 'sem':
             entry = HySprint_SEM()
