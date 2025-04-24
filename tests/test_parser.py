@@ -251,7 +251,7 @@ def test_hy_eqe_parser(monkeypatch):
     delete_json()
 
 
-def test_hy_batch_parser_new_cols(monkeypatch):
+def test_hy_batch_parser_new_cols(monkeypatch):  # noqa: PLR0915
     file = '20250305_experiment_file.xlsx'
     file_name = os.path.join('tests', 'data', file)
     file_archive = parse(file_name)[0]
