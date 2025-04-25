@@ -4,7 +4,22 @@ import pytest
 from nomad.client import normalize_all, parse
 from nomad.units import ureg
 
-from utils import delete_json, get_archive
+from utils import delete_json, set_monkey_patch
+
+
+def get_archive(file_base, monkeypatch):
+    set_monkey_patch(monkeypatch)
+    file_name = os.path.join('tests', 'data', file_base)
+    file_archive = parse(file_name)[0]
+    assert file_archive.data
+
+    for file in os.listdir(os.path.join('tests/data')):
+        if 'archive.json' not in file:
+            continue
+        measurement = os.path.join('tests', 'data', file)
+        measurement_archive = parse(measurement)[0]
+
+    return measurement_archive
 
 
 @pytest.fixture(
@@ -215,6 +230,24 @@ def test_hy_batch_parser(monkeypatch):  # noqa: PLR0915
             assert False
 
     assert count_samples_batches == 17
+    delete_json()
+
+
+def test_hy_eqe_parser(monkeypatch):
+    """Test the EQE parser integration with NOMAD."""
+    # Use the provided EQE test file
+    file = 'hzb_TestP_AA_2_c-5.eqe.txt'
+
+    # Get archive using the helper function
+    archive = get_archive(file, monkeypatch)
+
+    # Normalize the archive
+    normalize_all(archive)
+
+    # Assert that data exists
+    assert archive.data
+
+    # Clean up
     delete_json()
 
 
