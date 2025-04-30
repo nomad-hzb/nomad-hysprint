@@ -19,7 +19,7 @@ def add_citation_sheet(workbook):
         '• License: Code: Apache-2.0; Voila Notebooks: CC BY 4.0',
         '',
         'Example Citation:',
-        # "NOMAD Hysprint: NOMAD's schema for HZB perovskite research. NOMAD-HZB contributors. 2025. GitHub. https://github.com/nomad-hzb/nomad-hysprint. Accessed: 2025-04-25. Version: main branch, commit [commit-hash]. Code licensed under Apache-2.0; Voila notebooks licensed under CC BY 4.0.",
+        "NOMAD Hysprint: NOMAD's schema for HZB perovskite research. NOMAD-HZB contributors. 2025. GitHub. https://github.com/nomad-hzb/nomad-hysprint. Accessed: 2025-04-25. Version: main branch, commit [commit-hash]. Code licensed under Apache-2.0; Voila notebooks licensed under CC BY 4.0.",
     ]
     for i, line in enumerate(lines, 1):
         ws.cell(row=i, column=1, value=line)
