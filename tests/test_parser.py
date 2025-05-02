@@ -32,16 +32,6 @@ def test_normalize_all(parsed_archive, monkeypatch):
     delete_json()
 
 
-def test_hy_jv_parser(monkeypatch):
-    file = 'SE-ALM_RM_20231004_RM_KW40_0_8.jv.txt'
-    archive = get_archive(file, monkeypatch)
-    normalize_all(archive)
-
-    assert archive.data
-    assert archive.data.jv_curve[0].voltage[0]
-    assert abs(archive.data.jv_curve[2].efficiency - 0.37030243333333296) < 1e-6
-    delete_json()
-
 
 def test_hy_batch_parser(monkeypatch):  # noqa: PLR0915
     file = '20250114_experiment_file.xlsx'

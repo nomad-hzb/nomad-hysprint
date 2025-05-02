@@ -1,6 +1,7 @@
 import pytest
 from nomad.client import normalize_all
 from nomad.units import ureg
+
 from utils import delete_json, get_archive
 
 
@@ -62,7 +63,7 @@ def test_hysprint_jv_parser(monkeypatch):
     assert abs(archive.data.jv_curve[0].potential_at_maximum_power_point.magnitude - 1.030000) < 1e-6
     assert abs(archive.data.jv_curve[0].current_density_at_maximun_power_point.magnitude - 20.700637) < 1e-6
     # test for the resistance passes but the values seem unphysical or at least too deviant compated to the other files.
-    # Cross check the units/scale! Typical values for area-normalized series resistance are between 0.5 Ωcm2 for laboratory type solar cells and typical values for area-normalized shunt resistance are in the MΩcm2 range 
+    # Cross check the units/scale! Typical values for area-normalized series resistance are between 0.5 Ωcm2 for laboratory type solar cells and typical values for area-normalized shunt resistance are in the MΩcm2 range
     assert abs(archive.data.jv_curve[0].series_resistance.magnitude - 0.003881) < 1e-6
     assert abs(archive.data.jv_curve[0].shunt_resistance.magnitude - 7.713772) < 1e-6
 
@@ -130,23 +131,23 @@ def test_pvcomb_jv_parser(monkeypatch):
 
     # Test specific values - adjust expected values based on your sample data
     assert archive.data.datetime.strftime('%Y-%m-%d %H:%M:%S') == '2024-11-21 12:53:50'
-    assert abs(archive.data.active_area.magnitude - 0.16) < 1e-6  
-    assert abs(archive.data.intensity.magnitude - 100.0) < 1e-6  
-    assert abs(archive.data.settling_time.magnitude - 0.02) < 1e-6  
-    assert abs(archive.data.compliance.magnitude - 31.25) < 1e-6  
+    assert abs(archive.data.active_area.magnitude - 0.16) < 1e-6
+    assert abs(archive.data.intensity.magnitude - 100.0) < 1e-6
+    assert abs(archive.data.settling_time.magnitude - 0.02) < 1e-6
+    assert abs(archive.data.compliance.magnitude - 31.25) < 1e-6
 
     # Test array values - these need to be accessed through jv_curve objects
     assert len(archive.data.jv_curve) == 1  # PVComb has only one curve
-    assert abs(archive.data.jv_curve[0].short_circuit_current_density.magnitude - 23.71677) < 1e-6  
-    assert abs(archive.data.jv_curve[0].open_circuit_voltage.magnitude - 1.078086) < 1e-6  
-    assert abs(archive.data.jv_curve[0].fill_factor - 0.6800677) < 1e-6  
-    assert abs(archive.data.jv_curve[0].efficiency - 17.38846) < 1e-6  
-    assert abs(archive.data.jv_curve[0].potential_at_maximum_power_point.magnitude - 0.8425) < 1e-6 
-    assert abs(archive.data.jv_curve[0].current_density_at_maximun_power_point.magnitude - 20.63912) < 1e-6  
+    assert abs(archive.data.jv_curve[0].short_circuit_current_density.magnitude - 23.71677) < 1e-6
+    assert abs(archive.data.jv_curve[0].open_circuit_voltage.magnitude - 1.078086) < 1e-6
+    assert abs(archive.data.jv_curve[0].fill_factor - 0.6800677) < 1e-6
+    assert abs(archive.data.jv_curve[0].efficiency - 17.38846) < 1e-6
+    assert abs(archive.data.jv_curve[0].potential_at_maximum_power_point.magnitude - 0.8425) < 1e-6
+    assert abs(archive.data.jv_curve[0].current_density_at_maximun_power_point.magnitude - 20.63912) < 1e-6
     # test for the resistance passes but the values seem unphysical or at least too deviant compated to the other files.
-    # Cross check the units/scale! Typical values for area-normalized series resistance are between 0.5 Ωcm2 for laboratory type solar cells and typical values for area-normalized shunt resistance are in the MΩcm2 range 
-    assert abs(archive.data.jv_curve[0].series_resistance.magnitude - 45.788151) < 1e-6  
-    assert abs(archive.data.jv_curve[0].shunt_resistance.magnitude - 7834.505) < 1e-6 
+    # Cross check the units/scale! Typical values for area-normalized series resistance are between 0.5 Ωcm2 for laboratory type solar cells and typical values for area-normalized shunt resistance are in the MΩcm2 range
+    assert abs(archive.data.jv_curve[0].series_resistance.magnitude - 45.788151) < 1e-6
+    assert abs(archive.data.jv_curve[0].shunt_resistance.magnitude - 7834.505) < 1e-6
 
     # # Test units
     assert archive.data.active_area.units == ureg.cm**2
@@ -163,22 +164,25 @@ def test_pvcomb_jv_parser(monkeypatch):
     assert archive.data.jv_curve[0].shunt_resistance.units == ureg.ohm * ureg.cm**2
 
     # Test curve data
-    assert archive.data.jv_curve[0].cell_name is not None  # Adjust if cell_name is expected to be a specific value
+    assert (
+        archive.data.jv_curve[0].cell_name is not None
+    )  # Adjust if cell_name is expected to be a specific value
     assert archive.data.jv_curve[0].voltage[0] is not None
     assert archive.data.jv_curve[0].current_density[0] is not None
     assert archive.data.jv_curve[0].voltage.units == ureg.V
     assert archive.data.jv_curve[0].current_density.units == ureg.mA / ureg.cm**2
 
     # # Test specific curve values - adjust based on your sample data
-    assert abs(archive.data.jv_curve[0].voltage.magnitude[0] - 1.4) < 1e-6 
-    assert abs(archive.data.jv_curve[0].current_density.magnitude[0] - 31.25374) < 1e-6  
+    assert abs(archive.data.jv_curve[0].voltage.magnitude[0] - 1.4) < 1e-6
+    assert abs(archive.data.jv_curve[0].current_density.magnitude[0] - 31.25374) < 1e-6
 
     # # Test the last line of values in the curve data
-    assert abs(archive.data.jv_curve[0].voltage.magnitude[-1] - (-0.2)) < 1e-6 
-    assert abs(archive.data.jv_curve[0].current_density.magnitude[-1] - (-23.84712)) < 1e-6 
+    assert abs(archive.data.jv_curve[0].voltage.magnitude[-1] - (-0.2)) < 1e-6
+    assert abs(archive.data.jv_curve[0].current_density.magnitude[-1] - (-23.84712)) < 1e-6
 
     # Clean up
     delete_json()
+
 
 def test_iris_jv_parser(monkeypatch):
     file = 'SE-ALM_RM_20231004_RM_KW40_0_8.jv.txt'
@@ -201,70 +205,71 @@ def test_iris_jv_parser(monkeypatch):
     for key in expected_keys:
         assert hasattr(archive.data, key), f'Missing key: {key}'
 
-    # Test datetime parsing
-    assert archive.data.datetime.strftime('%Y-%m-%d %H:%M:%S') == '2023-11-30 17:30:54'  
-
-    # Test specific values - adjust expected values based on your sample data
+    # Test specific values
+    assert archive.data.datetime.strftime('%Y-%m-%d %H:%M:%S') == '2023-11-30 17:30:54'
     assert abs(archive.data.active_area.magnitude - 0.16) < 1e-6
     assert abs(archive.data.intensity.magnitude - 104.3) < 1e-6
     assert abs(archive.data.integration_time.magnitude - 100) < 1e-6
     assert abs(archive.data.settling_time.magnitude - 100) < 1e-6
-    assert abs(archive.data.averaging - 3) < 1e-6
+    assert abs(archive.data.averaging - 3.0) < 1e-6
 
-    # Test array values - these need to be accessed through jv_curve objects
-    # Assuming multiple curves based on the parser logic
-    assert len(archive.data.jv_curve) > 0
+    # Test curves exist
+    assert len(archive.data.jv_curve) == 24  # 6 cells (a-f) × 4 measurements (Forward/Reverse × Light/Dark)
 
-    # Test first curve values
+    # Test first JV curve (index 0): a_Forward_Dark
+    curve0 = archive.data.jv_curve[0]
+    assert curve0['cell_name'] == 'a_Forward_Dark'
 
-    # gives none type attribute error for magnitute and units of the jv_curve. Are we sure that the parser is working properly?
+    # Test second JV curve (index 1): a_Reverse_Dark
+    curve1 = archive.data.jv_curve[1]
+    assert curve1['cell_name'] == 'a_Reverse_Dark'
+    assert abs(curve1['current_density'][0].magnitude - 0.2576272291666666) < 1e-6
+    assert str(curve1['current_density'][0].units) == 'milliampere / centimeter ** 2'
+    assert abs(curve1['voltage'][0].magnitude - 1.2) < 1e-6
+    assert str(curve1['voltage'][0].units) == 'volt'
 
-    # assert abs(archive.data.jv_curve[0].short_circuit_current_density.magnitude - 23.0) < 1e-6
-    # assert abs(archive.data.jv_curve[0].open_circuit_voltage.magnitude - 1.1) < 1e-6
-    # assert abs(archive.data.jv_curve[0].fill_factor - 0.7) < 1e-6
-    # assert abs(archive.data.jv_curve[0].efficiency - 17.5) < 1e-6
-    # assert abs(archive.data.jv_curve[0].potential_at_maximum_power_point.magnitude - 0.85) < 1e-6
-    # assert abs(archive.data.jv_curve[0].current_density_at_maximun_power_point.magnitude - 20.5) < 1e-6
-    # assert abs(archive.data.jv_curve[0].series_resistance.magnitude - 5.0) < 1e-6
-    # assert abs(archive.data.jv_curve[0].shunt_resistance.magnitude - 1000.0) < 1e-6
+    # Test third JV curve (index 2): a_Forward_Light
+    curve2 = archive.data.jv_curve[2]
+    assert curve2['cell_name'] == 'a_Forward_Light'
+    assert abs(curve2['light_intensity'].magnitude - 104.3) < 1e-6
+    assert str(curve2['light_intensity'].units) == 'milliwatt / centimeter ** 2'
+    assert abs(curve2['open_circuit_voltage'].magnitude - 0.31548588) < 1e-6
+    assert abs(curve2['short_circuit_current_density'].magnitude - 3.57435437) < 1e-6
+    assert abs(curve2['fill_factor'] - 0.32838176599999996) < 1e-8
+    assert abs(curve2['efficiency'] - 0.37030243) < 1e-8
+    assert abs(curve2['potential_at_maximum_power_point'].magnitude - 0.16) < 1e-6
+    assert abs(curve2['current_density_at_maximun_power_point'].magnitude - 2.31439021) < 1e-6
+    assert abs(curve2['series_resistance'].magnitude - 49.138047) < 1e-6
+    assert str(curve2['series_resistance'].units) == 'centimeter ** 2 * ohm'
+    assert abs(curve2['shunt_resistance'].magnitude - 178.4879356) < 1e-6
+    assert str(curve2['shunt_resistance'].units) == 'centimeter ** 2 * ohm'
+    assert abs(curve2['current_density'][0].magnitude + 4.383857708333333) < 1e-6  # negative value
+    assert abs(curve2['voltage'][0].magnitude + 0.2) < 1e-6  # negative value
 
-    # # Test units
-    # assert archive.data.active_area.units == ureg.cm**2
-    # assert archive.data.intensity.units == ureg.mW / ureg.cm**2
-    # assert archive.data.integration_time.units == ureg.ms
-    # assert archive.data.settling_time.units == ureg.ms
+    # Test fourth JV curve (index 3): a_Reverse_Light
+    curve3 = archive.data.jv_curve[3]
+    assert curve3['cell_name'] == 'a_Reverse_Light'
 
-    # assert archive.data.jv_curve[0].short_circuit_current_density.units == ureg.mA / ureg.cm**2
-    # assert archive.data.jv_curve[0].open_circuit_voltage.units == ureg.V
-    # # Note: fill_factor is stored as a decimal, not with units
-    # assert archive.data.jv_curve[0].potential_at_maximum_power_point.units == ureg.V
-    # assert archive.data.jv_curve[0].current_density_at_maximun_power_point.units == ureg.mA / ureg.cm**2
-    # assert archive.data.jv_curve[0].series_resistance.units == ureg.ohm * ureg.cm**2
-    # assert archive.data.jv_curve[0].shunt_resistance.units == ureg.ohm * ureg.cm**2
+    # Test fifth JV curve (index 4): b_Forward_Dark
+    curve4 = archive.data.jv_curve[4]
+    assert curve4['cell_name'] == 'b_Forward_Dark'
 
-    # # Test curve data
-    # assert archive.data.jv_curve[0].cell_name is not None
-    # assert archive.data.jv_curve[0].voltage[0] is not None
-    # assert archive.data.jv_curve[0].current_density[0] is not None
-    # assert archive.data.jv_curve[0].voltage.units == ureg.V
-    # assert archive.data.jv_curve[0].current_density.units == ureg.mA / ureg.cm**2
+    # Test cell names for first five curves
+    expected_cell_names = [
+        'a_Forward_Dark',
+        'a_Reverse_Dark',
+        'a_Forward_Light',
+        'a_Reverse_Light',
+        'b_Forward_Dark',
+    ]
+    for i, expected_name in enumerate(expected_cell_names):
+        assert archive.data.jv_curve[i]['cell_name'] == expected_name
 
-    # # Test dark field is present (unique to this parser)
-    # assert hasattr(archive.data.jv_curve[0], 'dark')
-    # assert isinstance(archive.data.jv_curve[0].dark, bool)
-
-    # # Test specific curve values - adjust based on your sample data
-    # assert abs(archive.data.jv_curve[0].voltage.magnitude[0] - 1.4) < 1e-6
-    # assert abs(archive.data.jv_curve[0].current_density.magnitude[0] - 30.0) < 1e-6
-
-    # # Test the last line of values in the curve data
-    # assert abs(archive.data.jv_curve[0].voltage.magnitude[-1] - (-0.2)) < 1e-6
-    # assert abs(archive.data.jv_curve[0].current_density.magnitude[-1] - (-24.0)) < 1e-6
-
-    # # If there are multiple curves, test at least one value from the second curve
-    # if len(archive.data.jv_curve) > 1:
-    #     assert abs(archive.data.jv_curve[1].short_circuit_current_density.magnitude - 22.5) < 1e-6
-    #     assert abs(archive.data.jv_curve[1].open_circuit_voltage.magnitude - 1.05) < 1e-6
+    # Optionally, test that all 24 curves have a cell_name and at least one voltage/current_density value
+    for curve in archive.data.jv_curve:
+        assert 'cell_name' in curve
+        assert 'voltage' in curve and len(curve['voltage']) > 0
+        assert 'current_density' in curve and len(curve['current_density']) > 0
 
     # Clean up
     delete_json()
