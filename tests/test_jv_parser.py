@@ -62,8 +62,13 @@ def test_hysprint_jv_parser(monkeypatch):
     assert abs(archive.data.jv_curve[0].efficiency - 20.2) < 1e-6
     assert abs(archive.data.jv_curve[0].potential_at_maximum_power_point.magnitude - 1.030000) < 1e-6
     assert abs(archive.data.jv_curve[0].current_density_at_maximun_power_point.magnitude - 20.700637) < 1e-6
-    # test for the resistance passes but the values seem unphysical or at least too deviant compated to the other files.
-    # Cross check the units/scale! Typical values for area-normalized series resistance are between 0.5 Ωcm2 for laboratory type solar cells and typical values for area-normalized shunt resistance are in the MΩcm2 range
+    '''
+    test for the resistance passes but the values seem unphysical or at least too deviant compated to the 
+    other files.
+    Cross check the units/scale! Typical values for area-normalized series resistance are between 0.5 Ωcm2 
+    for laboratory type solar cells and typical values for area-normalized shunt resistance are in the MΩcm2
+    range
+    '''
     assert abs(archive.data.jv_curve[0].series_resistance.magnitude - 0.003881) < 1e-6
     assert abs(archive.data.jv_curve[0].shunt_resistance.magnitude - 7.713772) < 1e-6
 
@@ -144,8 +149,6 @@ def test_pvcomb_jv_parser(monkeypatch):
     assert abs(archive.data.jv_curve[0].efficiency - 17.38846) < 1e-6
     assert abs(archive.data.jv_curve[0].potential_at_maximum_power_point.magnitude - 0.8425) < 1e-6
     assert abs(archive.data.jv_curve[0].current_density_at_maximun_power_point.magnitude - 20.63912) < 1e-6
-    # test for the resistance passes but the values seem unphysical or at least too deviant compated to the other files.
-    # Cross check the units/scale! Typical values for area-normalized series resistance are between 0.5 Ωcm2 for laboratory type solar cells and typical values for area-normalized shunt resistance are in the MΩcm2 range
     assert abs(archive.data.jv_curve[0].series_resistance.magnitude - 45.788151) < 1e-6
     assert abs(archive.data.jv_curve[0].shunt_resistance.magnitude - 7834.505) < 1e-6
 
