@@ -1315,8 +1315,8 @@ class HySprint_SEM(SEM_Microscope_Merlin, EntryData):
 
     def normalize(self, archive, logger):
         self.method = 'SEM'
-        if not self.samples and self.data_file:
-            search_id = self.data_file.split('.')[0]
+        if not self.samples and self.detector_data:
+            search_id = self.detector_data[0].split('.')[0]
             set_sample_reference(archive, self, search_id, upload_id=archive.metadata.upload_id)
         super().normalize(archive, logger)
 

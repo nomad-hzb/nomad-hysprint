@@ -29,7 +29,7 @@ maintainers = [
 ]
 license = { file = "LICENSE" }
 dependencies = [
-    "nomad-lab>=1.3.10",
+    "nomad-lab>=1.3.16rc1",
     'nomad-baseclasses @ git+https://github.com/nomad-hzb/nomad-baseclasses.git',
     'nomad-measurements',
     'httpx==0.27.2' ]
@@ -68,6 +68,7 @@ exclude = [
     "dist",
     "node_modules",
     "venv",
+    "utils",
 ]
 
 # Same as Black.
@@ -130,3 +131,5 @@ hysprint_parser = "nomad_hysprint.parsers:hysprint_parser"
 solartab_sim_parser = "nomad_hysprint.parsers:solartab_sim_parser"
 solartab_package = "nomad_hysprint.schema_packages:solartab_package"
 hysprint_experiment_parser = "nomad_hysprint.parsers:hysprint_experiment_parser"
+
+hysprint_voila_app = "nomad_hysprint.apps:hysprint_voila_app"
