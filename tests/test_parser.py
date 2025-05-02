@@ -3,6 +3,7 @@ import os
 import pytest
 from nomad.client import normalize_all, parse
 from nomad.units import ureg
+
 from utils import delete_json, get_archive
 
 
@@ -30,7 +31,6 @@ def parsed_archive(request, monkeypatch):
 def test_normalize_all(parsed_archive, monkeypatch):
     normalize_all(parsed_archive)
     delete_json()
-
 
 
 def test_hy_batch_parser(monkeypatch):  # noqa: PLR0915
