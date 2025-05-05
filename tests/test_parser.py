@@ -4,22 +4,7 @@ import pytest
 from nomad.client import normalize_all, parse
 from nomad.units import ureg
 
-from utils import delete_json, set_monkey_patch
-
-
-def get_archive(file_base, monkeypatch):
-    set_monkey_patch(monkeypatch)
-    file_name = os.path.join('tests', 'data', file_base)
-    file_archive = parse(file_name)[0]
-    assert file_archive.data
-
-    for file in os.listdir(os.path.join('tests/data')):
-        if 'archive.json' not in file:
-            continue
-        measurement = os.path.join('tests', 'data', file)
-        measurement_archive = parse(measurement)[0]
-
-    return measurement_archive
+from utils import delete_json, get_archive
 
 
 @pytest.fixture(
@@ -45,17 +30,6 @@ def parsed_archive(request, monkeypatch):
 
 def test_normalize_all(parsed_archive, monkeypatch):
     normalize_all(parsed_archive)
-    delete_json()
-
-
-def test_hy_jv_parser(monkeypatch):
-    file = 'SE-ALM_RM_20231004_RM_KW40_0_8.jv.txt'
-    archive = get_archive(file, monkeypatch)
-    normalize_all(archive)
-
-    assert archive.data
-    assert archive.data.jv_curve[0].voltage[0]
-    assert abs(archive.data.jv_curve[2].efficiency - 0.37030243333333296) < 1e-6
     delete_json()
 
 
