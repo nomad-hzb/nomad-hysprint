@@ -31,10 +31,10 @@ license = { file = "LICENSE" }
 dependencies = [
     "nomad-lab>=1.3.16rc1",
     'nomad-baseclasses @ git+https://github.com/nomad-hzb/nomad-baseclasses.git',
-    'nomad-luqy-plugin @ git+https://github.com/Pepe-Marquez/nomad-luqy-plugin.git',
     'nomad-measurements',
     'httpx==0.27.2',
-    'pynxtools-xps@git+https://github.com/FAIRmat-NFDI/pynxtools-xps.git']
+    'pynxtools-xps@git+https://github.com/FAIRmat-NFDI/pynxtools-xps.git',
+    'nomad-luqy-plugin @ git+https://github.com/Pepe-Marquez/nomad-luqy-plugin.git']
 [project.urls]
 Repository = "https://github.com/nomad-hzb/nomad-hysprint"
 
@@ -44,6 +44,7 @@ dev = ["ruff", "pytest", "structlog"]
 [tool.uv]
 extra-index-url = [
   "https://gitlab.mpcdf.mpg.de/api/v4/projects/2187/packages/pypi/simple",
+  "nomad-luqy-plugin = { workspace = true }"
 ]
 
 [tool.ruff]

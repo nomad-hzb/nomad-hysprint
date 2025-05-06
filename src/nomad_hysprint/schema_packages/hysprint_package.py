@@ -102,8 +102,6 @@ from nomad.units import ureg
 from pynxtools.dataconverter.convert import convert
 
 m_package = SchemaPackage()
-
-
 # %% ####################### Entities
 
 
