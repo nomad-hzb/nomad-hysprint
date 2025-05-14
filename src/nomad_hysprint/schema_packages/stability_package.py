@@ -16,7 +16,6 @@
 
 import numpy as np
 from baseclasses import BaseMeasurement, BaseProcess
-from baseclasses.helper.utilities import set_sample_reference
 from nomad.datamodel.data import ArchiveSection, EntryData
 from nomad.metainfo import Datetime, MEnum, Package, Quantity, Section, SubSection
 
