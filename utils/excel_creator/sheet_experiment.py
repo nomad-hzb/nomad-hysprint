@@ -119,7 +119,7 @@ def add_experiment_sheet(workbook, process_sequence, is_testing=False):
 
             # Add process-specific steps
             if process_name == 'Spin Coating':
-                steps.extend([make_label('Solution volume [um]', 100), make_label('Spin Delay [s]', 0.5)])
+                steps.extend([make_label('Solution volume [uL]', 100), make_label('Spin Delay [s]', 0.5)])
 
                 if config.get('spinsteps', 0) == 1:
                     steps.extend(
@@ -177,7 +177,7 @@ def add_experiment_sheet(workbook, process_sequence, is_testing=False):
             elif process_name == 'Slot Die Coating':
                 steps.extend(
                     [
-                        make_label('Solution volume [um]', 100),
+                        make_label('Solution volume [uL]', 100),
                         make_label('Flow rate [ul/min]', 25),
                         make_label('Head gap [mm]', 0.3),
                         make_label('Speed [mm/s]', 15),
