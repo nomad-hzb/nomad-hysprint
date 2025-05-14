@@ -17,9 +17,10 @@
 import numpy as np
 from baseclasses import BaseMeasurement, BaseProcess
 from baseclasses.helper.utilities import set_sample_reference
-from nomad.datamodel.data import EntryData
-from nomad.datamodel.results import Properties
+from nomad.datamodel.data import ArchiveSection, EntryData
 from nomad.metainfo import Datetime, MEnum, Package, Quantity, Section, SubSection
+
+from .hysprint_package import HySprint_JVmeasurement
 
 m_package = Package()
 
@@ -30,7 +31,14 @@ class StabilityInitialCharacterization(BaseMeasurement, EntryData):
 
     m_def = Section(a_eln=dict(
         hide=['lab_id', 'users'],
-        properties=dict(order=['name', 'datetime', 'sample', 'results'])
+        properties=dict(order=[
+            'name', 
+            'datetime', 
+            'sample', 
+            'jv_measurement',
+            'eqe_data_file',
+            'results'
+        ])
     ))
 
     datetime = Quantity(
@@ -38,13 +46,9 @@ class StabilityInitialCharacterization(BaseMeasurement, EntryData):
         description='Date and time of initial characterization.'
     )
 
-    jv_scan_parameters = Quantity(
-        type=str,
-        description=(
-            'Details of J-V scan including light source, intensity, spectrum, '
-            'scan speed, direction, and delay time.'
-        ),
-        a_eln=dict(component='RichTextEditQuantity')
+    jv_measurement = SubSection(
+        section_def=HySprint_JVmeasurement,
+        description='Initial JV measurement characterization.'
     )
 
     eqe_data_file = Quantity(
@@ -53,16 +57,9 @@ class StabilityInitialCharacterization(BaseMeasurement, EntryData):
         a_eln=dict(component='FileEditQuantity')
     )
 
-    def normalize(self, archive, logger):
-        if self.eqe_data_file:
-            # Add EQE data processing logic here if needed
-            pass
-        super().normalize(archive, logger)
 
-
-class LightStressConditions(Properties):
-    '''Details of the light stress conditions applied.
-    Based on Khenkin et al., 2020, Tables 1 & 4.'''
+class Stability_LightStressConditions(ArchiveSection):
+    '''Details of the light stress conditions applied.'''
 
     m_def = Section(a_eln=dict(
         hide=['name', 'lab_id'],
@@ -104,9 +101,8 @@ class LightStressConditions(Properties):
     )
 
 
-class ThermalStressConditions(Properties):
-    '''Details of the thermal stress conditions applied.
-    Based on Khenkin et al., 2020, Table 1.'''
+class Stability_ThermalStressConditions(ArchiveSection):
+    '''Details of the thermal stress conditions applied.'''
 
     m_def = Section(a_eln=dict(
         hide=['name', 'lab_id'],
@@ -135,9 +131,8 @@ class ThermalStressConditions(Properties):
     )
 
 
-class BiasStressConditions(Properties):
-    '''Details of the electrical bias stress conditions applied.
-    Based on Khenkin et al., 2020, Table 1 (ISOS-V).'''
+class Stability_BiasStressConditions(ArchiveSection):
+    '''Details of the electrical bias stress conditions applied.'''
 
     m_def = Section(a_eln=dict(
         hide=['name', 'lab_id'],
@@ -176,9 +171,8 @@ class BiasStressConditions(Properties):
     )
 
 
-class AtmosphericStressConditions(Properties):
-    '''Details of the atmospheric conditions during the stress test.
-    Based on Khenkin et al., 2020, Tables 1 & 2.'''
+class Stability_AtmosphericStressConditions(ArchiveSection):
+    '''Details of the atmospheric conditions during the stress test.'''
 
     m_def = Section(a_eln=dict(
         hide=['name', 'lab_id'],
@@ -195,7 +189,6 @@ class AtmosphericStressConditions(Properties):
             'Inert Atmosphere (N2)',
             'Inert Atmosphere (Ar)',
             'Controlled Humidity Chamber',
-            'Sealed Pouch',
             'Environmental Chamber'
         ]),
         description='Testing environment.'
@@ -213,9 +206,8 @@ class AtmosphericStressConditions(Properties):
     )
 
 
-class CyclingStressProperties(Properties):
-    '''Details specific to cycled stress conditions.
-    Based on Khenkin et al., 2020, Table 1 (ISOS-LC).'''
+class Stability_CyclingStressProperties(ArchiveSection):
+    '''Details specific to cycled stress conditions.'''
 
     m_def = Section(a_eln=dict(
         hide=['name', 'lab_id'],
@@ -250,8 +242,8 @@ class CyclingStressProperties(Properties):
     )
 
 
-class StabilityMetrics(Properties):
-    '''Key stability metrics based on Khenkin et al., 2020.'''
+class StabilityMetrics(ArchiveSection):
+    '''Key stability metrics derived from the stability test.'''
 
     m_def = Section(a_eln=dict(
         hide=['name', 'lab_id'],
@@ -287,6 +279,78 @@ class StabilityMetrics(Properties):
     )
 
 
+class Stability_MPPTrackingConditions(ArchiveSection):
+    '''Details of the Maximum Power Point (MPP) tracking during stability testing.'''
+
+    m_def = Section(a_eln=dict(
+        hide=['name', 'lab_id'],
+        properties=dict(order=[
+            'mpp_tracking_type',
+            'tracking_algorithm',
+            'tracking_frequency',
+            'voltage_step_size',
+            'voltage_perturbation_range',
+            'irradiance_sensor_type',
+            'weather_data_collection',
+            'mpp_data_file'
+        ])
+    ))
+
+    mpp_tracking_type = Quantity(
+        type=MEnum([
+            'Indoor Fixed Light',
+            'Outdoor Natural Light'
+        ]),
+        description='Type of MPP tracking environment.'
+    )
+
+    tracking_algorithm = Quantity(
+        type=MEnum([
+            'Perturb and Observe',
+            'Incremental Conductance',
+            'Constant Voltage',
+            'Beta Method',
+            'Other'
+        ]),
+        description='Algorithm used for MPP tracking.'
+    )
+
+    tracking_frequency = Quantity(
+        type=np.float64,
+        unit='Hz',
+        description='Frequency of MPP tracking measurements.'
+    )
+
+    voltage_step_size = Quantity(
+        type=np.float64,
+        unit='V',
+        description='Voltage step size used in the tracking algorithm.'
+    )
+
+    voltage_perturbation_range = Quantity(
+        type=np.float64,
+        unit='V',
+        description='Range of voltage perturbation around MPP.'
+    )
+
+    irradiance_sensor_type = Quantity(
+        type=str,
+        description='Type and specifications of irradiance sensor used.'
+    )
+
+    weather_data_collection = Quantity(
+        type=bool,
+        default=False,
+        description='Whether additional weather data is being collected (relevant for outdoor testing).'
+    )
+
+    mpp_data_file = Quantity(
+        type=str,
+        description='Reference to MPP tracking data file.',
+        a_eln=dict(component='FileEditQuantity')
+    )
+
+
 class StabilityTest(BaseProcess, EntryData):
     '''Main stability test class including all conditions and measurements.'''
 
@@ -303,6 +367,7 @@ class StabilityTest(BaseProcess, EntryData):
             'thermal_stress',
             'bias_stress',
             'atmospheric_stress',
+            'mpp_tracking',
             'cycling_stress',
             'stability_metrics'
         ])
@@ -335,27 +400,32 @@ class StabilityTest(BaseProcess, EntryData):
     )
 
     light_stress = SubSection(
-        section_def=LightStressConditions,
+        section_def=Stability_LightStressConditions,
         repeats=False
     )
 
     thermal_stress = SubSection(
-        section_def=ThermalStressConditions,
+        section_def=Stability_ThermalStressConditions,
         repeats=False
     )
 
     bias_stress = SubSection(
-        section_def=BiasStressConditions,
+        section_def=Stability_BiasStressConditions,
         repeats=False
     )
 
     atmospheric_stress = SubSection(
-        section_def=AtmosphericStressConditions,
+        section_def=Stability_AtmosphericStressConditions,
+        repeats=False
+    )
+
+    mpp_tracking = SubSection(
+        section_def=Stability_MPPTrackingConditions,
         repeats=False
     )
 
     cycling_stress = SubSection(
-        section_def=CyclingStressProperties,
+        section_def=Stability_CyclingStressProperties,
         repeats=False
     )
 
@@ -363,14 +433,5 @@ class StabilityTest(BaseProcess, EntryData):
         section_def=StabilityMetrics,
         repeats=False
     )
-
-    def normalize(self, archive, logger):
-        if not self.samples and self.data_file:
-            search_id = self.data_file.split('.')[0]
-            set_sample_reference(
-                archive, self, search_id, upload_id=archive.metadata.upload_id
-            )
-        super().normalize(archive, logger)
-
 
 m_package.__init_metainfo__()
