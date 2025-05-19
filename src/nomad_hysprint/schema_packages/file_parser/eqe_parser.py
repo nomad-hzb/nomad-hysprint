@@ -24,6 +24,7 @@
 # Initially translated to Python by Christian Wolff
 
 
+import re
 from io import StringIO
 
 import numpy as np
@@ -133,6 +134,48 @@ def read_file(filedata, header_lines=None):
     }
 
 
+def extract_eqe_data(x, y):
+    x = x[np.isfinite(x)]
+    y = y[np.isfinite(y)]
+    if any(x > 10):  # check if energy (eV) or wavelength (nm)
+        x = hc_eVnm / x
+    # check if EQE is given in (%), if so it's translated to abs.
+    # numbers
+    if any(y > 10):
+        y = y / 100
+
+    # bring both arrays into correct order (i.e. w.r.t eV increasing)
+    # if one started with e.g. wavelength in increasing order
+    # e.g. 300nm, 305nm,...
+    if x[1] - x[2] > 0:
+        x = np.flip(x)
+        y = np.flip(y)
+    photon_energy, intensity = interpolate_eqe(x, y)
+    return {
+        'photon_energy_raw': x,
+        'intensty_raw': y,
+        'photon_energy': photon_energy,
+        'intensity': intensity,
+    }
+
+
+def read_file_multiple_2(filedata):
+    matches = re.finditer(
+        r'Lambda\(nm\)\tEQE.*\n([+-]?([0-9]*[.])?[0-9]+\t[+-]?([0-9]*[.])?[0-9]+.*(\n|\Z))*', filedata
+    )
+    result = []
+    for match in matches:
+        try:
+            df = pd.read_csv(StringIO(matches.group()), sep='\t')
+            x = np.array(df[df.columns[0]], dtype=np.float64)
+            y = np.array(df[df.columns[1]], dtype=np.float64)
+            result.append(extract_eqe_data(x, y))
+        except Exception:
+            continue
+
+    return result
+
+
 def read_file_multiple(filedata):
     df = pd.read_csv(StringIO(filedata), sep='\t')
     result = []
@@ -140,32 +183,17 @@ def read_file_multiple(filedata):
         try:
             x = np.array(df[df.columns[i]][4:], dtype=np.float64)
             y = np.array(df[df.columns[i + 1]][4:], dtype=np.float64)
-
-            x = x[np.isfinite(x)]
-            y = y[np.isfinite(y)]
-            if any(x > 10):  # check if energy (eV) or wavelength (nm)
-                x = hc_eVnm / x
-            # check if EQE is given in (%), if so it's translated to abs.
-            # numbers
-            if any(y > 10):
-                y = y / 100
-
-            # bring both arrays into correct order (i.e. w.r.t eV increasing)
-            # if one started with e.g. wavelength in increasing order
-            # e.g. 300nm, 305nm,...
-            if x[1] - x[2] > 0:
-                x = np.flip(x)
-                y = np.flip(y)
-            photon_energy, intensity = interpolate_eqe(x, y)
-
-            result.append(
-                {
-                    'photon_energy_raw': x,
-                    'intensty_raw': y,
-                    'photon_energy': photon_energy,
-                    'intensity': intensity,
-                }
-            )
+            result.append(extract_eqe_data(x, y))
         except Exception:
             continue
     return result
+
+
+def read_eqe_file(filedata):
+    if filedata.startswith('[Header]'):
+        data_list = [read_file(filedata, 8)]
+    elif 'Lambda(nm)\tEQE (%)' in filedata:
+        data_list = read_file_multiple_2(filedata)
+    else:
+        data_list = read_file_multiple(filedata)
+    return data_list

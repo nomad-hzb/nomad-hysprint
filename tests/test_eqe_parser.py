@@ -7,6 +7,7 @@ from nomad_hysprint.schema_packages.file_parser.eqe_parser import (
     interpolate_eqe,
     read_file,
     read_file_multiple,
+    read_file_multiple_2,
 )
 
 
@@ -109,6 +110,20 @@ def test_hzb_eqe():
 
     assert isinstance(results, list)
     assert len(results) > 0
+    for res in results:
+        assert 'photon_energy' in res
+        assert 'intensity' in res
+        assert len(res['photon_energy']) == 1000
+        assert all(isinstance(x, float) for x in res['photon_energy'])
+        assert all(0 <= x <= 1 for x in res['intensity'])
+
+
+def test_25_57_eqe():
+    with open('./tests/data/25.57.eqe.txt') as f:
+        content = f.read()
+
+    results = read_file_multiple_2(content)
+
     for res in results:
         assert 'photon_energy' in res
         assert 'intensity' in res
