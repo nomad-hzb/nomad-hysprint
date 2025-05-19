@@ -164,14 +164,14 @@ def read_file_multiple_2(filedata):
         r'Lambda\(nm\)\tEQE.*\n([+-]?([0-9]*[.])?[0-9]+\t[+-]?([0-9]*[.])?[0-9]+.*(\n|\Z))*', filedata
     )
     result = []
-    for match in matches:
-        try:
-            df = pd.read_csv(StringIO(matches.group()), sep='\t')
-            x = np.array(df[df.columns[0]], dtype=np.float64)
-            y = np.array(df[df.columns[1]], dtype=np.float64)
-            result.append(extract_eqe_data(x, y))
-        except Exception:
-            continue
+    for m in matches:
+        # try:
+        df = pd.read_csv(StringIO(m.group()), sep='\t')
+        x = np.array(df[df.columns[0]], dtype=np.float64)
+        y = np.array(df[df.columns[1]], dtype=np.float64)
+        result.append(extract_eqe_data(x, y))
+        # except Exception:
+        #     continue
 
     return result
 
@@ -180,20 +180,20 @@ def read_file_multiple(filedata):
     df = pd.read_csv(StringIO(filedata), sep='\t')
     result = []
     for i in range(0, len(df.columns), 6):
-        try:
-            x = np.array(df[df.columns[i]][4:], dtype=np.float64)
-            y = np.array(df[df.columns[i + 1]][4:], dtype=np.float64)
-            result.append(extract_eqe_data(x, y))
-        except Exception:
-            continue
+        # try:
+        x = np.array(df[df.columns[i]][4:], dtype=np.float64)
+        y = np.array(df[df.columns[i + 1]][4:], dtype=np.float64)
+        result.append(extract_eqe_data(x, y))
+        # except Exception:
+        #     continue
     return result
 
 
 def read_eqe_file(filedata):
     if filedata.startswith('[Header]'):
         data_list = [read_file(filedata, 8)]
-    elif 'Lambda(nm)\tEQE (%)' in filedata:
-        data_list = read_file_multiple_2(filedata)
-    else:
+    elif re.search(r'Lambda\(nm\)\t.*Lambda\(nm\)\t.*\n', filedata):
         data_list = read_file_multiple(filedata)
+    else:
+        data_list = read_file_multiple_2(filedata)
     return data_list
