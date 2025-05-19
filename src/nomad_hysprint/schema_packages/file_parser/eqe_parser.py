@@ -165,14 +165,10 @@ def read_file_multiple_2(filedata):
     )
     result = []
     for m in matches:
-        # try:
         df = pd.read_csv(StringIO(m.group()), sep='\t')
         x = np.array(df[df.columns[0]], dtype=np.float64)
         y = np.array(df[df.columns[1]], dtype=np.float64)
         result.append(extract_eqe_data(x, y))
-        # except Exception:
-        #     continue
-
     return result
 
 
@@ -180,12 +176,9 @@ def read_file_multiple(filedata):
     df = pd.read_csv(StringIO(filedata), sep='\t')
     result = []
     for i in range(0, len(df.columns), 6):
-        # try:
         x = np.array(df[df.columns[i]][4:], dtype=np.float64)
         y = np.array(df[df.columns[i + 1]][4:], dtype=np.float64)
         result.append(extract_eqe_data(x, y))
-        # except Exception:
-        #     continue
     return result
 
 
