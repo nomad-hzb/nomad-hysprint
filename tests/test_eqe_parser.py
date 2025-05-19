@@ -1,8 +1,7 @@
 import numpy as np
 import pandas as pd
 from nomad.client import normalize_all
-from nomad.units import ureg
-from utils import delete_json, get_archive
+
 from nomad_hysprint.schema_packages.file_parser.eqe_parser import (
     arrange_eqe_columns,
     hc_eVnm,
@@ -11,6 +10,7 @@ from nomad_hysprint.schema_packages.file_parser.eqe_parser import (
     read_file_multiple,
     read_file_multiple_2,
 )
+from utils import delete_json, get_archive
 
 
 def dummy_interpolate_eqe(x, y):
@@ -35,8 +35,7 @@ def test_interpolate_eqe_basic():
 
 
 def test_arrange_eqe_columns_basic():
-    df = pd.DataFrame(
-        {'Wavelength (nm)': [1240, 620, 310], 'Calculated': [20, 40, 60]})
+    df = pd.DataFrame({'Wavelength (nm)': [1240, 620, 310], 'Calculated': [20, 40, 60]})
 
     photon_energy_raw, eqe_raw = arrange_eqe_columns(df)
 
@@ -136,8 +135,7 @@ def test_25_57_eqe():
 
 
 def test_hysprint_eqe_parser(monkeypatch):
-    files = [('25.57.eqe.txt', 1.54), ('SID1.eqe.txt', 1.63),
-             ('hzb_TestP_AA_2_c-5.eqe.txt', 1.616)]
+    files = [('25.57.eqe.txt', 1.54), ('SID1.eqe.txt', 1.63), ('hzb_TestP_AA_2_c-5.eqe.txt', 1.616)]
     for file, bg in files:
         archive = get_archive(file, monkeypatch)
         normalize_all(archive)
