@@ -155,7 +155,7 @@ class HySprintParser(MatchingParser):
             entry = HZB_EnvironmentMeasurement()
         if mainfile_split[-1] in ['nk']:
             entry = HZB_NKData()
-        if mainfile_split[-1] in ['txt'] and measurment_type == 'mppt':
+        if mainfile_split[-1] in ['txt', 'csv'] and measurment_type == 'mppt':
             entry = HySprint_SimpleMPPTracking()
         archive.metadata.entry_name = os.path.basename(mainfile)
 
