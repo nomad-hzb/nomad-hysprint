@@ -17,6 +17,11 @@ def set_monkey_patch(monkeypatch):
         mockreturn_search,
     )
 
+    monkeypatch.setattr(
+        'nomad_hysprint.parsers.hysprint_measurement_parser.update_general_process_entries',
+        mockreturn_search,
+    )
+
 
 def delete_json():
     for file in os.listdir(os.path.join('tests/data')):

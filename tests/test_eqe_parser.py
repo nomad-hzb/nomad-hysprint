@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from nomad.client import normalize_all
 
 from nomad_hysprint.schema_packages.file_parser.eqe_parser import (
     arrange_eqe_columns,
@@ -7,7 +8,9 @@ from nomad_hysprint.schema_packages.file_parser.eqe_parser import (
     interpolate_eqe,
     read_file,
     read_file_multiple,
+    read_file_multiple_2,
 )
+from utils import delete_json, get_archive
 
 
 def dummy_interpolate_eqe(x, y):
@@ -115,3 +118,29 @@ def test_hzb_eqe():
         assert len(res['photon_energy']) == 1000
         assert all(isinstance(x, float) for x in res['photon_energy'])
         assert all(0 <= x <= 1 for x in res['intensity'])
+
+
+def test_25_57_eqe():
+    with open('./tests/data/25.57.eqe.txt') as f:
+        content = f.read()
+
+    results = read_file_multiple_2(content)
+
+    for res in results:
+        assert 'photon_energy' in res
+        assert 'intensity' in res
+        assert len(res['photon_energy']) == 1000
+        assert all(isinstance(x, float) for x in res['photon_energy'])
+        assert all(0 <= x <= 1 for x in res['intensity'])
+
+
+def test_hysprint_eqe_parser(monkeypatch):
+    files = [('25.57.eqe.txt', 1.54), ('SID1.eqe.txt', 1.63), ('hzb_TestP_AA_2_c-5.eqe.txt', 1.616)]
+    for file, bg in files:
+        archive = get_archive(file, monkeypatch)
+        normalize_all(archive)
+
+        # Test data exists
+        assert archive.data
+        assert abs(archive.data.eqe_data[0].bandgap_eqe.to('eV').magnitude - bg) < 1e-2
+    delete_json()
