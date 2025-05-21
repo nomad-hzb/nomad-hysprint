@@ -68,3 +68,50 @@ def test_mppt_simple_parser(file, monkeypatch):
 
     # Clean up
     delete_json()
+
+
+@pytest.fixture
+def file2():
+    return 'MPPT_sample_0_pixel_0.mppt.csv'
+
+
+def test_mppt_simple_parser_2(file2, monkeypatch):
+    archive = get_archive(file2, monkeypatch)
+    normalize_all(archive)
+    assert archive.data
+    assert archive.metadata
+
+    # # Test properties
+    assert hasattr(archive.data, 'properties')
+
+    # Test properties with proper unit handling
+    assert archive.data.properties.time == 1089270.357 * ureg('second')
+
+    # # Test data arrays
+    assert hasattr(archive.data, 'time')
+    assert hasattr(archive.data, 'voltage')
+    assert hasattr(archive.data, 'current_density')
+    assert hasattr(archive.data, 'power_density')
+    assert hasattr(archive.data, 'efficiency')
+
+    # Test array lengths
+    assert len(archive.data.time) > 0
+    assert len(archive.data.voltage) == len(archive.data.time)
+    assert len(archive.data.current_density) == len(archive.data.time)
+    assert len(archive.data.power_density) == len(archive.data.time)
+
+    # Test specific values from the sample data
+    # First value tests
+    assert np.isclose(archive.data.time[1].magnitude, 600.86)
+    assert np.isclose(archive.data.voltage[0].magnitude, 0.1459375)
+    assert np.isclose(archive.data.current_density[0].magnitude, -26.863355555)
+    assert np.isclose(archive.data.power_density[0].magnitude, -26.863355555 * 0.1459375)
+
+    # Check units
+    assert str(archive.data.time[0].units) == 'second'
+    assert str(archive.data.voltage[0].units) == 'volt'
+    assert str(archive.data.current_density[0].units) == 'milliampere / centimeter ** 2'
+    assert str(archive.data.power_density[0].units) == 'milliwatt / centimeter ** 2'
+
+    # Clean up
+    delete_json()

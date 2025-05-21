@@ -973,7 +973,6 @@ class HySprint_SimpleMPPTracking(MPPTracking, EntryData):
                 'steps',
                 'instruments',
                 'results',
-                'properties',
             ],
             properties=dict(order=['name', 'data_file', 'samples']),
         ),
@@ -1010,8 +1009,9 @@ class HySprint_SimpleMPPTracking(MPPTracking, EntryData):
             self.voltage = data['voltage_data']
             self.current_density = data['current_density_data']
             self.power_density = data['power_data']
+            self.efficiency = data.get('efficiency_data')
             self.properties = MPPTrackingProperties(
-                time=data['total_time'], perturbation_voltage=data['step_size']
+                time=data['total_time'], perturbation_voltage=data.get('step_size')
             )
         super().normalize(archive, logger)
 

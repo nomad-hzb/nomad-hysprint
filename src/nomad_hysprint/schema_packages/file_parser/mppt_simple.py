@@ -18,7 +18,7 @@ def get_value(val):
         return None
 
 
-def read_mppt_file(filedata):
+def read_mppt_file_1(filedata):
     filedata = filedata.replace('²', '^2')
 
     df = pd.read_csv(
@@ -54,3 +54,32 @@ def read_mppt_file(filedata):
     mppt_dict['power_data'] = np.array(df_curve['power'], dtype=np.float64)
 
     return mppt_dict
+
+
+def read_mppt_file_2(filedata):
+    filedata = filedata.replace('²', '^2')
+
+    df_curve = pd.read_csv(
+        StringIO(filedata),
+        header=0,
+        encoding='unicode_escape',
+        engine='python',
+    )
+    df_curve = df_curve.dropna(how='any', axis=0)
+
+    mppt_dict = {}
+    mppt_dict['total_time'] = get_value(df_curve['Duration_s'].iloc[-1])
+    mppt_dict['time_data'] = np.array(df_curve['Duration_s'], dtype=np.float64)
+    mppt_dict['voltage_data'] = np.abs(np.array(df_curve['MPPT_V'], dtype=np.float64))
+    mppt_dict['current_density_data'] = -1 * np.abs(np.array(df_curve['MPPT_J'], dtype=np.float64))
+    mppt_dict['power_data'] = mppt_dict['voltage_data'] * mppt_dict['current_density_data']
+    mppt_dict['efficiency_data'] = np.array(df_curve['MPPT_EFF'], dtype=np.float64)
+
+    return mppt_dict
+
+
+def read_mppt_file(filedata):
+    if 'time\tvoltage\tcurrent density\tpower\n' in filedata:
+        return read_mppt_file_1(filedata)
+    else:
+        return read_mppt_file_2(filedata)

@@ -12,6 +12,7 @@ from utils import delete_json, get_archive
         '20240915_test_experiment.xlsx',
         'c-Si.nk',
         '25.57.eqe.txt',
+        'MPPT_sample_0_pixel_0.mppt.csv',
         'HZB_MiGo_20240604_exp_0_0.eqe.txt',
         'SE-ALM_RM_20231004_RM_KW40_0_8.jv.txt',
         'AA142-2s10_10ms.pli.txt',
