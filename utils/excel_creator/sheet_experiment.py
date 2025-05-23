@@ -266,10 +266,10 @@ def add_experiment_sheet(workbook, process_sequence, is_testing=False):
                             f'Material {i} source temperature end [°C]', 110 + 10 + i),
                         make_label(f'Material {i} thickness [nm]', 20 + i),
                         make_label(f'Material {i} rate [angstrom/s]', 0.5 + i),
-                        make_label(f'Material {i} tooling factor', 1.0 + 0.1 + i),
+                        make_label(f'Material {i} tooling factor', 1.0 + 0.1 + i)
                     ]
                 )
-            steps.extend(make_label('Notes', 'Test note co-evaporation'))
+            steps.append(make_label('Notes', 'Test note co-evaporation'))
             return steps
 
         if process_name == 'Sputtering':
