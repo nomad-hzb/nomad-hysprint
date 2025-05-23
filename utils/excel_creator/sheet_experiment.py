@@ -119,7 +119,8 @@ def add_experiment_sheet(workbook, process_sequence, is_testing=False):
 
             # Add process-specific steps
             if process_name == 'Spin Coating':
-                steps.extend([make_label('Solution volume [uL]', 100), make_label('Spin Delay [s]', 0.5)])
+                steps.extend([make_label('Solution volume [uL]', 100),
+                             make_label('Spin Delay [s]', 0.5)])
 
                 if config.get('spinsteps', 0) == 1:
                     steps.extend(
@@ -204,6 +205,8 @@ def add_experiment_sheet(workbook, process_sequence, is_testing=False):
                         make_label('Droplet volume [pl]', 10),
                         make_label('Ink reservoir pressure [bar]', 0.3),
                         make_label('Table temperature [°C]', 40),
+                        make_label('Dropping Height [mm]', 12),
+                        make_label('Printing speed [mm/s]', 10),
                         make_label('Nozzle temperature [°C]', 35),
                         make_label('rel. humidity [%]', 45),
                     ]
@@ -257,14 +260,16 @@ def add_experiment_sheet(workbook, process_sequence, is_testing=False):
                     [
                         make_label(f'Material {i} name', 'Cupper'),
                         make_label(f'Material {i} organic', False),
-                        make_label(f'Material {i} source temperature start [°C]', 100 + 10 + i),
-                        make_label(f'Material {i} source temperature end [°C]', 110 + 10 + i),
+                        make_label(
+                            f'Material {i} source temperature start [°C]', 100 + 10 + i),
+                        make_label(
+                            f'Material {i} source temperature end [°C]', 110 + 10 + i),
                         make_label(f'Material {i} thickness [nm]', 20 + i),
                         make_label(f'Material {i} rate [angstrom/s]', 0.5 + i),
-                        make_label(f'Material {i} tooling factor', 1.0 + 0.1 + i),
-                        make_label('Notes', 'Test note co-evaporation'),
+                        make_label(f'Material {i} tooling factor', 1.0 + 0.1 + i)
                     ]
                 )
+            steps.append(make_label('Notes', 'Test note co-evaporation'))
             return steps
 
         if process_name == 'Sputtering':
@@ -355,11 +360,13 @@ def add_experiment_sheet(workbook, process_sequence, is_testing=False):
         else:
             process_label = process_name
 
-        ws.merge_cells(start_row=1, start_column=start_col, end_row=1, end_column=end_col)
+        ws.merge_cells(start_row=1, start_column=start_col,
+                       end_row=1, end_column=end_col)
         cell = ws.cell(row=1, column=start_col)
         cell.value = process_label
         cell.alignment = Alignment(horizontal='center', vertical='center')
-        cell.fill = PatternFill(start_color=cell_color, end_color=cell_color, fill_type='solid')
+        cell.fill = PatternFill(start_color=cell_color,
+                                end_color=cell_color, fill_type='solid')
 
         row2_color = lighten_color(cell_color)
         for i, step_item in enumerate(steps):
@@ -368,7 +375,8 @@ def add_experiment_sheet(workbook, process_sequence, is_testing=False):
                 step_label, test_val = step_item
                 cell = ws.cell(row=2, column=col_index)
                 cell.value = step_label
-                cell.fill = PatternFill(start_color=row2_color, end_color=row2_color, fill_type='solid')
+                cell.fill = PatternFill(start_color=row2_color,
+                                        end_color=row2_color, fill_type='solid')
                 if is_testing:
                     ws.cell(row=3, column=col_index, value=test_val)
         start_col = end_col + 1
