@@ -65,6 +65,7 @@ from nomad_hysprint.schema_packages.hysprint_package import (
     HySprint_Sputtering,
     HySprint_Substrate,
     IRIS_AtomicLayerDeposition,
+    ProcessParameter,
 )
 
 """
@@ -74,6 +75,19 @@ This is a hello world style example for an example parser/converter.
 
 class RawHySprintExperiment(EntryData):
     processed_archive = Quantity(type=Entity, shape=['*'])
+
+
+def map_generic_parameters(process, data):
+    parameters = []
+    for col, val in data.items():
+        if col in ['Notes', 'Name']:
+            continue
+        try:
+            val_float = float(val)
+            parameters.append(ProcessParameter(name=col, value_number=val_float))
+        except Exception:
+            parameters.append(ProcessParameter(name=col, value_string=val))
+    process.process_parameters = parameters
 
 
 class HySprintExperimentParser(MatchingParser):
@@ -148,7 +162,9 @@ class HySprintExperimentParser(MatchingParser):
                     archives.append(map_laser_scribing(i, j, lab_ids, row, upload_id, HySprint_LaserScribing))
 
                 if 'Generic Process' in col:  # move up
-                    archives.append(map_generic(i, j, lab_ids, row, upload_id, HySprint_Process))
+                    generic_process = map_generic(i, j, lab_ids, row, upload_id, HySprint_Process)
+                    map_generic_parameters(generic_process, row)
+                    archives.append(generic_process)
 
                 if pd.isna(row.get('Material name')):
                     continue
