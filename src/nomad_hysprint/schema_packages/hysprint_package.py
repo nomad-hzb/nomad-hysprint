@@ -144,8 +144,7 @@ class HySprint_ExperimentalPlan(ExperimentalPlan, EntryData):
             execute_solar_sample_plan,
         )
 
-        execute_solar_sample_plan(
-            self, archive, HySprint_Sample, HySprint_Batch, logger)
+        execute_solar_sample_plan(self, archive, HySprint_Sample, HySprint_Batch, logger)
 
         # actual normalization!!
         archive.results = Results()
@@ -159,8 +158,7 @@ class HySprint_StandardSample(StandardSampleSolarCell, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=['users'],
-            properties=dict(order=['name', 'architecture',
-                            'substrate', 'processes', 'lab_id']),
+            properties=dict(order=['name', 'architecture', 'substrate', 'processes', 'lab_id']),
         )
     )
 
@@ -177,8 +175,7 @@ class Hysprint_Electrode(Electrode, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=['users', 'components', 'elemental_composition', 'origin'],
-            properties=dict(
-                order=['name', 'lab_id', 'chemical_composition_or_formulas']),
+            properties=dict(order=['name', 'lab_id', 'chemical_composition_or_formulas']),
         )
     )
 
@@ -372,8 +369,7 @@ class HySprint_Cleaning(Cleaning, EntryData):
         type=str,
         a_eln=dict(
             component='EnumEditQuantity',
-            props=dict(suggestions=['HySprint',
-                       'IRIS Printerlab', 'IRIS Preparationlab']),
+            props=dict(suggestions=['HySprint', 'IRIS Printerlab', 'IRIS Preparationlab']),
         ),
     )
 
@@ -641,8 +637,7 @@ class HySprint_SlotDieCoating(SlotDieCoating, EntryData):
 
     location = Quantity(
         type=str,
-        a_eln=dict(component='EnumEditQuantity',
-                   props=dict(suggestions=['HySprint HySDC'])),
+        a_eln=dict(component='EnumEditQuantity', props=dict(suggestions=['HySprint HySDC'])),
     )
 
 
@@ -667,8 +662,7 @@ class HySprint_Sputtering(Sputtering, EntryData):
 
     location = Quantity(
         type=str,
-        a_eln=dict(component='EnumEditQuantity', props=dict(
-            suggestions=['IRIS', 'HySprint'])),
+        a_eln=dict(component='EnumEditQuantity', props=dict(suggestions=['IRIS', 'HySprint'])),
     )
 
 
@@ -693,8 +687,7 @@ class HySprint_AtomicLayerDeposition(AtomicLayerDeposition, EntryData):
 
     location = Quantity(
         type=str,
-        a_eln=dict(component='EnumEditQuantity', props=dict(
-            suggestions=['IRIS', 'HySprint'])),
+        a_eln=dict(component='EnumEditQuantity', props=dict(suggestions=['IRIS', 'HySprint'])),
     )
 
 
@@ -764,8 +757,7 @@ class HySprint_LaserScribing(LaserScribing, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=['lab_id', 'users', 'end_time', 'steps', 'instruments', 'results'],
-            properties=dict(order=['name', 'location', 'present',
-                            'datetime', 'batch', 'samples']),
+            properties=dict(order=['name', 'location', 'present', 'datetime', 'batch', 'samples']),
         )
     )
 
@@ -956,8 +948,7 @@ class HySprint_JVmeasurement(JVMeasurement, EntryData):
 
         if not self.samples and self.data_file:
             search_id = self.data_file.split('.')[0]
-            set_sample_reference(archive, self, search_id,
-                                 upload_id=archive.metadata.upload_id)
+            set_sample_reference(archive, self, search_id, upload_id=archive.metadata.upload_id)
         if self.data_file:
             # todo detect file format
             with archive.m_context.raw_file(self.data_file, 'br') as f:
@@ -1005,8 +996,7 @@ class HySprint_SimpleMPPTracking(MPPTracking, EntryData):
 
         if not self.samples and self.data_file:
             search_id = self.data_file.split('.')[0]
-            set_sample_reference(archive, self, search_id,
-                                 upload_id=archive.metadata.upload_id)
+            set_sample_reference(archive, self, search_id, upload_id=archive.metadata.upload_id)
 
         if self.data_file:
             with archive.m_context.raw_file(self.data_file, 'br') as f:
@@ -1111,8 +1101,7 @@ class HySprint_MPPTracking(MPPTrackingHsprintCustom, PlotSection, EntryData):
                 xaxis=dict(fixedrange=False),
                 yaxis=dict(fixedrange=False),
             )
-            self.figures.append(PlotlyFigure(
-                label='Averages', index=0, figure=fig.to_plotly_json()))
+            self.figures.append(PlotlyFigure(label='Averages', index=0, figure=fig.to_plotly_json()))
 
         if self.best_pixels:
             df = pd.DataFrame(columns=column_names)
@@ -1137,8 +1126,7 @@ class HySprint_MPPTracking(MPPTrackingHsprintCustom, PlotSection, EntryData):
                 xaxis=dict(fixedrange=False),
                 yaxis=dict(fixedrange=False),
             )
-            self.figures.append(PlotlyFigure(label='Best Pixel',
-                                index=1, figure=fig.to_plotly_json()))
+            self.figures.append(PlotlyFigure(label='Best Pixel', index=1, figure=fig.to_plotly_json()))
 
         super().normalize(archive, logger)
 
@@ -1176,8 +1164,7 @@ class HySprint_TimeResolvedPhotoluminescence(TimeResolvedPhotoluminescence, Entr
     def normalize(self, archive, logger):
         if not self.samples and self.data_file:
             search_id = self.data_file.split('.')[0]
-            set_sample_reference(archive, self, search_id,
-                                 upload_id=archive.metadata.upload_id)
+            set_sample_reference(archive, self, search_id, upload_id=archive.metadata.upload_id)
         super().normalize(archive, logger)
 
 
@@ -1204,8 +1191,7 @@ class HySprint_OpticalMicroscope(OpticalMicroscope, EntryData):
     def normalize(self, archive, logger):
         if not self.samples and self.data_file:
             search_id = self.data_file.split('.')[0]
-            set_sample_reference(archive, self, search_id,
-                                 upload_id=archive.metadata.upload_id)
+            set_sample_reference(archive, self, search_id, upload_id=archive.metadata.upload_id)
         super().normalize(archive, logger)
 
 
@@ -1244,8 +1230,7 @@ class HySprint_EQEmeasurement(EQEMeasurement, EntryData):
 
         if not self.samples and self.data_file:
             search_id = self.data_file.split('.')[0]
-            set_sample_reference(archive, self, search_id,
-                                 upload_id=archive.metadata.upload_id)
+            set_sample_reference(archive, self, search_id, upload_id=archive.metadata.upload_id)
 
         if self.data_file:
             with archive.m_context.raw_file(self.data_file, 'br') as f:
@@ -1304,8 +1289,7 @@ class HySprint_PLmeasurement(PLMeasurement, EntryData):
     def normalize(self, archive, logger):
         if not self.samples and self.data_file:
             search_id = self.data_file.split('.')[0]
-            set_sample_reference(archive, self, search_id,
-                                 upload_id=archive.metadata.upload_id)
+            set_sample_reference(archive, self, search_id, upload_id=archive.metadata.upload_id)
         super().normalize(archive, logger)
 
 
@@ -1331,8 +1315,7 @@ class HySprint_SEM(SEM_Microscope_Merlin, EntryData):
         self.method = 'SEM'
         if not self.samples and self.detector_data:
             search_id = self.detector_data[0].split('.')[0]
-            set_sample_reference(archive, self, search_id,
-                                 upload_id=archive.metadata.upload_id)
+            set_sample_reference(archive, self, search_id, upload_id=archive.metadata.upload_id)
         super().normalize(archive, logger)
 
 
@@ -1373,20 +1356,17 @@ class HySprint_XRD_XY(XRD, EntryData):
 
         if not self.samples and self.data_file:
             search_id = self.data_file.split('.')[0]
-            set_sample_reference(archive, self, search_id,
-                                 upload_id=archive.metadata.upload_id)
+            set_sample_reference(archive, self, search_id, upload_id=archive.metadata.upload_id)
 
         if self.data_file:
             with archive.m_context.raw_file(self.data_file, 'tr') as f:
                 if os.path.splitext(self.data_file)[-1] == '.xy' and self.data is None:
                     if 'Id' in f.readline():
                         skiprows = 1
-                        data = pd.read_csv(
-                            f, sep=' |\t', header=None, skiprows=skiprows)
+                        data = pd.read_csv(f, sep=' |\t', header=None, skiprows=skiprows)
                     else:
                         skiprows = 0
-                        data = pd.read_csv(
-                            f, sep=' |\t', header=None, skiprows=skiprows)
+                        data = pd.read_csv(f, sep=' |\t', header=None, skiprows=skiprows)
                     print(data)
                     self.data = XRDData(angle=data[0], intensity=data[1])
         super().normalize(archive, logger)
@@ -1412,8 +1392,7 @@ class HySprint_PLImaging(PLImaging, EntryData):
     def normalize(self, archive, logger):
         if not self.samples and self.data_file:
             search_id = self.data_file.split('.')[0]
-            set_sample_reference(archive, self, search_id,
-                                 upload_id=archive.metadata.upload_id)
+            set_sample_reference(archive, self, search_id, upload_id=archive.metadata.upload_id)
         super().normalize(archive, logger)
 
 
@@ -1465,8 +1444,7 @@ class HySprint_CyclicVoltammetry(CyclicVoltammetry, EntryData):
                 'voltage_ref_compensated',
                 'voltage_rhe_compensated',
             ],
-            properties=dict(order=['name', 'data_file',
-                            'environment', 'setup', 'samples']),
+            properties=dict(order=['name', 'data_file', 'environment', 'setup', 'samples']),
         ),
         a_plot=[
             {
@@ -1494,8 +1472,7 @@ class HySprint_CyclicVoltammetry(CyclicVoltammetry, EntryData):
     def normalize(self, archive, logger):
         if not self.samples and self.data_file:
             search_id = self.data_file.split('.')[0]
-            set_sample_reference(archive, self, search_id,
-                                 upload_id=archive.metadata.upload_id)
+            set_sample_reference(archive, self, search_id, upload_id=archive.metadata.upload_id)
         if self.data_file:
             with archive.m_context.raw_file(self.data_file, 'rt') as f:
                 if os.path.splitext(self.data_file)[-1] == '.mpt':
@@ -1526,8 +1503,7 @@ class HySprint_CyclicVoltammetry(CyclicVoltammetry, EntryData):
                     import pandas as pd
                     from baseclasses.chemical_energy.voltammetry import VoltammetryCycleWithPlot
 
-                    data = pd.read_csv(StringIO(file_content),
-                                       skiprows=3, sep=',', encoding='utf-8')
+                    data = pd.read_csv(StringIO(file_content), skiprows=3, sep=',', encoding='utf-8')
                     metadata = pd.read_csv(
                         StringIO(file_content), nrows=3, sep=',', encoding='utf-8', header=None
                     )
@@ -1561,8 +1537,7 @@ class HySprint_ElectrochemicalImpedanceSpectroscopy(ElectrochemicalImpedanceSpec
                 'metadata_file',
                 'station',
             ],
-            properties=dict(order=['name', 'data_file',
-                            'environment', 'setup', 'samples']),
+            properties=dict(order=['name', 'data_file', 'environment', 'setup', 'samples']),
         ),
         a_plot=[
             {
@@ -1590,8 +1565,7 @@ class HySprint_ElectrochemicalImpedanceSpectroscopy(ElectrochemicalImpedanceSpec
     def normalize(self, archive, logger):
         if not self.samples and self.data_file:
             search_id = self.data_file.split('.')[0]
-            set_sample_reference(archive, self, search_id,
-                                 upload_id=archive.metadata.upload_id)
+            set_sample_reference(archive, self, search_id, upload_id=archive.metadata.upload_id)
         if self.data_file:
             with archive.m_context.raw_file(self.data_file, 'rt') as f:
                 if os.path.splitext(self.data_file)[-1] == '.mpt':
@@ -1656,8 +1630,7 @@ class HySprint_OpenCircuitVoltage(OpenCircuitVoltage, EntryData):
     def normalize(self, archive, logger):
         if not self.samples and self.data_file:
             search_id = self.data_file.split('.')[0]
-            set_sample_reference(archive, self, search_id,
-                                 upload_id=archive.metadata.upload_id)
+            set_sample_reference(archive, self, search_id, upload_id=archive.metadata.upload_id)
         if self.data_file:
             with archive.m_context.raw_file(self.data_file, 'rt') as f:
                 if os.path.splitext(self.data_file)[-1] == '.mpt':
@@ -1688,15 +1661,13 @@ class HySprint_OpenCircuitVoltage(OpenCircuitVoltage, EntryData):
 
                     import pandas as pd
 
-                    data = pd.read_csv(StringIO(file_content),
-                                       skiprows=3, sep=',', encoding='utf-8')
+                    data = pd.read_csv(StringIO(file_content), skiprows=3, sep=',', encoding='utf-8')
                     metadata = pd.read_csv(
                         StringIO(file_content), skiprows=1, nrows=1, sep=',', encoding='utf-8', header=None
                     )
 
                     self.datetime = convert_datetime(
-                        metadata.iloc[0, 2].strip() + ' ' +
-                        str(metadata.iloc[0, 3]).strip(),
+                        metadata.iloc[0, 2].strip() + ' ' + str(metadata.iloc[0, 3]).strip(),
                         datetime_format='%B %d %Y',
                         utc=False,
                     )
@@ -1802,8 +1773,7 @@ class HySprint_Process(BaseProcess, EntryData):
                 'instruments',
                 'results',
             ],
-            properties=dict(
-                order=['name', 'present', 'data_file', 'batch', 'samples']),
+            properties=dict(order=['name', 'present', 'data_file', 'batch', 'samples']),
         )
     )
 
@@ -1913,8 +1883,7 @@ class HySprint_Measurement(BaseMeasurement, EntryData):
     def normalize(self, archive, logger):
         if not self.samples and self.data_file:
             search_id = self.data_file.split('.')[0]
-            set_sample_reference(archive, self, search_id,
-                                 upload_id=archive.metadata.upload_id)
+            set_sample_reference(archive, self, search_id, upload_id=archive.metadata.upload_id)
         super().normalize(archive, logger)
 
 
