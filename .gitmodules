@@ -1,5 +1,4 @@
 [submodule "nomad-hysprint-jupyter-scripts"]
 	path = utils/nomad-hysprint-jupyter-scripts
 	url = git@github.com:nomad-hzb/nomad-hysprint-jupyter-scripts.git
-[submodule "utils/nomad-hysprint-jupyter-scripts/"]
 	branch = main
