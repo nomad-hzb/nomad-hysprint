@@ -163,7 +163,7 @@ class HySprintExperimentParser(MatchingParser):
 
                 if 'Generic Process' in col:  # move up
                     generic_process = map_generic(i, j, lab_ids, row, upload_id, HySprint_Process)
-                    map_generic_parameters(generic_process, row)
+                    map_generic_parameters(generic_process[1], row)
                     archives.append(generic_process)
 
                 if pd.isna(row.get('Material name')):

@@ -1741,13 +1741,15 @@ class ProcessParameter(ArchiveSection):
         description="""
         The name of a paramter.
         """,
+        a_eln=dict(component='StringEditQuantity'),
     )
 
     value_number = Quantity(
-        type=str,
+        type=np.dtype(np.float64),
         description="""
         The numerical value of a continous paramter.
         """,
+        a_eln=dict(component='NumberEditQuantity'),
     )
 
     value_string = Quantity(
@@ -1755,6 +1757,7 @@ class ProcessParameter(ArchiveSection):
         description="""
         The string value of a categorical paramter.
         """,
+        a_eln=dict(component='StringEditQuantity'),
     )
 
 
