@@ -1,6 +1,6 @@
 import numpy as np
 from baseclasses import BaseMeasurement
-from baseclasses.solution import Solution
+from baseclasses.solution import Solution, SolutionChemical
 from nomad.datamodel.data import ArchiveSection, EntryData
 from nomad.metainfo import Quantity, SchemaPackage, Section, SubSection
 
@@ -59,16 +59,29 @@ class InkRecycling_Results(ArchiveSection):
         unit=('g'),
         a_eln=dict(component='NumberEditQuantity', defaultDisplayUnit='g'),
     )
+    yield_ = Quantity(
+        type=np.dtype(np.float64),
+        a_eln=dict(component='NumberEditQuantity', props=dict(minValue=0)),
+    )
 
 
-class InkRecycling_RecyclingExperiment(BaseMeasurement, EntryData):
+class InkRecycling_Ink(Solution, ArchiveSection):
     m_def = Section(
         a_eln=dict(
             hide=['lab_id', 'users'],
         )
     )
+    precursor = SubSection(section_def=SolutionChemical, repeats=True)
 
-    ink = SubSection(section_def=Solution)
+
+class InkRecycling_RecyclingExperiment(BaseMeasurement, EntryData):
+    m_def = Section(
+        a_eln=dict(
+            hide=['lab_id', 'users', 'steps', 'samples', 'atmosphere', 'instruments', 'method'],
+        )
+    )
+
+    ink = SubSection(section_def=InkRecycling_Ink)
 
     FL = SubSection(
         section_def=InkRecycling_FunctionalLiquid,
