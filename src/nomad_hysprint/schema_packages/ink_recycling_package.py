@@ -2,14 +2,14 @@ import numpy as np
 from nomad.datamodel.data import ArchiveSection, EntryData
 from nomad.metainfo import Quantity, SchemaPackage, Section, SubSection
 from baseclasses import BaseMeasurement
-from hysprint.schema_packages.hysprint_package import HySprint_Ink
+from baseclasses.solution import Solution
 
 # Initialize the schema package
 m_package = SchemaPackage()
 
 
 
-class HySprint_Filter(ArchiveSection):
+class InkRecycling_Filter(ArchiveSection):
     m_def = Section(
         a_eln=dict(
             hide=['lab_id', 'users'],
@@ -29,7 +29,7 @@ class HySprint_Filter(ArchiveSection):
     )
 
 
-class HySprint_FunctionalLiquid(ArchiveSection):
+class InkRecycling_FunctionalLiquid(ArchiveSection):
     m_def = Section(
         a_eln=dict(
             hide=['lab_id', 'users'],
@@ -48,7 +48,7 @@ class HySprint_FunctionalLiquid(ArchiveSection):
         a_eln=dict(component='NumberEditQuantity', defaultDisplayUnit='°C'),
 
 
-class HySprint_RecyclingResults(ArchiveSection):
+class InkRecycling_Results(ArchiveSection):
     m_def = Section(
         a_eln=dict(
             hide=['lab_id', 'users'],
@@ -61,25 +61,25 @@ class HySprint_RecyclingResults(ArchiveSection):
     )
 
 
-class HySprint_RecyclingExperiment(BaseMeasurement, EntryData):
+class InkRecycling_RecyclingExperiment(BaseMeasurement, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=['lab_id', 'users'],
         )
     )
     
-    ink = SubSection(section_def=HySprint_Ink)
+    ink = SubSection(section_def=Solution)
 
     FL = SubSection(
-        section_def=HySprint_FunctionalLiquid,
+        section_def=InkRecycling_FunctionalLiquid,
     )
 
     filter = SubSection(
-        section_def=HySprint_Filter,
+        section_def=InkRecycling_Filter,
     )
 
     results = SubSection(
-        section_def=HySprint_RecyclingResults,
+        section_def=InkRecycling_Results,
     )
 
 
