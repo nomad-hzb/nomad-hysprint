@@ -1,12 +1,11 @@
 import numpy as np
-from nomad.datamodel.data import ArchiveSection, EntryData
-from nomad.metainfo import Quantity, SchemaPackage, Section, SubSection
 from baseclasses import BaseMeasurement
 from baseclasses.solution import Solution
+from nomad.datamodel.data import ArchiveSection, EntryData
+from nomad.metainfo import Quantity, SchemaPackage, Section, SubSection
 
 # Initialize the schema package
 m_package = SchemaPackage()
-
 
 
 class InkRecycling_Filter(ArchiveSection):
@@ -46,6 +45,7 @@ class InkRecycling_FunctionalLiquid(ArchiveSection):
         type=np.dtype(np.float64),
         unit=('°C'),
         a_eln=dict(component='NumberEditQuantity', defaultDisplayUnit='°C'),
+    )
 
 
 class InkRecycling_Results(ArchiveSection):
@@ -67,7 +67,7 @@ class InkRecycling_RecyclingExperiment(BaseMeasurement, EntryData):
             hide=['lab_id', 'users'],
         )
     )
-    
+
     ink = SubSection(section_def=Solution)
 
     FL = SubSection(
