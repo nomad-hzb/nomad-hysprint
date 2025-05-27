@@ -5,14 +5,14 @@ from nomad.metainfo import Quantity, SchemaPackage, Section, SubSection
 from nomad_hysprint.schema_packages.hysprint_package import HySprint_Ink
 
 # Initialize the schema package
-m_package = SchemaPackage(name='InkRecycling')
+m_package = SchemaPackage()
 
 
 class HySprint_Filter(ArchiveSection):
     m_def = Section(
         a_eln=dict(
             hide=['lab_id', 'users'],
-            properties=dict(order=['name', 'type', 'size', 'weight']),
+            properties=dict(order=['type', 'size', 'weight']),
         )
     )
     type = Quantity(type=str, a_eln=dict(component='StringEditQuantity'))
@@ -33,13 +33,13 @@ class HySprint_FunctionalLiquid(ArchiveSection):
         a_eln=dict(
             hide=['lab_id', 'users'],
             properties=dict(order=['name', 'volume']),
-            name=Quantity(type=str, a_eln=dict(component='StringEditQuantity')),
-            volume=Quantity(
-                type=np.dtype(np.float64),
-                unit=('ml'),
-                a_eln=dict(component='NumberEditQuantity', defaultDisplayUnit='ml'),
-            ),
         )
+    )
+    name = Quantity(type=str, a_eln=dict(component='StringEditQuantity'))
+    volume = Quantity(
+        type=np.dtype(np.float64),
+        unit=('ml'),
+        a_eln=dict(component='NumberEditQuantity', defaultDisplayUnit='ml'),
     )
 
 
@@ -48,12 +48,12 @@ class HySprint_RecyclingResults(ArchiveSection):
         a_eln=dict(
             hide=['lab_id', 'users'],
         )
+    )
     recovered_solute = Quantity(
         type=np.dtype(np.float64),
         unit=('g'),
-        a_eln=dict(component='NumberEditQuantity', defaultDisplayUnit='g'),    
+        a_eln=dict(component='NumberEditQuantity', defaultDisplayUnit='g'),
     )
-    
 
 
 class HySprint_RecyclingExperiment(EntryData):
