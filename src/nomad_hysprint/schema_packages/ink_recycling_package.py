@@ -33,7 +33,7 @@ class HySprint_FunctionalLiquid(ArchiveSection):
     m_def = Section(
         a_eln=dict(
             hide=['lab_id', 'users'],
-            properties=dict(order=['name', 'volume']),
+            properties=dict(order=['name', 'volume', 'dissolving_temperature']),
         )
     )
     name = Quantity(type=str, a_eln=dict(component='StringEditQuantity'))
