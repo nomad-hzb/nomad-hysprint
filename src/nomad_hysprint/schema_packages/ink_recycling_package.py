@@ -1,11 +1,12 @@
 import numpy as np
 from nomad.datamodel.data import ArchiveSection, EntryData
 from nomad.metainfo import Quantity, SchemaPackage, Section, SubSection
-
-from nomad_hysprint.schema_packages.hysprint_package import HySprint_Ink
+from baseclasses import BaseMeasurement
+from hysprint.schema_packages.hysprint_package import HySprint_Ink
 
 # Initialize the schema package
 m_package = SchemaPackage()
+
 
 
 class HySprint_Filter(ArchiveSection):
@@ -41,6 +42,10 @@ class HySprint_FunctionalLiquid(ArchiveSection):
         unit=('ml'),
         a_eln=dict(component='NumberEditQuantity', defaultDisplayUnit='ml'),
     )
+    dissolving_temperature = Quantity(
+        type=np.dtype(np.float64),
+        unit=('°C'),
+        a_eln=dict(component='NumberEditQuantity', defaultDisplayUnit='°C'),
 
 
 class HySprint_RecyclingResults(ArchiveSection):
@@ -56,12 +61,13 @@ class HySprint_RecyclingResults(ArchiveSection):
     )
 
 
-class HySprint_RecyclingExperiment(EntryData):
+class HySprint_RecyclingExperiment(BaseMeasurement, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=['lab_id', 'users'],
         )
     )
+    
     ink = SubSection(section_def=HySprint_Ink)
 
     FL = SubSection(
