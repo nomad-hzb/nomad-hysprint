@@ -1736,6 +1736,7 @@ class HZB_NKData(NKData, EntryData):
 
 
 class ProcessParameter(ArchiveSection):
+    m_def = Section(label_quantity='name')
     name = Quantity(
         type=str,
         description="""

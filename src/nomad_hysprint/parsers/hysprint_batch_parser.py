@@ -82,6 +82,8 @@ def map_generic_parameters(process, data):
     for col, val in data.items():
         if col in ['Notes', 'Name']:
             continue
+        if pd.isna(val):
+            continue
         try:
             val_float = float(val)
             parameters.append(ProcessParameter(name=col, value_number=val_float))
