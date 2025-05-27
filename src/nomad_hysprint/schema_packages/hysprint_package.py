@@ -93,7 +93,7 @@ from baseclasses.wet_chemical_deposition import (
     VaporizationAndDropCasting,
     WetChemicalDeposition,
 )
-from nomad.datamodel.data import EntryData
+from nomad.datamodel.data import ArchiveSection, EntryData
 from nomad.datamodel.metainfo.plot import PlotlyFigure, PlotSection
 from nomad.datamodel.results import ELN, Material, Properties, Results
 from nomad.metainfo import Quantity, SchemaPackage, Section, SubSection
@@ -1735,6 +1735,32 @@ class HZB_NKData(NKData, EntryData):
 # %%####################################### Generic Entries
 
 
+class ProcessParameter(ArchiveSection):
+    name = Quantity(
+        type=str,
+        description="""
+        The name of a paramter.
+        """,
+        a_eln=dict(component='StringEditQuantity'),
+    )
+
+    value_number = Quantity(
+        type=np.dtype(np.float64),
+        description="""
+        The numerical value of a continous paramter.
+        """,
+        a_eln=dict(component='NumberEditQuantity'),
+    )
+
+    value_string = Quantity(
+        type=str,
+        description="""
+        The string value of a categorical paramter.
+        """,
+        a_eln=dict(component='StringEditQuantity'),
+    )
+
+
 class HySprint_Process(BaseProcess, EntryData):
     m_def = Section(
         a_eln=dict(
@@ -1757,6 +1783,8 @@ class HySprint_Process(BaseProcess, EntryData):
         a_eln=dict(component='FileEditQuantity'),
         a_browser=dict(adaptor='RawFileAdaptor'),
     )
+
+    process_parameters = SubSection(section_def=ProcessParameter, repeats=True)
 
 
 class HySprint_WetChemicalDepoistion(WetChemicalDeposition, EntryData):
