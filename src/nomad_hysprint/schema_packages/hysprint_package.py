@@ -31,7 +31,7 @@ from baseclasses import (
 from baseclasses.assays import (
     EnvironmentMeasurement,
 )
-from baseclasses.characterizations import XRD, XRDData
+from baseclasses.characterizations import XRD, XRDData, XPS
 from baseclasses.characterizations.electron_microscopy import SEM_Microscope_Merlin
 from baseclasses.chemical import Chemical
 from baseclasses.chemical_energy import (
@@ -1370,6 +1370,27 @@ class HySprint_XRD_XY(XRD, EntryData):
                     print(data)
                     self.data = XRDData(angle=data[0], intensity=data[1])
         super().normalize(archive, logger)
+
+
+class HySprint_XPS(XPS, EntryData):
+    m_def = Section(
+        a_eln=dict(
+            hide=[
+                'lab_id',
+                'users',
+                'end_time',
+                'steps',
+                'instruments',
+                'results',
+            ],
+            properties=dict(order=['name', 'data_file', 'samples']),
+        )
+    )
+
+    def normalize(self, archive, logger):
+        if not self.samples and self.data_file:
+            search_id = self.data_file.split('.')[0]
+            set_sample_reference(archive, self, search_id, upload_id=archive.metadata.upload_id)
 
 
 class HySprint_PLImaging(PLImaging, EntryData):
