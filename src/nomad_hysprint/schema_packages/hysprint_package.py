@@ -31,7 +31,7 @@ from baseclasses import (
 from baseclasses.assays import (
     EnvironmentMeasurement,
 )
-from baseclasses.characterizations import XRD, XRDData, XPS
+from baseclasses.characterizations import XPS, XRD, XRDData
 from baseclasses.characterizations.electron_microscopy import SEM_Microscope_Merlin
 from baseclasses.chemical import Chemical
 from baseclasses.chemical_energy import (
