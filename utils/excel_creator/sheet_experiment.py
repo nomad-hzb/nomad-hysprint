@@ -212,6 +212,22 @@ def add_experiment_sheet(workbook, process_sequence, is_testing=False):
                     ]
                 )
 
+                if config.get('gavd', False):
+                    steps.extend(
+                        [
+                            make_label('GAVD Gas', 'Nitrogen'),
+                            make_label('GAVD start time [s]', 5),
+                            make_label('GAVD vacuum pressure [mbar]', 10),
+                            make_label('GAVD temperature [°C]', 25),
+                            make_label('GAVD vacuum time [s]', 15),
+                            make_label('Gas flow duration [s]', 15),
+                            make_label('Gas flow pressure [mbar]', 100),
+                            make_label('Nozzle shape', 'round'),
+                            make_label('Nozzle type', 'mesh'),
+                            make_label('GAVD comment', 'blabla'),
+                        ]
+                    )
+
             # Add annealing steps for all coating processes
             steps.extend(
                 [
