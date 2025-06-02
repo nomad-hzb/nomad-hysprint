@@ -105,6 +105,7 @@ def add_experiment_sheet(workbook, process_sequence, is_testing=False):
                         make_label(f'Solvent {i} name', 'DMF'),
                         make_label(f'Solvent {i} volume [uL]', 10 * i),
                         make_label(f'Solvent {i} relative amount', 1.5),
+                        make_label(f'Solvent {i} chemical ID', '1592-461-04-2'),
                     ]
                 )
 
@@ -114,6 +115,7 @@ def add_experiment_sheet(workbook, process_sequence, is_testing=False):
                     [
                         make_label(f'Solute {i} name', 'PbI2'),
                         make_label(f'Solute {i} Concentration [mM]', 1.42),
+                        make_label(f'Solute {i} chemical ID', '2393-752-02-3'),
                     ]
                 )
 
