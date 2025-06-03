@@ -217,6 +217,7 @@ def add_experiment_sheet(workbook, process_sequence, is_testing=False):
                         make_label('Print head angle [deg]', 13),
                         make_label('Nozzle temperature [°C]', 35),
                         make_label('Nozzle voltage config file', "testfile.txt"),
+                        make_label('Image used', "Square inch 300 dpi"),
                         make_label('rel. humidity [%]', 45),
                     ]
                 )
