@@ -21,6 +21,11 @@ class SolarTabPackageEntryPoint(SchemaPackageEntryPoint):
 
         return m_package
 
+class StabilityPackageEntryPoint(SchemaPackageEntryPoint):
+    def load(self):
+        from nomad_hysprint.schema_packages.stability_package import m_package
+
+        return m_package
 
 hysprint_package = HySprintPackageEntryPoint(
     name='HySprint',
@@ -35,4 +40,9 @@ solai_package = SOLAIPackageEntryPoint(
 solartab_package = SolarTabPackageEntryPoint(
     name='SolarTab',
     description='Package for SolarTab specific schema',
+)
+
+stability_package = StabilityPackageEntryPoint(
+    name='Stability',
+    description='Package for Stability specific schema',
 )
