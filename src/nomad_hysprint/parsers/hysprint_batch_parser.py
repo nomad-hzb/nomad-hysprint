@@ -172,7 +172,12 @@ class HySprintExperimentParser(MatchingParser):
                     continue
 
                 if 'Evaporation' in col:
-                    archives.append(map_evaporation(i, j, lab_ids, row, upload_id, HySprint_Evaporation))
+                    coevap = False
+                    if 'Co-Evaporation' in col:
+                        coevap = True
+                    archives.append(
+                        map_evaporation(i, j, lab_ids, row, upload_id, HySprint_Evaporation, coevap)
+                    )
 
                 if 'Spin Coating' in col:
                     archives.append(map_spin_coating(i, j, lab_ids, row, upload_id, HySprint_SpinCoating))
