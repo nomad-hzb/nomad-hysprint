@@ -245,28 +245,28 @@ def add_experiment_sheet(workbook, process_sequence, is_testing=False):
             ]
             return steps
 
-        if process_name == 'Seq-Evaporation' or process_name == 'Co-Evaporation':
+        # if process_name == 'Seq-Evaporation' or process_name == 'Co-Evaporation':
+        if process_name == 'Co-Evaporation':
             steps = [
                 make_label('Material name', 'Aluminium'),
                 make_label('Layer type', 'Electrode'),
                 make_label('Tool/GB name', 'IRIS Evap'),
-                make_label('Base pressure [bar]', 1e-6),
-                make_label('Pressure start [bar]', 5e-6),
-                make_label('Pressure end [bar]', 3e-6),
-                make_label('Substrate temperature [°C]', 25),
             ]
             for i in range(1, config.get('materials', 0) + 1):
                 steps.extend(
                     [
-                        make_label(f'Material {i} name', 'Cupper'),
-                        make_label(f'Material {i} organic', False),
+                        make_label(f'Material name {i}', 'Cupper'),
                         make_label(
-                            f'Material {i} source temperature start [°C]', 100 + 10 + i),
+                            f'Source temperature start {i}[°C]', 100 + 10 + i),
                         make_label(
-                            f'Material {i} source temperature end [°C]', 110 + 10 + i),
-                        make_label(f'Material {i} thickness [nm]', 20 + i),
-                        make_label(f'Material {i} rate [angstrom/s]', 0.5 + i),
-                        make_label(f'Material {i} tooling factor', 1.0 + 0.1 + i)
+                            f'Source temperature end {i}[°C]', 110 + 10 + i),
+                        make_label(f'Thickness {i} [nm]', 20 + i),
+                        make_label(f'Rate {i} [angstrom/s]', 0.5 + i),
+                        make_label(f'Base pressure {i} [bar]', 1e-6),
+                        make_label(f'Pressure start {i} [bar]', 5e-6),
+                        make_label(f'Pressure end {i} [bar]', 3e-6),
+                        make_label(f'Substrate temperature {i} [°C]', 25),
+                        make_label(f'Tooling factor {i}', 1.0 + 0.1 + i)
                     ]
                 )
             steps.append(make_label('Notes', 'Test note co-evaporation'))

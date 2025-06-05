@@ -478,11 +478,18 @@ def test_hy_batch_parser_new_cols(monkeypatch):  # noqa: PLR0915
             assert m.data.layer[0].layer_type == 'Electrode'
             assert m.data.layer[0].layer_material_name == 'Aluminium'
             assert m.data.location == 'IRIS Evap'
-            # assert m.data.base_pressure == 0.000001 * ureg('bar')
-            # assert m.data.pressure_start == 0.000005 * ureg('bar')
-            # assert m.data.pressure_end == 0.000003 * ureg('bar')
-            # assert m.data.substrate_temperature == ureg.Quantity(
-            #     25, ureg('°C'))
+            assert len(m.data.perovskite_evaporation) == 2
+            assert m.data.perovskite_evaporation[0].pressure == 0.000001 * ureg('bar')
+            assert m.data.perovskite_evaporation[0].chemical_2.name == 'Cupper'
+            assert m.data.perovskite_evaporation[0].tooling_factor == '2.1'
+            assert m.data.perovskite_evaporation[0].temparature[0] == ureg.Quantity(111, ureg('°C'))
+            assert m.data.perovskite_evaporation[0].temparature[1] == ureg.Quantity(121, ureg('°C'))
+            assert m.data.perovskite_evaporation[0].thickness == 21 * ureg('nm')
+            assert m.data.perovskite_evaporation[0].target_rate == 1.5 * ureg('angstrom/s')
+            assert m.data.perovskite_evaporation[0].pressure == 0.000001 * ureg('bar')
+            assert m.data.perovskite_evaporation[0].pressure_start == 0.000005 * ureg('bar').to('mbar')
+            assert m.data.perovskite_evaporation[0].pressure_end == 0.000003 * ureg('bar').to('mbar')
+            assert m.data.perovskite_evaporation[0].substrate_temparature == ureg.Quantity(25, ureg('°C'))
 
         # Step 11: Sputtering
         elif m.data.positon_in_experimental_plan == 11:
