@@ -105,6 +105,7 @@ def add_experiment_sheet(workbook, process_sequence, is_testing=False):
                         make_label(f'Solvent {i} name', 'DMF'),
                         make_label(f'Solvent {i} volume [uL]', 10 * i),
                         make_label(f'Solvent {i} relative amount', 1.5),
+                        make_label(f'Solvent {i} chemical ID', '1592-461-04-2'),
                     ]
                 )
 
@@ -114,6 +115,7 @@ def add_experiment_sheet(workbook, process_sequence, is_testing=False):
                     [
                         make_label(f'Solute {i} name', 'PbI2'),
                         make_label(f'Solute {i} Concentration [mM]', 1.42),
+                        make_label(f'Solute {i} chemical ID', '2393-752-02-3'),
                     ]
                 )
 
@@ -197,20 +199,44 @@ def add_experiment_sheet(workbook, process_sequence, is_testing=False):
                     [
                         make_label('Printhead name', 'Spectra 0.8uL'),
                         make_label('Number of active nozzles', 128),
-                        make_label('Droplet density [dpi]', 400),
+                        make_label('Active nozzles', "all"),
+                        make_label('Droplet density X [dpi]', 400),
+                        make_label('Droplet density Y [dpi]', 300),
                         make_label('Quality factor', 3),
                         make_label('Step size', 10),
+                        make_label('Printing direction', 10),
+                        make_label('Number of swaths', 10),
                         make_label('Printed area [mm²]', 100),
                         make_label('Droplet per second [1/s]', 5000),
                         make_label('Droplet volume [pl]', 10),
                         make_label('Ink reservoir pressure [bar]', 0.3),
                         make_label('Table temperature [°C]', 40),
                         make_label('Dropping Height [mm]', 12),
+                        make_label('Substrate thickness [mm]', 20),
                         make_label('Printing speed [mm/s]', 10),
+                        make_label('Print head angle [deg]', 13),
                         make_label('Nozzle temperature [°C]', 35),
+                        make_label('Nozzle voltage config file', "testfile.txt"),
+                        make_label('Image used', "Square inch 300 dpi"),
                         make_label('rel. humidity [%]', 45),
                     ]
                 )
+
+                if config.get('gavd', False):
+                    steps.extend(
+                        [
+                            make_label('GAVD Gas', 'Nitrogen'),
+                            make_label('GAVD start time [s]', 5),
+                            make_label('GAVD vacuum pressure [mbar]', 10),
+                            make_label('GAVD temperature [°C]', 25),
+                            make_label('GAVD vacuum time [s]', 15),
+                            make_label('Gas flow duration [s]', 15),
+                            make_label('Gas flow pressure [mbar]', 100),
+                            make_label('Nozzle shape', 'round'),
+                            make_label('Nozzle type', 'mesh'),
+                            make_label('GAVD comment', 'blabla'),
+                        ]
+                    )
 
             # Add annealing steps for all coating processes
             steps.extend(
