@@ -26,7 +26,7 @@ def parse_xps_xy_file(filedata):
         if line.strip().startswith('#     '):
             if not key:
                 continue
-            current[key.strip()] += '\n' + line.strip('#').strip()
+            current[key.strip()] += '<br>' + line.strip('#').strip()
             continue
         if ':' not in line or line.strip().endswith(':'):
             key = line.strip('#').split(':')[0]
@@ -44,7 +44,7 @@ def map_value(value, is_number=False, with_unit=False):
         if with_unit:
             v, u = value.split(' ', 1)
             if 'nu' in u.lower():
-                return float(value)
+                return float(v)
             return float(v) * ureg(u)
         if is_number:
             return float(value)
@@ -65,8 +65,8 @@ def map_specs_lab_prodigy_data(res):
         ),
         detector_voltage=map_value(res['Analyzer Parameters'].get('Detector Voltage (Target)'), True, True),
         work_function=map_value(res['Analyzer Parameters'].get('Work Function'), True, False),
-        focus_displacement=map_value(res['Analyzer Parameters'].get('Focus Displacement 1'), True, False),
-        l1=map_value(res['Analyzer Parameters'].get('L1'), True, False),
+        focus_displacement=map_value(res['Analyzer Parameters'].get('Focus Displacement 1'), True, True),
+        l1=map_value(res['Analyzer Parameters'].get('L1'), True, True),
     )
     source_parameters = XPSSpecsLabProdigySourceParameters(
         polar_angle=map_value(res['Source Parameters'].get('Polar Angle'), True, True),

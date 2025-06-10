@@ -1405,7 +1405,7 @@ class HySprint_XPS(XPS, EntryData):
                 )
 
                 results = parse_xps_xy_file(f.read())
-                self.specs_lab_prodigy_metadata, self.method = map_specs_lab_prodigy_data(results)
+                self.specs_lab_prodigy_metadata, method = map_specs_lab_prodigy_data(results)
                 self.datetime = convert_datetime(
                     results['Acquisition Date'], datetime_format='%Y-%m-%d %H:%M:%S UTC', utc=True
                 )
@@ -1421,9 +1421,9 @@ class HySprint_XPS(XPS, EntryData):
                             output=outfile.name,
                             skip_verify=True,
                         )  # TODO only call if upload not published
-                    print(f'/uploads/{archive.metadata.upload_id}/raw/{output_file}')
                     self.nxs_file = f'/uploads/{archive.metadata.upload_id}/raw/{output_file}#/'
         super().normalize(archive, logger)
+        self.method = method
 
 
 class HySprint_PLImaging(PLImaging, EntryData):
