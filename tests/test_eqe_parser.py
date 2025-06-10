@@ -143,4 +143,4 @@ def test_hysprint_eqe_parser(monkeypatch):
         # Test data exists
         assert archive.data
         assert abs(archive.data.eqe_data[0].bandgap_eqe.to('eV').magnitude - bg) < 1e-2
-    delete_json()
+        delete_json()
