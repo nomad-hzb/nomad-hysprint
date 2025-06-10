@@ -1203,7 +1203,6 @@ class HySprint_OpticalMicroscope(OpticalMicroscope, EntryData):
             set_sample_reference(archive, self, search_id, upload_id=archive.metadata.upload_id)
         super().normalize(archive, logger)
 
-
 class HySprint_EQEmeasurement(EQEMeasurement, EntryData):
     m_def = Section(
         a_eln=dict(
