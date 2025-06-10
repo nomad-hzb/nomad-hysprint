@@ -1422,8 +1422,8 @@ class HySprint_XPS(XPS, EntryData):
                             skip_verify=True,
                         )  # TODO only call if upload not published
                     self.nxs_file = f'/uploads/{archive.metadata.upload_id}/raw/{output_file}#/'
-        super().normalize(archive, logger)
         self.method = method
+        super().normalize(archive, logger)
 
 
 class HySprint_PLImaging(PLImaging, EntryData):
