@@ -114,7 +114,9 @@ def map_specs_lab_prodigy_data(res):
         'Source Parameters'
     ].get('Name', ''):
         method = 'NUPS'
-    if 'FixedAnalyzerTransmission' in res.get('Scan Mode', '') and 'He' in res.get('Settings Summary', ''):
+    if 'FixedAnalyzerTransmission' in res.get('Scan Mode', '') and 'He' in res['Source Parameters'].get(
+        'Settings Summary', ''
+    ):
         method = 'He-UPS'
 
     return section, method
