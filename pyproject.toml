@@ -33,7 +33,7 @@ dependencies = [
     'nomad-baseclasses @ git+https://github.com/nomad-hzb/nomad-baseclasses.git',
     'nomad-measurements',
     'httpx==0.27.2',
-    'pynxtools-xps@git+https://github.com/FAIRmat-NFDI/pynxtools-xps.git@update-xy-reader']
+    'pynxtools-xps@git+https://github.com/FAIRmat-NFDI/pynxtools-xps.git']
 [project.urls]
 Repository = "https://github.com/nomad-hzb/nomad-hysprint"
 
