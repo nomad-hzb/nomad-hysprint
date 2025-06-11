@@ -16,7 +16,6 @@
 # limitations under the License.
 #
 
-import logging
 import os
 import random
 import re
@@ -104,7 +103,7 @@ from nomad.datamodel.metainfo.plot import PlotlyFigure, PlotSection
 from nomad.datamodel.results import ELN, Material, Properties, Results
 from nomad.metainfo import Quantity, SchemaPackage, Section, SubSection
 from nomad.units import ureg
-from nomad_luqy_plugin import (
+from nomad_luqy_plugin.schema_packages.schema_package import (
     AbsPLMeasurement,
     ELNAnnotation,
     NOMADMeasurementsCategory,
@@ -1078,28 +1077,6 @@ class HySprint_LuminescenceMeasurement(AbsPLMeasurement, EntryData):
 
             logger.info(f'Parsed metadata records: {len(self.meta_data)}')
             logger.info(f'Parsed spectral data points: {len(self.spectral_data)}')
-
-
-class MockArchive:
-    class Context:
-        def raw_file(self, file_path, mode, encoding):
-            return open(file_path, mode, encoding=encoding)
-
-    m_context = Context()
-
-
-logger = logging.getLogger('test_logger')
-logger.setLevel(logging.INFO)
-logger.addHandler(logging.StreamHandler())
-
-# Replace 'sample_file.luqy' with your test file path
-parser = HySprint_LuminescenceMeasurement()
-parser.data_file = 'sample_file.luqy'
-parser.normalize(MockArchive(), logger)
-
-# Logging the parsed data (optional for debugging)
-logger.info(f'Metadata:\n{parser.meta_data}')
-logger.info(f'Spectral Data:\n{parser.spectral_data}')
 
 
 class HySprint_SimpleMPPTracking(MPPTracking, EntryData):
