@@ -16,7 +16,6 @@
 # limitations under the License.
 #
 
-import logging
 import os
 import random
 import re
@@ -107,16 +106,13 @@ from nomad.datamodel.metainfo.plot import PlotlyFigure, PlotSection
 from nomad.datamodel.results import ELN, Material, Properties, Results
 from nomad.metainfo import Datetime, Quantity, SchemaPackage, Section, SubSection
 from nomad.units import ureg
-<<<<<<< HEAD
 from nomad_luqy_plugin.schema_packages.schema_package import (
     AbsPLMeasurement,
     ELNAnnotation,
     NOMADMeasurementsCategory,
     AbsPLResult,
 )
-=======
 
->>>>>>> 1d3ca99 (Parser for multiple Luqy measurements and fix to the JV measurement class header)
 from pynxtools.dataconverter.convert import convert
 from nomad_luqy_plugin.schema_packages.schema_package import AbsPLMeasurement
 from nomad_luqy_plugin.schema_packages.schema_package import (
