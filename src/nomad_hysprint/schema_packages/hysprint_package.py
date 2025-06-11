@@ -906,7 +906,7 @@ class HySprint_trSPVmeasurement(trSPVMeasurement, EntryData):
         super().normalize(archive, logger)
 
 
-class HySprint_JVcd(JVMeasurement, EntryData):
+class HySprint_JVmeasurement(JVMeasurement, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=[
@@ -970,6 +970,120 @@ class HySprint_JVcd(JVMeasurement, EntryData):
 
         super().normalize(archive, logger)
 
+
+class HySprint_LuminescenceMeasurement(AbsPLMeasurement, EntryData):
+    """
+    Parser for HySprint Absolute Photoluminescence (PL) measurements.
+    Inherits from AbsPLMeasurement to reuse its structure and functionality.
+    """
+    m_def = Section(
+        label='HySprint Absolute PL Measurement',
+        categories=[NOMADMeasurementsCategory],
+        a_eln=ELNAnnotation(
+            lane_width='800px',
+        ),
+    )
+
+    def normalize(self, archive, logger):
+        """
+        Normalizes the HySprint Absolute PL measurement file by parsing metadata
+        and spectral data, and integrates with the AbsPLMeasurement structure.
+        """
+        logger.debug('Starting HySprint_LuminescenceMeasurement.normalize', data_file=self.data_file)
+
+        # Call the parent class's normalize method
+        super().normalize(archive, logger)
+
+        # Additional normalization logic specific to HySprint measurements
+        if self.data_file:
+            with archive.m_context.raw_file(self.data_file, 'tr', encoding='latin-1') as f:
+                lines = f.readlines()
+
+            # Extract timestamps
+            timestamp_parts = re.split(r'\t+', lines[0].strip())
+            date_part = timestamp_parts[0]
+            time_parts = timestamp_parts[1:]
+            timestamps = [f"{date_part} {t}" for t in time_parts]
+
+            # Find where spectral data starts
+            spectral_start_idx = next(i for i, line in enumerate(lines) if line.strip().startswith("Wavelength"))
+            meta_lines = lines[1:spectral_start_idx]
+
+            # Parse metadata
+            meta_records = []
+            for line in meta_lines:
+                parts = re.split(r'\t+', line.strip())
+                if len(parts) < 2:
+                    continue
+                param = parts[0].strip()
+                values = parts[1:]
+                for i, val in enumerate(values):
+                    val_clean = val.strip().replace('--', '')
+                    if val_clean and i < len(timestamps):
+                        try:
+                            val_clean = float(val_clean)
+                        except ValueError:
+                            continue
+                        unit_match = re.search(r"\((.*?)\)", param)
+                        unit = unit_match.group(1) if unit_match else ""
+                        param_name = re.sub(r"\(.*?\)", "", param).strip()
+                        meta_records.append({
+                            "measurement_id": i + 1,
+                            "timestamp": timestamps[i],
+                            "parameter": param_name,
+                            "value": val_clean,
+                            "unit": unit
+                        })
+
+            # Parse spectral data
+            spectral_lines = lines[spectral_start_idx + 2:]  # skip header and blank line
+            spectral_data = []
+            for line in spectral_lines:
+                parts = re.split(r'\t+', line.strip())
+                if len(parts) < 2:
+                    continue
+                try:
+                    wl = float(parts[0])
+                    for i in range(len(timestamps)):
+                        flux = parts[i + 1].strip().replace('--', '')
+                        if flux:
+                            try:
+                                flux_val = float(flux)
+                            except ValueError:
+                                continue
+                            spectral_data.append({
+                                "measurement_id": i + 1,
+                                "wavelength_nm": wl,
+                                "flux_density": flux_val
+                            })
+                except (ValueError, IndexError):
+                    continue
+
+            # Convert to DataFrames and assign as class attributes
+            self.meta_data = pd.DataFrame(meta_records)
+            self.spectral_data = pd.DataFrame(spectral_data)
+
+            logger.info(f"Parsed metadata records: {len(self.meta_data)}")
+            logger.info(f"Parsed spectral data points: {len(self.spectral_data)}")
+
+class MockArchive:
+    class Context:
+        def raw_file(self, file_path, mode, encoding):
+            return open(file_path, mode, encoding=encoding)
+    m_context = Context()
+
+logger = logging.getLogger("test_logger")
+logger.setLevel(logging.INFO)
+logger.addHandler(logging.StreamHandler())
+
+# Replace 'sample_file.luqy' with your test file path
+parser = HySprint_LuminescenceMeasurement()
+parser.data_file = "sample_file.luqy"
+parser.normalize(MockArchive(), logger)
+
+# Logging the parsed data (optional for debugging)
+logger.info(f"Metadata:\n{parser.meta_data}")
+logger.info(f"Spectral Data:\n{parser.spectral_data}")
 
 class HySprint_SimpleMPPTracking(MPPTracking, EntryData):
     m_def = Section(
