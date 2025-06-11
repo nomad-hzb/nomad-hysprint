@@ -16,11 +16,16 @@
 # limitations under the License.
 #
 
+import logging
 import os
 import random
+import re
 import string
 
 import numpy as np
+import pandas as pd
+
+# NOMAD imports
 from baseclasses import (
     BaseMeasurement,
     BaseProcess,
@@ -99,6 +104,11 @@ from nomad.datamodel.metainfo.plot import PlotlyFigure, PlotSection
 from nomad.datamodel.results import ELN, Material, Properties, Results
 from nomad.metainfo import Quantity, SchemaPackage, Section, SubSection
 from nomad.units import ureg
+from nomad_luqy_plugin import (
+    AbsPLMeasurement,
+    ELNAnnotation,
+    NOMADMeasurementsCategory,
+)
 
 from pynxtools.dataconverter.convert import convert
 from nomad_luqy_plugin.schema_packages.schema_package import AbsPLMeasurement
@@ -976,6 +986,7 @@ class HySprint_LuminescenceMeasurement(AbsPLMeasurement, EntryData):
     Parser for HySprint Absolute Photoluminescence (PL) measurements.
     Inherits from AbsPLMeasurement to reuse its structure and functionality.
     """
+
     m_def = Section(
         label='HySprint Absolute PL Measurement',
         categories=[NOMADMeasurementsCategory],
@@ -1003,10 +1014,12 @@ class HySprint_LuminescenceMeasurement(AbsPLMeasurement, EntryData):
             timestamp_parts = re.split(r'\t+', lines[0].strip())
             date_part = timestamp_parts[0]
             time_parts = timestamp_parts[1:]
-            timestamps = [f"{date_part} {t}" for t in time_parts]
+            timestamps = [f'{date_part} {t}' for t in time_parts]
 
             # Find where spectral data starts
-            spectral_start_idx = next(i for i, line in enumerate(lines) if line.strip().startswith("Wavelength"))
+            spectral_start_idx = next(
+                i for i, line in enumerate(lines) if line.strip().startswith('Wavelength')
+            )
             meta_lines = lines[1:spectral_start_idx]
 
             # Parse metadata
@@ -1024,19 +1037,21 @@ class HySprint_LuminescenceMeasurement(AbsPLMeasurement, EntryData):
                             val_clean = float(val_clean)
                         except ValueError:
                             continue
-                        unit_match = re.search(r"\((.*?)\)", param)
-                        unit = unit_match.group(1) if unit_match else ""
-                        param_name = re.sub(r"\(.*?\)", "", param).strip()
-                        meta_records.append({
-                            "measurement_id": i + 1,
-                            "timestamp": timestamps[i],
-                            "parameter": param_name,
-                            "value": val_clean,
-                            "unit": unit
-                        })
+                        unit_match = re.search(r'\((.*?)\)', param)
+                        unit = unit_match.group(1) if unit_match else ''
+                        param_name = re.sub(r'\(.*?\)', '', param).strip()
+                        meta_records.append(
+                            {
+                                'measurement_id': i + 1,
+                                'timestamp': timestamps[i],
+                                'parameter': param_name,
+                                'value': val_clean,
+                                'unit': unit,
+                            }
+                        )
 
             # Parse spectral data
-            spectral_lines = lines[spectral_start_idx + 2:]  # skip header and blank line
+            spectral_lines = lines[spectral_start_idx + 2 :]  # skip header and blank line
             spectral_data = []
             for line in spectral_lines:
                 parts = re.split(r'\t+', line.strip())
@@ -1051,11 +1066,9 @@ class HySprint_LuminescenceMeasurement(AbsPLMeasurement, EntryData):
                                 flux_val = float(flux)
                             except ValueError:
                                 continue
-                            spectral_data.append({
-                                "measurement_id": i + 1,
-                                "wavelength_nm": wl,
-                                "flux_density": flux_val
-                            })
+                            spectral_data.append(
+                                {'measurement_id': i + 1, 'wavelength_nm': wl, 'flux_density': flux_val}
+                            )
                 except (ValueError, IndexError):
                     continue
 
@@ -1063,27 +1076,31 @@ class HySprint_LuminescenceMeasurement(AbsPLMeasurement, EntryData):
             self.meta_data = pd.DataFrame(meta_records)
             self.spectral_data = pd.DataFrame(spectral_data)
 
-            logger.info(f"Parsed metadata records: {len(self.meta_data)}")
-            logger.info(f"Parsed spectral data points: {len(self.spectral_data)}")
+            logger.info(f'Parsed metadata records: {len(self.meta_data)}')
+            logger.info(f'Parsed spectral data points: {len(self.spectral_data)}')
+
 
 class MockArchive:
     class Context:
         def raw_file(self, file_path, mode, encoding):
             return open(file_path, mode, encoding=encoding)
+
     m_context = Context()
 
-logger = logging.getLogger("test_logger")
+
+logger = logging.getLogger('test_logger')
 logger.setLevel(logging.INFO)
 logger.addHandler(logging.StreamHandler())
 
 # Replace 'sample_file.luqy' with your test file path
 parser = HySprint_LuminescenceMeasurement()
-parser.data_file = "sample_file.luqy"
+parser.data_file = 'sample_file.luqy'
 parser.normalize(MockArchive(), logger)
 
 # Logging the parsed data (optional for debugging)
-logger.info(f"Metadata:\n{parser.meta_data}")
-logger.info(f"Spectral Data:\n{parser.spectral_data}")
+logger.info(f'Metadata:\n{parser.meta_data}')
+logger.info(f'Spectral Data:\n{parser.spectral_data}')
+
 
 class HySprint_SimpleMPPTracking(MPPTracking, EntryData):
     m_def = Section(
@@ -1316,6 +1333,7 @@ class HySprint_OpticalMicroscope(OpticalMicroscope, EntryData):
             search_id = self.data_file.split('.')[0]
             set_sample_reference(archive, self, search_id, upload_id=archive.metadata.upload_id)
         super().normalize(archive, logger)
+
 
 class HySprint_EQEmeasurement(EQEMeasurement, EntryData):
     m_def = Section(
