@@ -91,7 +91,7 @@ class InkRecycling_RecyclingExperiment(BaseMeasurement, EntryData):
         section_def=InkRecycling_Filter,
     )
 
-    results = SubSection(
+    recycling_results = SubSection(
         section_def=InkRecycling_Results,
     )
 
