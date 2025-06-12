@@ -86,6 +86,8 @@ def map_generic_parameters(process, data):
     for col, val in data.items():
         if col in ['Notes', 'Name']:
             continue
+        if pd.isna(val):
+            continue
         try:
             val_float = float(val)
             parameters.append(ProcessParameter(name=col, value_number=val_float))
@@ -273,54 +275,64 @@ class HySprintExperimentParser(MatchingParser):
             for i, col in enumerate(df.columns.get_level_values(0).unique()):
                 if col == 'Experiment Info':
                     continue
-                # Original workflow for non-ink cases
+
                 df_dropped = df[col].drop_duplicates()
                 for j, row in df_dropped.iterrows():
+                    if row.dropna().empty:
+                        continue
                     lab_ids = [
                         x['Experiment Info']['Nomad ID']
                         for _, x in df[['Experiment Info', col]].iterrows()
                         if x[col].astype('object').equals(row.astype('object'))
                     ]
-
                     if 'Cleaning' in col:
                         archives.append(map_cleaning(i, j, lab_ids, row, upload_id, HySprint_Cleaning))
 
-                    if 'Laser Scribing' in col:
-                        archives.append(
-                            map_laser_scribing(i, j, lab_ids, row, upload_id, HySprint_LaserScribing)
-                        )
+                        if 'Laser Scribing' in col:
+                            archives.append(
+                                map_laser_scribing(i, j, lab_ids, row, upload_id, HySprint_LaserScribing)
+                            )
 
-                    if 'Generic Process' in col:  # move up
-                        generic_process = map_generic(i, j, lab_ids, row, upload_id, HySprint_Process)
-                        map_generic_parameters(generic_process[1], row)
-                        archives.append(generic_process)
+                        if 'Generic Process' in col:  # move up
+                            generic_process = map_generic(i, j, lab_ids, row, upload_id, HySprint_Process)
+                            map_generic_parameters(generic_process[1], row)
+                            archives.append(generic_process)
 
-                    if pd.isna(row.get('Material name')):
-                        continue
+                        if pd.isna(row.get('Material name')):
+                            continue
 
                     if 'Evaporation' in col:
-                        archives.append(map_evaporation(i, j, lab_ids, row, upload_id, HySprint_Evaporation))
-
-                    if 'Spin Coating' in col:
-                        archives.append(map_spin_coating(i, j, lab_ids, row, upload_id, HySprint_SpinCoating))
-
-                    if 'Slot Die Coating' in col:
-                        archives.append(map_sdc(i, j, lab_ids, row, upload_id, HySprint_SlotDieCoating))
-
-                    if 'Sputtering' in col:
-                        archives.append(map_sputtering(i, j, lab_ids, row, upload_id, HySprint_Sputtering))
-
-                    if 'Inkjet Printing' in col:
+                        coevap = False
+                        if 'Co-Evaporation' in col:
+                            coevap = True
                         archives.append(
-                            map_inkjet_printing(i, j, lab_ids, row, upload_id, HySprint_Inkjet_Printing)
+                            map_evaporation(i, j, lab_ids, row, upload_id, HySprint_Evaporation, coevap)
                         )
 
-                    if 'ALD' in col:
-                        archives.append(
-                            map_atomic_layer_deposition(
-                                i, j, lab_ids, row, upload_id, IRIS_AtomicLayerDeposition
+                        if 'Spin Coating' in col:
+                            archives.append(
+                                map_spin_coating(i, j, lab_ids, row, upload_id, HySprint_SpinCoating)
                             )
-                        )
+
+                        if 'Slot Die Coating' in col:
+                            archives.append(map_sdc(i, j, lab_ids, row, upload_id, HySprint_SlotDieCoating))
+
+                        if 'Sputtering' in col:
+                            archives.append(
+                                map_sputtering(i, j, lab_ids, row, upload_id, HySprint_Sputtering)
+                            )
+
+                        if 'Inkjet Printing' in col:
+                            archives.append(
+                                map_inkjet_printing(i, j, lab_ids, row, upload_id, HySprint_Inkjet_Printing)
+                            )
+
+                        if 'ALD' in col:
+                            archives.append(
+                                map_atomic_layer_deposition(
+                                    i, j, lab_ids, row, upload_id, IRIS_AtomicLayerDeposition
+                                )
+                            )
 
         refs = []
 

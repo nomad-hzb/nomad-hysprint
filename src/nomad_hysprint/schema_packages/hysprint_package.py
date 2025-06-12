@@ -31,7 +31,7 @@ from baseclasses import (
 from baseclasses.assays import (
     EnvironmentMeasurement,
 )
-from baseclasses.characterizations import XRD, XRDData
+from baseclasses.characterizations import XPS, XRD, XPSSpecsLabProdigySettings, XRDData
 from baseclasses.characterizations.electron_microscopy import SEM_Microscope_Merlin
 from baseclasses.chemical import Chemical
 from baseclasses.chemical_energy import (
@@ -94,10 +94,12 @@ from baseclasses.wet_chemical_deposition import (
     WetChemicalDeposition,
 )
 from nomad.datamodel.data import ArchiveSection, EntryData
+from nomad.datamodel.hdf5 import HDF5Reference
 from nomad.datamodel.metainfo.plot import PlotlyFigure, PlotSection
 from nomad.datamodel.results import ELN, Material, Properties, Results
 from nomad.metainfo import Quantity, SchemaPackage, Section, SubSection
 from nomad.units import ureg
+from pynxtools.dataconverter.convert import convert
 
 m_package = SchemaPackage()
 
@@ -1372,6 +1374,58 @@ class HySprint_XRD_XY(XRD, EntryData):
         super().normalize(archive, logger)
 
 
+class HySprint_XPS(XPS, EntryData):
+    m_def = Section(
+        a_eln=dict(
+            hide=[
+                'lab_id',
+                'users',
+                'end_time',
+                'steps',
+                'instruments',
+                'results',
+            ],
+            properties=dict(order=['name', 'data_file', 'samples']),
+        )
+    )
+
+    nxs_file = Quantity(type=HDF5Reference)
+    specs_lab_prodigy_metadata = SubSection(section_def=XPSSpecsLabProdigySettings)
+
+    def normalize(self, archive, logger):
+        if not self.samples and self.data_file:
+            search_id = self.data_file.split('.')[0]
+            set_sample_reference(archive, self, search_id, upload_id=archive.metadata.upload_id)
+
+        if self.data_file:
+            with archive.m_context.raw_file(self.data_file, 'tr') as f:
+                from nomad_hysprint.schema_packages.file_parser.xps_parser import (
+                    map_specs_lab_prodigy_data,
+                    parse_xps_xy_file,
+                )
+
+                results = parse_xps_xy_file(f.read())
+                self.specs_lab_prodigy_metadata, method = map_specs_lab_prodigy_data(results)
+                self.datetime = convert_datetime(
+                    results['Acquisition Date'], datetime_format='%Y-%m-%d %H:%M:%S UTC', utc=True
+                )
+                self.description = results.get('Experiment Description')
+
+                output_file = archive.metadata.mainfile.replace('archive.json', 'nxs').replace(' ', '')
+                with archive.m_context.raw_file(output_file, 'w') as outfile:
+                    if not archive.metadata.published:
+                        convert(
+                            input_file=(f.name),
+                            reader='xps',
+                            nxdl='NXxps',
+                            output=outfile.name,
+                            skip_verify=True,
+                        )  # TODO only call if upload not published
+                    self.nxs_file = f'/uploads/{archive.metadata.upload_id}/raw/{output_file}#/'
+        self.method = method
+        super().normalize(archive, logger)
+
+
 class HySprint_PLImaging(PLImaging, EntryData):
     m_def = Section(
         a_eln=dict(
@@ -1736,6 +1790,7 @@ class HZB_NKData(NKData, EntryData):
 
 
 class ProcessParameter(ArchiveSection):
+    m_def = Section(label_quantity='name')
     name = Quantity(
         type=str,
         description="""
