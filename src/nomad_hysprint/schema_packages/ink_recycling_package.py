@@ -77,7 +77,7 @@ class InkRecycling_Ink(Solution, ArchiveSection):
 class InkRecycling_RecyclingExperiment(BaseMeasurement, EntryData):
     m_def = Section(
         a_eln=dict(
-            hide=['lab_id', 'users', 'steps', 'samples', 'atmosphere', 'instruments', 'method'],
+            hide=['lab_id', 'users', 'steps', 'samples', 'atmosphere', 'instruments', 'method', 'results'],
         )
     )
 
