@@ -65,6 +65,7 @@ from nomad_hysprint.schema_packages.hysprint_package import (
     ProcessParameter,
 )
 from nomad_hysprint.schema_packages.ink_recycling_package import (
+    InkRecycling_Filter,
     InkRecycling_FunctionalLiquid,
     InkRecycling_Ink,
     InkRecycling_RecyclingExperiment,
@@ -159,6 +160,14 @@ def map_mixing(data):
     return archive
 
 
+def map_filtering(data):
+    archive = InkRecycling_Filter(
+        type=get_value(data, 'Filter material', None, False),
+        size=get_value(data, 'Filter size [mm]', None, unit='mm'),
+    )
+    return archive
+
+
 class HySprintExperimentParser(MatchingParser):
     def is_mainfile(
         self,
@@ -239,7 +248,9 @@ class HySprintExperimentParser(MatchingParser):
                     if 'Mixing' in col:
                         mixing = map_mixing(row[col])
                         ink_recycling_archive.FL = mixing
-
+                    if 'Filtering' in col:
+                        filtering = map_filtering(row[col])
+                        ink_recycling_archive.filter = filtering
                 archives.append((f'{ink_exp_id}_ink_recycling', ink_recycling_archive))
 
         else:
