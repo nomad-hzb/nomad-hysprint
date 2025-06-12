@@ -65,6 +65,7 @@ from nomad_hysprint.schema_packages.hysprint_package import (
     ProcessParameter,
 )
 from nomad_hysprint.schema_packages.ink_recycling_package import (
+    InkRecycling_FunctionalLiquid,
     InkRecycling_Ink,
     InkRecycling_RecyclingExperiment,
 )
@@ -149,6 +150,15 @@ def map_ink(data):
     return archive
 
 
+def map_mixing(data):
+    archive = InkRecycling_FunctionalLiquid(
+        name=get_value(data, 'Functional liquid name', None, False),
+        volume=get_value(data, 'Functional liquid volume [ml]', None, unit='mL'),
+        dissolving_temperature=get_value(data, 'Dissolving temperature [°C]', None, unit='°C'),
+    )
+    return archive
+
+
 class HySprintExperimentParser(MatchingParser):
     def is_mainfile(
         self,
@@ -225,6 +235,10 @@ class HySprintExperimentParser(MatchingParser):
                     if 'Ink Preparation' in col:
                         ink_preparation = map_ink(row[col])
                         ink_recycling_archive.ink = ink_preparation
+
+                    if 'Mixing' in col:
+                        mixing = map_mixing(row[col])
+                        ink_recycling_archive.FL = mixing
 
                 archives.append((f'{ink_exp_id}_ink_recycling', ink_recycling_archive))
 
