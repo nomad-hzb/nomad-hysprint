@@ -25,6 +25,7 @@ class SolarTabPackageEntryPoint(SchemaPackageEntryPoint):
 class InkRecyclingPackageEntryPoint(SchemaPackageEntryPoint):
     def load(self):
         from nomad_hysprint.schema_packages.ink_recycling_package import m_package
+
         return m_package
 
 
