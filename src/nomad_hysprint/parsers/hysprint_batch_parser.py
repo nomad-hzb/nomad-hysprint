@@ -113,144 +113,99 @@ class HySprintExperimentParser(MatchingParser):
         upload_id = archive.metadata.upload_id
         # xls = pd.ExcelFile(mainfile)
         df = pd.read_excel(mainfile, header=[0, 1])
-        df['Experiment Info']['Nomad ID'].dropna().to_list()
+
         sample_ids = df['Experiment Info']['Nomad ID'].dropna().to_list()
         batch_id = '_'.join(sample_ids[0].split('_')[:-1])
+        archives = [map_batch(sample_ids, batch_id, upload_id, HySprint_Batch)]
+        substrates = []
+        substrates_col = [
+            'Sample dimension',
+            'Sample area [cm^2]',
+            'Pixel area [cm^2]',
+            'Number of pixels',
+            'Notes',
+            'Substrate material',
+            'Substrate conductive layer',
+        ]
+        substrates_col = [s for s in substrates_col if s in df['Experiment Info'].columns]
+        for i, sub in df['Experiment Info'][substrates_col].drop_duplicates().iterrows():
+            if pd.isna(sub).all():
+                continue
+            substrates.append((f'{i}_substrate', sub, map_substrate(sub, HySprint_Substrate)))
 
-        batch = map_batch(sample_ids, batch_id, upload_id, HySprint_Batch)
-        archives = [batch]
+        def find_substrate(d):
+            for s in substrates:
+                if d.equals(s[1]):
+                    return s[0]
 
-        is_ink_recycling = False
-        columns = df.columns.get_level_values(0).unique()
-        if any('Ink Preparation' in col for col in columns):
-            is_ink_recycling = True
-        if not is_ink_recycling:
-            substrates = []
-            substrates_col = [
-                'Sample dimension',
-                'Sample area [cm^2]',
-                'Pixel area [cm^2]',
-                'Number of pixels',
-                'Notes',
-                'Substrate material',
-                'Substrate conductive layer',
-            ]
-            substrates_col = [s for s in substrates_col if s in df['Experiment Info'].columns]
-            for i, sub in df['Experiment Info'][substrates_col].drop_duplicates().iterrows():
-                if pd.isna(sub).all():
+        for i, row in df['Experiment Info'].iterrows():
+            if pd.isna(row).all():
+                continue
+            substrate_name = find_substrate(row[substrates_col]) + '.archive.json'
+            archives.append(map_basic_sample(row, substrate_name, upload_id, HySprint_Sample))
+
+        for i, col in enumerate(df.columns.get_level_values(0).unique()):
+            if col == 'Experiment Info':
+                continue
+
+            df_dropped = df[col].drop_duplicates()
+            for j, row in df_dropped.iterrows():
+                if row.dropna().empty:
                     continue
-                substrates.append((f'{i}_substrate', sub, map_substrate(sub, HySprint_Substrate)))
+                lab_ids = [
+                    x['Experiment Info']['Nomad ID']
+                    for _, x in df[['Experiment Info', col]].iterrows()
+                    if x[col].astype('object').equals(row.astype('object'))
+                ]
+                if 'Cleaning' in col:
+                    archives.append(map_cleaning(i, j, lab_ids, row, upload_id, HySprint_Cleaning))
 
-            def find_substrate(d):
-                for s in substrates:
-                    if d.equals(s[1]):
-                        return s[0]
+                if 'Laser Scribing' in col:
+                    archives.append(map_laser_scribing(i, j, lab_ids, row, upload_id, HySprint_LaserScribing))
 
-            for i, row in df['Experiment Info'].iterrows():
-                if pd.isna(row).all():
-                    print(f'Skipping empty experiment info row {i}')
-                    continue
-                substrate_name = find_substrate(row[substrates_col]) + '.archive.json'
-                archives.append(map_basic_sample(row, substrate_name, upload_id, HySprint_Sample))
+                if 'Ink Recycling' in col:
+                    archives.append(map_ink_recycling(row, lab_ids, InkRecycling_RecyclingExperiment))
 
-        if is_ink_recycling:
-            # For ink workflow, process the entire dataframe row by row
-            for i, row in df.iterrows():
-                ink_recycling_archive = InkRecycling_RecyclingExperiment()
+                if 'Generic Process' in col:  # move up
+                    generic_process = map_generic(i, j, lab_ids, row, upload_id, HySprint_Process)
+                    map_generic_parameters(generic_process[1], row)
+                    archives.append(generic_process)
 
-                # Process each column for this row
-                for j, col in enumerate(df.columns.get_level_values(0).unique()):
-                    if col == 'Experiment Info':
-                        ink_exp_id = row[col]['Nomad ID']
-
-                    if 'Ink Preparation' in col:
-                        ink_preparation = map_ink(row[col])
-                        ink_recycling_archive.ink = ink_preparation
-
-                    if 'Mixing' in col:
-                        mixing = map_mixing(row[col])
-                        ink_recycling_archive.FL = mixing
-
-                    if 'Filtering' in col:
-                        filtering = map_filtering(row[col])
-                        ink_recycling_archive.filter = filtering
-
-                    if 'Results' in col:
-                        recycling_results = map_results(row[col])
-                        ink_recycling_archive.recycling_results = recycling_results
-
-                archives.append((f'{ink_exp_id}_ink_recycling', ink_recycling_archive))
-
-        else:
-            # Original workflow for non-ink cases, process column by column
-            for i, col in enumerate(df.columns.get_level_values(0).unique()):
-                if col == 'Experiment Info':
+                if pd.isna(row.get('Material name')):
                     continue
 
-                df_dropped = df[col].drop_duplicates()
-                for j, row in df_dropped.iterrows():
-                    if row.dropna().empty:
-                        continue
-                    lab_ids = [
-                        x['Experiment Info']['Nomad ID']
-                        for _, x in df[['Experiment Info', col]].iterrows()
-                        if x[col].astype('object').equals(row.astype('object'))
-                    ]
-                    if 'Cleaning' in col:
-                        archives.append(map_cleaning(i, j, lab_ids, row, upload_id, HySprint_Cleaning))
+                if 'Evaporation' in col:
+                    coevap = False
+                    if 'Co-Evaporation' in col:
+                        coevap = True
+                    archives.append(
+                        map_evaporation(i, j, lab_ids, row, upload_id, HySprint_Evaporation, coevap)
+                    )
 
-                    if 'Laser Scribing' in col:
-                        archives.append(
-                            map_laser_scribing(i, j, lab_ids, row, upload_id, HySprint_LaserScribing)
-                        )
+                if 'Spin Coating' in col:
+                    archives.append(map_spin_coating(i, j, lab_ids, row, upload_id, HySprint_SpinCoating))
 
-                    if 'Generic Process' in col:  # move up
-                        generic_process = map_generic(i, j, lab_ids, row, upload_id, HySprint_Process)
-                        map_generic_parameters(generic_process[1], row)
-                        archives.append(generic_process)
+                if 'Slot Die Coating' in col:
+                    archives.append(map_sdc(i, j, lab_ids, row, upload_id, HySprint_SlotDieCoating))
 
-                    if 'Ink Recycling' in col:
-                        archives.append(map_ink_recycling(row, lab_ids, InkRecycling_RecyclingExperiment))
+                if 'Sputtering' in col:
+                    archives.append(map_sputtering(i, j, lab_ids, row, upload_id, HySprint_Sputtering))
 
-                    if pd.isna(row.get('Material name')):
-                        continue
+                if 'Inkjet Printing' in col:
+                    archives.append(
+                        map_inkjet_printing(i, j, lab_ids, row, upload_id, HySprint_Inkjet_Printing)
+                    )
 
-                    if 'Evaporation' in col:
-                        coevap = False
-                        if 'Co-Evaporation' in col:
-                            coevap = True
-                        archives.append(
-                            map_evaporation(i, j, lab_ids, row, upload_id, HySprint_Evaporation, coevap)
-                        )
-
-                    if 'Spin Coating' in col:
-                        archives.append(map_spin_coating(i, j, lab_ids, row, upload_id, HySprint_SpinCoating))
-
-                    if 'Slot Die Coating' in col:
-                        archives.append(map_sdc(i, j, lab_ids, row, upload_id, HySprint_SlotDieCoating))
-
-                    if 'Sputtering' in col:
-                        archives.append(map_sputtering(i, j, lab_ids, row, upload_id, HySprint_Sputtering))
-
-                    if 'Inkjet Printing' in col:
-                        archives.append(
-                            map_inkjet_printing(i, j, lab_ids, row, upload_id, HySprint_Inkjet_Printing)
-                        )
-
-                    if 'ALD' in col:
-                        archives.append(
-                            map_atomic_layer_deposition(
-                                i, j, lab_ids, row, upload_id, IRIS_AtomicLayerDeposition
-                            )
-                        )
+                if 'ALD' in col:
+                    archives.append(
+                        map_atomic_layer_deposition(i, j, lab_ids, row, upload_id, IRIS_AtomicLayerDeposition)
+                    )
 
         refs = []
-
-        if not is_ink_recycling:
-            for subs in substrates:
-                file_name = f'{subs[0]}.archive.json'
-                create_archive(subs[2], archive, file_name)
-                refs.append(get_reference(upload_id, file_name))
+        for subs in substrates:
+            file_name = f'{subs[0]}.archive.json'
+            create_archive(subs[2], archive, file_name)
+            refs.append(get_reference(upload_id, file_name))
 
         for a in archives:
             file_name = f'{a[0]}.archive.json'
