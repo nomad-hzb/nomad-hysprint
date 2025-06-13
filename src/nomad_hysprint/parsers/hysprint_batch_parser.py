@@ -141,7 +141,7 @@ class HySprintExperimentParser(MatchingParser):
         for i, row in df['Experiment Info'].iterrows():
             if pd.isna(row).all():
                 continue
-            substrate_name = find_substrate(row[substrates_col]) + '.archive.json'
+            substrate_name = find_substrate(row[substrates_col]) + '.archive.json' if substrates_col else None
             archives.append(map_basic_sample(row, substrate_name, upload_id, HySprint_Sample))
 
         for i, col in enumerate(df.columns.get_level_values(0).unique()):
@@ -164,7 +164,9 @@ class HySprintExperimentParser(MatchingParser):
                     archives.append(map_laser_scribing(i, j, lab_ids, row, upload_id, HySprint_LaserScribing))
 
                 if 'Ink Recycling' in col:
-                    archives.append(map_ink_recycling(row, lab_ids, InkRecycling_RecyclingExperiment))
+                    archives.append(
+                        map_ink_recycling(i, j, lab_ids, row, upload_id, InkRecycling_RecyclingExperiment)
+                    )
 
                 if 'Generic Process' in col:  # move up
                     generic_process = map_generic(i, j, lab_ids, row, upload_id, HySprint_Process)

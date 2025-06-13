@@ -61,7 +61,6 @@ def add_experiment_sheet(workbook, process_sequence, is_testing=False):
                     make_label('Sample', '1'),
                     make_label('Nomad ID', ''),
                     make_label('Variation', 'Some variation'),
-                    make_label('Notes', 'Test excel'),
                 ]
             
             # Original experiment info fields for other cases
@@ -388,45 +387,47 @@ def add_experiment_sheet(workbook, process_sequence, is_testing=False):
             # Ink Preparation steps
             for i in range(1, config.get('solvents', 0) + 1):
                 steps.extend([
-                    make_label(f'Solvent {i} name', 'DMF'),
-                    make_label(f'Solvent {i} volume [ml]', ''),
+                    make_label(f'Solvent {i} name', f'DMF {i}'),
+                    make_label(f'Solvent {i} volume [ml]', 10 * i),
                 ])
             for i in range(1, config.get('solutes', 0) + 1):
                 steps.extend([
-                    make_label(f'Solute {i} name', ''),
-                    make_label(f'Solute {i} concentration [M]', ''),
-                    make_label(f'Solute {i} amount [g]', ''),
-                    make_label(f'Solute {i} moles [mol]', ''),
+                    make_label(f'Solute {i} name', f'PbI2 {i}'),
+                    make_label(f'Solute {i} concentration [M]', 1.5 * i),
+                    make_label(f'Solute {i} amount [g]', 5.0 * i),
+                    make_label(f'Solute {i} moles [mol]', 0.02 * i),
                 ])
             for i in range(1, config.get('precursors', 0) + 1):
                 steps.extend([
-                    make_label(f'Precursor {i} name', ''),
-                    make_label(f'Precursor {i} moles [mol]', ''),
+                    make_label(f'Precursor {i} name', f'MAI {i}'),
+                    make_label(f'Precursor {i} moles [mol]', 0.01 * i),
                 ])
             
             # Mixing steps
             steps.extend([
-                make_label('Functional liquid name', ''),
-                make_label('Functional liquid volume [ml]', ''),
-                make_label('Dissolving temperature [°C]', ''),
+            make_label('Functional liquid name', 'FL'),
+            make_label('Functional liquid volume [ml]', 25),
+            make_label('Dissolving temperature [°C]', 60),
             ])
 
             # Filtering steps
             steps.extend([
-                make_label('Filter material', ''),
-                make_label('Filter size [mm]', ''),
+            make_label('Filter material', 'Paper'),
+            make_label('Filter size [mm]', 0.45),
+            make_label('Filter weight [g]', 0.5),
             ])
 
             # Results steps
             steps.extend([
-                make_label('Recovered solute [g]', ''),
-                make_label('Yield [%]', ''),
+            make_label('Recovered solute [g]', 4.2),
+            make_label('Yield [%]', 84),
+            make_label('Notes', 'Test recycling process'),
             ])
             return steps
 
         else:
             print(
-                f"Warning: Process '{process_name}' not defined in generate_steps_for_process. Using default steps."
+            f"Warning: Process '{process_name}' not defined in generate_steps_for_process. Using default steps."
             )
             return [make_label('Undefined Process', 'Test value')]
 

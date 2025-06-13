@@ -1,6 +1,7 @@
 from baseclasses import PubChemPureSubstanceSectionCustom
-from baseclasses.helper.solar_cell_batch_mapping import get_value
+from baseclasses.helper.solar_cell_batch_mapping import get_reference, get_value
 from baseclasses.solution import SolutionChemical
+from nomad.datamodel.metainfo.basesections import CompositeSystemReference
 
 from nomad_hysprint.schema_packages.ink_recycling_package import (
     InkRecycling_Filter,
@@ -10,7 +11,7 @@ from nomad_hysprint.schema_packages.ink_recycling_package import (
 )
 
 
-def map_ink_recycling(data, lab_ids, ink_recycling_class):
+def map_ink_recycling(i, j, lab_ids, data, upload_id, ink_recycling_class):
     if len(lab_ids) != 1:
         raise ValueError('Multiple lab_ids found, expected only one for Ink Recycling.')
     lab_id = lab_ids[0]
@@ -80,14 +81,20 @@ def map_ink_recycling(data, lab_ids, ink_recycling_class):
     )
 
     ink_recycling_archive.filter = InkRecycling_Filter(
-        filter_type=get_value(
-            data, 'Filter material', None, False
-        ),  # 'type' is a reserved keyword, ensure schema uses a different name e.g. 'filter_type'
+        filter_type=get_value(data, 'Filter material', None, False),
         size=get_value(data, 'Filter size [mm]', None, unit='mm'),
+        weight=get_value(data, 'Filter weight [g]', None, unit='g'),
     )
 
-    ink_recycling_archive.results = InkRecycling_Results(
+    ink_recycling_archive.recycling_results = InkRecycling_Results(
         recovered_solute=get_value(data, 'Recovered solute [g]', None, unit='g'),
         yield_=get_value(data, 'Yield [%]', None, True),
     )
+
+    ink_recycling_archive.samples = [
+        CompositeSystemReference(
+            reference=get_reference(upload_id, f'{lab_id}.archive.json'),
+            lab_id=lab_id,
+        )
+    ]
     return (f'{lab_id}_ink_recycling', ink_recycling_archive)
