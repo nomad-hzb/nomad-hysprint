@@ -48,18 +48,20 @@ def add_experiment_sheet(workbook, process_sequence, is_testing=False):
         """
 
         if process_name == 'Experiment Info':
-            # Check if Ink Preparation exists in the sequence
-            has_ink_prep = any(p.get('process') == 'Ink Preparation' for p in process_sequence)
-            
-            if has_ink_prep:
+            # Check if Ink Recycling exists in the sequence
+            has_ink_recycling = any(p.get('process') == 'Ink Recycling' for p in process_sequence)
+
+            if has_ink_recycling:
                 # Simplified fields for ink recycling
                 return [
                     make_label('Date', '27-05-2025'),
-                    make_label('Project_Name', ''),
+                    make_label('Project_Name', 'FiNa'),
                     make_label('Batch', '1'),
+                    make_label('Subbatch', '1'),
                     make_label('Sample', '1'),
-                    make_label('Notes', 'Test excel'),
                     make_label('Nomad ID', ''),
+                    make_label('Variation', 'Some variation'),
+                    make_label('Notes', 'Test excel'),
                 ]
             
             # Original experiment info fields for other cases
@@ -381,17 +383,14 @@ def add_experiment_sheet(workbook, process_sequence, is_testing=False):
             ]
             return steps
 
-        if process_name == 'Ink Preparation':
+        if process_name == 'Ink Recycling':
             steps = []
-            
-            # Add solvent steps
+            # Ink Preparation steps
             for i in range(1, config.get('solvents', 0) + 1):
                 steps.extend([
                     make_label(f'Solvent {i} name', 'DMF'),
                     make_label(f'Solvent {i} volume [ml]', ''),
                 ])
-
-            # Add solute steps
             for i in range(1, config.get('solutes', 0) + 1):
                 steps.extend([
                     make_label(f'Solute {i} name', ''),
@@ -399,36 +398,30 @@ def add_experiment_sheet(workbook, process_sequence, is_testing=False):
                     make_label(f'Solute {i} amount [g]', ''),
                     make_label(f'Solute {i} moles [mol]', ''),
                 ])
-
-            # Add precursor steps
             for i in range(1, config.get('precursors', 0) + 1):
                 steps.extend([
                     make_label(f'Precursor {i} name', ''),
                     make_label(f'Precursor {i} moles [mol]', ''),
                 ])
-
-            return steps
-
-        if process_name == 'Filtering':
-            steps = [
-                make_label('Filter material', ''),
-                make_label('Filter size [mm]', ''),
-            ]
-            return steps
-
-        if process_name == 'Mixing':
-            steps = [
+            
+            # Mixing steps
+            steps.extend([
                 make_label('Functional liquid name', ''),
                 make_label('Functional liquid volume [ml]', ''),
                 make_label('Dissolving temperature [°C]', ''),
-            ]
-            return steps
+            ])
 
-        if process_name == 'Results':
-            steps = [
+            # Filtering steps
+            steps.extend([
+                make_label('Filter material', ''),
+                make_label('Filter size [mm]', ''),
+            ])
+
+            # Results steps
+            steps.extend([
                 make_label('Recovered solute [g]', ''),
                 make_label('Yield [%]', ''),
-            ]
+            ])
             return steps
 
         else:

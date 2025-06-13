@@ -405,16 +405,14 @@ process_sequence = [
 #     {"process": "Evaporation"}   # Silver
 # ]
 
+# Ink recycling process
 process_sequence = [
     {"process": "Experiment Info"},
-    {"process": "Ink Preparation", "config": {
+    {"process": "Ink Recycling", "config": {
         "solvents": 2,
         "solutes": 1,
         "precursors": 2
-    }},
-    {"process": "Mixing"},
-    {"process": "Filtering"},
-    {"process": "Results"}
+    }}
 ]
 builder = ExperimentExcelBuilder(process_sequence, is_testing=True)
 builder.build_excel()
