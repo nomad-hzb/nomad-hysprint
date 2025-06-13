@@ -15,7 +15,7 @@ class InkRecycling_Filter(ArchiveSection):
             properties=dict(order=['type', 'size', 'weight']),
         )
     )
-    type = Quantity(type=str, a_eln=dict(component='StringEditQuantity'))
+    filter_type = Quantity(type=str, a_eln=dict(component='StringEditQuantity'))
     size = Quantity(
         type=np.dtype(np.float64),
         unit=('mm'),
