@@ -108,17 +108,8 @@ from nomad_luqy_plugin.schema_packages.schema_package import (
     ELNAnnotation,
     NOMADMeasurementsCategory,
 )
-
 from pynxtools.dataconverter.convert import convert
-from nomad_luqy_plugin.schema_packages.schema_package import AbsPLMeasurement
-from nomad_luqy_plugin.schema_packages.schema_package import (
-    AbsPLMeasurement,
-    AbsPLResult,
-    AbsPLSettings,
-    ELNAnnotation,
-    NOMADMeasurementsCategory,
-    parse_abspl_data,
-)
+
 m_package = SchemaPackage()
 # %% ####################### Entities
 
