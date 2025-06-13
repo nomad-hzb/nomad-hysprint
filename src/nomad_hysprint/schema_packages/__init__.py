@@ -22,6 +22,13 @@ class SolarTabPackageEntryPoint(SchemaPackageEntryPoint):
         return m_package
 
 
+class InkRecyclingPackageEntryPoint(SchemaPackageEntryPoint):
+    def load(self):
+        from nomad_hysprint.schema_packages.ink_recycling_package import m_package
+
+        return m_package
+
+
 hysprint_package = HySprintPackageEntryPoint(
     name='HySprint',
     description='Package for HZB HySprint Lab',
@@ -35,4 +42,9 @@ solai_package = SOLAIPackageEntryPoint(
 solartab_package = SolarTabPackageEntryPoint(
     name='SolarTab',
     description='Package for SolarTab specific schema',
+)
+
+ink_recycling_package = InkRecyclingPackageEntryPoint(
+    name='InkRecycling',
+    description='Package for ink recycling specific schema',
 )

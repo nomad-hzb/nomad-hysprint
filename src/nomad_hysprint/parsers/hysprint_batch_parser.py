@@ -41,17 +41,12 @@ from baseclasses.helper.solar_cell_batch_mapping import (
 )
 from baseclasses.helper.utilities import create_archive
 from nomad.datamodel import EntryArchive
-from nomad.datamodel.data import (
-    EntryData,
-)
-from nomad.datamodel.metainfo.basesections import (
-    Entity,
-)
-from nomad.metainfo import (
-    Quantity,
-)
+from nomad.datamodel.data import EntryData
+from nomad.datamodel.metainfo.basesections import Entity
+from nomad.metainfo import Quantity
 from nomad.parsing import MatchingParser
 
+from nomad_hysprint.parsers.file_parser.ink_recycling_mappers import map_ink_recycling
 from nomad_hysprint.schema_packages.hysprint_package import (
     HySprint_Batch,
     HySprint_Cleaning,
@@ -66,6 +61,9 @@ from nomad_hysprint.schema_packages.hysprint_package import (
     HySprint_Substrate,
     IRIS_AtomicLayerDeposition,
     ProcessParameter,
+)
+from nomad_hysprint.schema_packages.ink_recycling_package import (
+    InkRecycling_RecyclingExperiment,  # Added back this import
 )
 
 """
@@ -143,7 +141,7 @@ class HySprintExperimentParser(MatchingParser):
         for i, row in df['Experiment Info'].iterrows():
             if pd.isna(row).all():
                 continue
-            substrate_name = find_substrate(row[substrates_col]) + '.archive.json'
+            substrate_name = find_substrate(row[substrates_col]) + '.archive.json' if substrates_col else None
             archives.append(map_basic_sample(row, substrate_name, upload_id, HySprint_Sample))
 
         for i, col in enumerate(df.columns.get_level_values(0).unique()):
@@ -164,6 +162,11 @@ class HySprintExperimentParser(MatchingParser):
 
                 if 'Laser Scribing' in col:
                     archives.append(map_laser_scribing(i, j, lab_ids, row, upload_id, HySprint_LaserScribing))
+
+                if 'Ink Recycling' in col:
+                    archives.append(
+                        map_ink_recycling(i, j, lab_ids, row, upload_id, InkRecycling_RecyclingExperiment)
+                    )
 
                 if 'Generic Process' in col:  # move up
                     generic_process = map_generic(i, j, lab_ids, row, upload_id, HySprint_Process)
