@@ -211,7 +211,7 @@ class HySprintExperimentParser(MatchingParser):
 
         is_ink_recycling = False
         columns = df.columns.get_level_values(0).unique()
-        if any('Ink' in col for col in columns):
+        if any('Ink Preparation' in col for col in columns):
             is_ink_recycling = True
         if not is_ink_recycling:
             substrates = []
