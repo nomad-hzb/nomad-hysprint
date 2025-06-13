@@ -6,11 +6,17 @@ from nomad_hysprint.schema_packages.ink_recycling_package import (
     InkRecycling_Filter,
     InkRecycling_FunctionalLiquid,
     InkRecycling_Ink,
-    InkRecycling_Results,  # Corrected from InkRecycling_RecyclingResults if that was a typo
+    InkRecycling_Results,
 )
 
 
-def map_ink(data):
+def map_ink_recycling(data, lab_ids, ink_recycling_class):
+    if len(lab_ids) != 1:
+        raise ValueError('Multiple lab_ids found, expected only one for Ink Recycling.')
+    lab_id = lab_ids[0]
+
+    ink_recycling_archive = ink_recycling_class()
+
     solvents = []
     solutes = []
     precursors = []
@@ -64,32 +70,24 @@ def map_ink(data):
             )
         )
 
-    archive = InkRecycling_Ink(solvent=final_solvents, solute=final_solutes, precursor=final_precursors)
-    return archive
+    ink = InkRecycling_Ink(solvent=final_solvents, solute=final_solutes, precursor=final_precursors)
+    ink_recycling_archive.ink = ink
 
-
-def map_mixing(data):
-    archive = InkRecycling_FunctionalLiquid(
+    ink_recycling_archive.FL = InkRecycling_FunctionalLiquid(
         name=get_value(data, 'Functional liquid name', None, False),
         volume=get_value(data, 'Functional liquid volume [ml]', None, unit='mL'),
         dissolving_temperature=get_value(data, 'Dissolving temperature [°C]', None, unit='°C'),
     )
-    return archive
 
-
-def map_filtering(data):
-    archive = InkRecycling_Filter(
-        type=get_value(
+    ink_recycling_archive.filter = InkRecycling_Filter(
+        filter_type=get_value(
             data, 'Filter material', None, False
         ),  # 'type' is a reserved keyword, ensure schema uses a different name e.g. 'filter_type'
         size=get_value(data, 'Filter size [mm]', None, unit='mm'),
     )
-    return archive
 
-
-def map_results(data):
-    archive = InkRecycling_Results(  # Corrected from InkRecycling_RecyclingResults if that was a typo
+    ink_recycling_archive.results = InkRecycling_Results(
         recovered_solute=get_value(data, 'Recovered solute [g]', None, unit='g'),
         yield_=get_value(data, 'Yield [%]', None, True),
     )
-    return archive
+    return (f'{lab_id}_ink_recycling', ink_recycling_archive)

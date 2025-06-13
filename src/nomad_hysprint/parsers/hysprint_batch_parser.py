@@ -46,12 +46,7 @@ from nomad.datamodel.metainfo.basesections import Entity
 from nomad.metainfo import Quantity
 from nomad.parsing import MatchingParser
 
-from nomad_hysprint.parsers.file_parser.ink_recycling_mappers import (
-    map_filtering,
-    map_ink,
-    map_mixing,
-    map_results,
-)
+from nomad_hysprint.parsers.file_parser.ink_recycling_mappers import map_ink_recycling
 from nomad_hysprint.schema_packages.hysprint_package import (
     HySprint_Batch,
     HySprint_Cleaning,
@@ -213,6 +208,9 @@ class HySprintExperimentParser(MatchingParser):
                         generic_process = map_generic(i, j, lab_ids, row, upload_id, HySprint_Process)
                         map_generic_parameters(generic_process[1], row)
                         archives.append(generic_process)
+
+                    if 'Ink Recycling' in col:
+                        archives.append(map_ink_recycling(row, lab_ids, InkRecycling_RecyclingExperiment))
 
                     if pd.isna(row.get('Material name')):
                         continue
