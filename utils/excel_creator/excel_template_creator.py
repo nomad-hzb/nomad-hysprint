@@ -40,7 +40,7 @@ def main():
     parser.add_argument('sequence', choices=list(AVAILABLE_SEQUENCES.keys()),
                       help='Name of the sequence to use')
     parser.add_argument('--output', '-o', help='Output path for the Excel file')
-    parser.add_argument('--no-test', action='store_true',
+    parser.add_argument('--no-test', action='store_false', dest='test',
                       help='Exclude test values from the template')
     
     args = parser.parse_args()
