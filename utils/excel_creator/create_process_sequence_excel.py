@@ -78,52 +78,52 @@ from experiment_excel_builder import ExperimentExcelBuilder
 #     {"process": "Evaporation"},  # Cupper
 #     ]
 
-# Eike process
-process_sequence = [
-    {'process': 'Experiment Info'},
-    {'process': 'Cleaning UV-Ozone', 'config': {'solvents': 1}},
-    {
-        'process': 'Spin Coating',
-        'config': {
-            'solvents': 1,  # PEDOT-PSS or SAM
-            'solutes': 1,
-            'spinsteps': 2,
-            'antisolvent': False,
-        },
-    },
-    {
-        'process': 'Spin Coating',
-        'config': {
-            'solvents': 1,  # Washing
-            'solutes': 1,
-            'spinsteps': 2,
-            'antisolvent': False,
-        },
-    },
-    {
-        'process': 'Spin Coating',
-        'config': {
-            'solvents': 2,  # Perovskite
-            'solutes': 6,
-            'spinsteps': 2,
-            'antisolvent': False,
-        },
-    },
-    {
-        'process': 'Spin Coating',
-        'config': {
-            'solvents': 1,  # Interlayer
-            'solutes': 1,
-            'spinsteps': 1,
-            'antisolvent': False,
-        },
-    },
-    {'process': 'Evaporation'},  # C60
-    {'process': 'ALD'},  # SnO2
-    {'process': 'Sputtering'},  # TCO
-    {'process': 'Evaporation'},  # BCP
-    {'process': 'Evaporation'},  # Cupper
-]
+# # Eike process
+# process_sequence = [
+#     {'process': 'Experiment Info'},
+#     {'process': 'Cleaning UV-Ozone', 'config': {'solvents': 1}},
+#     {
+#         'process': 'Spin Coating',
+#         'config': {
+#             'solvents': 1,  # PEDOT-PSS or SAM
+#             'solutes': 1,
+#             'spinsteps': 2,
+#             'antisolvent': False,
+#         },
+#     },
+#     {
+#         'process': 'Spin Coating',
+#         'config': {
+#             'solvents': 1,  # Washing
+#             'solutes': 1,
+#             'spinsteps': 2,
+#             'antisolvent': False,
+#         },
+#     },
+#     {
+#         'process': 'Spin Coating',
+#         'config': {
+#             'solvents': 2,  # Perovskite
+#             'solutes': 6,
+#             'spinsteps': 2,
+#             'antisolvent': False,
+#         },
+#     },
+#     {
+#         'process': 'Spin Coating',
+#         'config': {
+#             'solvents': 1,  # Interlayer
+#             'solutes': 1,
+#             'spinsteps': 1,
+#             'antisolvent': False,
+#         },
+#     },
+#     {'process': 'Evaporation'},  # C60
+#     {'process': 'ALD'},  # SnO2
+#     {'process': 'Sputtering'},  # TCO
+#     {'process': 'Evaporation'},  # BCP
+#     {'process': 'Evaporation'},  # Cupper
+# ]
 
 # # Kevin Prince
 # process_sequence = [
@@ -251,6 +251,26 @@ process_sequence = [
 #     {"process": "Spin Coating", "config":  {"solvents": 1, "solutes": 1, "spinsteps":1 , "gasquenching": True}},   #Passivation Sol
 # ]
 
+# All inclusive test file. Sublimation, coevap and Annealing class are not added at the moment
+process_sequence = [
+    {"process": "Experiment Info"},
+    {'process': 'Laser Scribing'},
+    {'process': 'Cleaning O2-Plasma', 'config': {'solvents': 2}},
+    {'process': 'Cleaning UV-Ozone'},
+    {'process': 'Dip Coating'},
+    {'process': 'Spin Coating', 'config': {
+        'solvents': 2, 'solutes': 2, 'spinsteps': 2, 'antisolvent': True }},
+    {'process': 'Spin Coating', 'config': {
+        'solvents': 1, 'solutes': 1, 'spinsteps':1, 'vacuumquenching': True }},
+    {'process': 'Spin Coating', 'config': {
+        'solvents': 1, 'solutes': 1, 'spinsteps':1, 'gasquenching': True }},
+    {'process': 'Slot Die Coating'},    
+    {'process': 'Inkjet Printing', 'config' : {'annealing': True, 'gavd': True}},
+    {'process': 'Evaporation', 'config': {'carbon_paste': True}},
+    {'process': 'Sputtering'},
+    {'process': 'ALD'},
+    {'process': 'Generic Process'},
+]
 
 builder = ExperimentExcelBuilder(process_sequence, is_testing=True)
 builder.build_excel()
