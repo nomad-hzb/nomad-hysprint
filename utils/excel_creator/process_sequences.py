@@ -1,8 +1,5 @@
 """Process sequences for the excel creator.
 
-This module contains predefined process sequences for creating excel templates
-for different types of perovskite solar cell fabrication processes.
-
 Each sequence is defined as a dictionary with the following structure:
 {
     "name": "Name of the sequence",

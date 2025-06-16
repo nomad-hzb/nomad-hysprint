@@ -1,7 +1,4 @@
 """Excel creator for process sequences.
-
-This module provides functionality to create Excel templates for 
-different perovskite solar cell fabrication processes.
 """
 
 import argparse
