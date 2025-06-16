@@ -628,3 +628,8 @@ def test_hy_batch_parser_ink_recycling(monkeypatch):
                 assert m.data.FL.name == 'FL'
                 assert m.data.FL.volume == 25 * ureg('ml')
                 assert m.data.FL.dissolving_temperature == ureg.Quantity(60, ureg('°C'))
+
+                # filter
+                assert m.data.filter.size == 0.45 * ureg('mm')
+                assert m.data.filter.weight == 0.5 * ureg('g')
+                assert m.data.filter.filter_type == 'Paper'
