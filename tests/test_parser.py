@@ -1,5 +1,6 @@
 import os
 
+from prometheus_client import g
 import pytest
 from nomad.client import normalize_all, parse
 from nomad.units import ureg
@@ -633,3 +634,7 @@ def test_hy_batch_parser_ink_recycling(monkeypatch):
                 assert m.data.filter.size == 0.45 * ureg('mm')
                 assert m.data.filter.weight == 0.5 * ureg('g')
                 assert m.data.filter.filter_type == 'Paper'
+
+                # results
+                assert m.data.recycling_results.recovered_solute == 4.2 * ureg('g')
+                assert m.data.recycling_results.yield == 84
