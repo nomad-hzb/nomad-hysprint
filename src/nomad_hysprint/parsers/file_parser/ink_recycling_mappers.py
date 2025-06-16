@@ -39,7 +39,7 @@ def map_ink_recycling(i, j, lab_ids, data, upload_id, ink_recycling_class):
                     name=get_value(data, f'{solvent} name', None, False),
                     load_data=False,
                 ),
-                chemical_volume=get_value(data, f'{solvent} volume [mL]', None, unit='mL'),
+                chemical_volume=get_value(data, f'{solvent} volume [ml]', None, unit='mL'),
             )
         )
 
