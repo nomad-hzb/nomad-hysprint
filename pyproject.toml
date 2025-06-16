@@ -134,5 +134,6 @@ hysprint_parser = "nomad_hysprint.parsers:hysprint_parser"
 solartab_sim_parser = "nomad_hysprint.parsers:solartab_sim_parser"
 solartab_package = "nomad_hysprint.schema_packages:solartab_package"
 hysprint_experiment_parser = "nomad_hysprint.parsers:hysprint_experiment_parser"
+ink_recycling_package = "nomad_hysprint.schema_packages:ink_recycling_package"
 
 hysprint_voila_app = "nomad_hysprint.apps:hysprint_voila_app"
