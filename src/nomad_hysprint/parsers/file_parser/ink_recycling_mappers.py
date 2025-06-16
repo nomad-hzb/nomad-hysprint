@@ -12,10 +12,6 @@ from nomad_hysprint.schema_packages.ink_recycling_package import (
 
 
 def map_ink_recycling(i, j, lab_ids, data, upload_id, ink_recycling_class):
-    if len(lab_ids) != 1:
-        raise ValueError('Multiple lab_ids found, expected only one for Ink Recycling.')
-    lab_id = lab_ids[0]
-
     ink_recycling_archive = ink_recycling_class()
 
     solvents = []
@@ -96,8 +92,9 @@ def map_ink_recycling(i, j, lab_ids, data, upload_id, ink_recycling_class):
             reference=get_reference(upload_id, f'{lab_id}.archive.json'),
             lab_id=lab_id,
         )
+        for lab_id in lab_ids
     ]
 
     ink_recycling_archive.description = get_value(data, 'Notes', None, False)
 
-    return (f'{lab_id}_ink_recycling', ink_recycling_archive)
+    return (f'{i}_{j}_ink_recycling', ink_recycling_archive)
