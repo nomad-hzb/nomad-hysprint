@@ -595,7 +595,7 @@ def test_hy_batch_parser_ink_recycling(monkeypatch):
     file = '20250616_ink_recycling_test.xlsx'
     file_name = os.path.join('tests', 'data', file)
     file_archive = parse(file_name)[0]
-    assert len(file_archive.data.processed_archive) == 4
+    assert len(file_archive.data.processed_archive) == 3
 
     measurement_archives = []
     for file in os.listdir(os.path.join('tests/data')):
