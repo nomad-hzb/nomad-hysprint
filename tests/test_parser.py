@@ -587,3 +587,33 @@ def test_hy_batch_parser_new_cols(monkeypatch):  # noqa: PLR0915
 #             )
 #     assert count_samples_batches == 5
 #     delete_json()
+
+
+def test_hy_batch_parser_ink_recycling(monkeypatch):
+    """Test the ink recycling parser integration"""
+
+    file = '20250616_ink_recycling_test.xlsx'
+    file_name = os.path.join('tests', 'data', file)
+    file_archive = parse(file_name)[0]
+    assert len(file_archive.data.processed_archive) == 4
+
+    measurement_archives = []
+    for file in os.listdir(os.path.join('tests/data')):
+        if 'archive.json' not in file:
+            continue
+        measurement = os.path.join('tests', 'data', file)
+        measurement_archives.append(parse(measurement)[0])
+    measurement_archives.sort(key=lambda x: x.metadata.mainfile)
+    count_samples_batches = 0
+
+    for m in measurement_archives:
+        if 'Sample' in str(type(m.data)) or 'Batch' in str(type(m.data)):
+            count_samples_batches += 1
+            if 'Sample' in str(type(m.data)):
+                assert m.data.description == 'Some variation'
+            elif 'RecyclingExperiment' in str(type(m.data)):
+                assert m.data.description == 'Test recycling process'
+
+                assert m.data.ink.solute.chemical_mass == 5000 * ureg('mg')
+                assert m.data.ink.solute.concentration_mol == 1.5 * ureg('M').to('mmol / milliliter')
+                assert m.data.ink.solute.chemical_2.name == 'PbI2 1'

@@ -97,4 +97,7 @@ def map_ink_recycling(i, j, lab_ids, data, upload_id, ink_recycling_class):
             lab_id=lab_id,
         )
     ]
+
+    ink_recycling_archive.description = get_value(data, 'Notes', None, False)
+
     return (f'{lab_id}_ink_recycling', ink_recycling_archive)
