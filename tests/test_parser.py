@@ -611,29 +611,32 @@ def test_hy_batch_parser_ink_recycling(monkeypatch):
             count_samples_batches += 1
             if 'Sample' in str(type(m.data)):
                 assert m.data.description == 'Some variation'
-            elif 'RecyclingExperiment' in str(type(m.data)):
-                assert m.data.description == 'Test recycling process'
+        elif 'RecyclingExperiment' in str(type(m.data)) and m.data.description == 'Test recycling process':
+            count_samples_batches += 1
+            assert m.data.description == 'Test recycling process'
 
-                # ink
-                assert m.data.ink.solute.chemical_mass == 5000 * ureg('mg')
-                assert m.data.ink.solute.concentration_mol == 1.5 * ureg('M').to('mmol / milliliter')
-                assert m.data.ink.solute.chemical_2.name == 'PbI2 1'
+            # ink
+            assert m.data.ink.solute[0].chemical_mass == 5000 * ureg('mg')
+            assert m.data.ink.solute[0].concentration_mol == 1.5 * ureg('M').to('mol / milliliter')
+            assert m.data.ink.solute[0].chemical_2.name == 'PbI2 1'
 
-                assert m.data.ink.precursor[0].chemical_2.name == 'MAI 1'
+            assert m.data.ink.precursor[0].chemical_2.name == 'MAI 1'
 
-                assert m.data.ink.solvent[0].chemical_2.name == 'DMF 1'
-                assert m.data.ink.solvent[0].chemical_volume == 10 * ureg('ml')
+            assert m.data.ink.solvent[0].chemical_2.name == 'DMF 1'
+            assert m.data.ink.solvent[0].chemical_volume == 10 * ureg('ml')
 
-                # FL
-                assert m.data.FL.name == 'FL'
-                assert m.data.FL.volume == 25 * ureg('ml')
-                assert m.data.FL.dissolving_temperature == ureg.Quantity(60, ureg('°C'))
+            # FL
+            assert m.data.FL.name == 'FL'
+            assert m.data.FL.volume == 25 * ureg('ml')
+            assert m.data.FL.dissolving_temperature == ureg.Quantity(60, ureg('°C'))
 
-                # filter
-                assert m.data.filter.size == 0.45 * ureg('mm')
-                assert m.data.filter.weight == 0.5 * ureg('g')
-                assert m.data.filter.filter_type == 'Paper'
+            # filter
+            assert m.data.filter.size == 0.45 * ureg('mm')
+            assert m.data.filter.weight == 0.5 * ureg('g')
+            assert m.data.filter.filter_type == 'Paper'
 
-                # results
-                assert m.data.recycling_results.recovered_solute == 4.2 * ureg('g')
-                assert m.data.recycling_results.yield_ == 84
+            # results
+            assert m.data.recycling_results.recovered_solute == 4.2 * ureg('g')
+            assert m.data.recycling_results.yield_ == 84
+    assert count_samples_batches == 5
+    delete_json()
