@@ -81,7 +81,7 @@ def test_create_excel_default_output(tmp_path, sequence_name, monkeypatch):
 def test_create_excel_file_location(tmp_path, sequence_name, monkeypatch):
     """Test that Excel files are created in the correct location."""
     # Test with explicit path
-    explicit_path = tmp_path / "subfolder" / "test.xlsx"
+    explicit_path = tmp_path / 'subfolder' / 'test.xlsx'
     os.makedirs(explicit_path.parent, exist_ok=True)
     create_excel(sequence_name, str(explicit_path))
     assert explicit_path.exists()
@@ -89,7 +89,7 @@ def test_create_excel_file_location(tmp_path, sequence_name, monkeypatch):
     # Test with default path (should create in current directory)
     monkeypatch.chdir(tmp_path)
     create_excel(sequence_name)
-    excel_files = list(tmp_path.glob("*.xlsx"))
+    excel_files = list(tmp_path.glob('*.xlsx'))
     assert len(excel_files) == 1
     # Check if filename follows expected pattern (contains date)
     assert any(f.name.startswith('20') for f in excel_files)
