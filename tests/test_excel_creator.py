@@ -5,8 +5,9 @@ import os.path
 import pytest
 
 from utils import set_monkey_patch
-from utils.excel_creator.excel_template_creator import create_excel
-from utils.excel_creator.process_sequences import AVAILABLE_SEQUENCES
+
+from ..utils.excel_creator.excel_template_creator import create_excel
+from ..utils.excel_creator.process_sequences import AVAILABLE_SEQUENCES
 
 
 @pytest.fixture
