@@ -255,6 +255,189 @@ SOP_SEQUENCE = {
     ]
 }
 
+# Ink recycling process
+INK_RECYCLING_SEQUENCE = {
+    "name": "Ink Recycling Process",
+    "description": "Process for recycling ink.",
+    "author": "Recycling Team",
+    "sequence": [
+        {"process": "Experiment Info"},
+        {"process": "Ink Recycling", "config": {
+            "solvents": 2,
+            "solutes": 1,
+            "precursors": 2
+        }}
+    ]
+}
+
+# wide bandgap slot die single juction Yiran 2025-05-19
+YIRAN_SLOT_DIE_SEQUENCE = {
+    "name": "Yiran Wide Bandgap Slot Die Single Junction",
+    "description": "Process for wide bandgap slot die single junction solar cells.",
+    "author": "Yiran",
+    "sequence": [
+        {"process": "Experiment Info"},
+        {"process": "Cleaning UV-Ozone", "config": {"solvents": 2}},
+        {
+            "process": "Spin Coating",
+            "config": {
+                "solvents": 2,  # NiOx
+                "solutes": 2,
+                "spinsteps": 1,
+                "antisolvent": False
+            }
+        },
+        {
+            "process": "Spin Coating",
+            "config": {
+                "solvents": 2,  # SAM
+                "solutes": 2,
+                "spinsteps": 2,
+                "antisolvent": False
+            }
+        },
+        {
+            "process": "Slot Die Coating",
+            "config": {
+                "solvents": 3,  # Perovskite
+                "solutes": 8,
+            }
+        },
+        {
+            "process": "Spin Coating",
+            "config": {
+                "solvents": 2,  # Passivation
+                "solutes": 2,
+                "spinsteps": 2,
+                "antisolvent": False
+            }
+        },
+        {"process": "Evaporation"},  # LiF
+        {"process": "Evaporation"},  # C60
+        {"process": "Evaporation"},  # BCP
+        {"process": "Evaporation"}   # Silver
+    ]
+}
+
+# wide bandgap slot die tandem Yiran 2025-05-19
+# Process sequence for 2025-05-19 multi-layer stack
+YIRAN_TANDEM_SEQUENCE = {
+    "name": "Yiran Wide Bandgap Slot Die Tandem",
+    "description": "Process for wide bandgap slot die tandem solar cells (2025-05-19 multi-layer stack).",
+    "author": "Yiran",
+    "sequence": [
+        {"process": "Experiment Info"},
+        {"process": "Cleaning UV-Ozone", "config": {"solvents": 2}},
+        {
+            "process": "Spin Coating",
+            "config": {
+                "solvents": 2,  # NiOx
+                "solutes": 2,
+                "spinsteps": 2,
+                "antisolvent": False
+            }
+        },
+        {
+            "process": "Spin Coating",
+            "config": {
+                "solvents": 2,  # SAM
+                "solutes": 2,
+                "spinsteps": 2,
+                "antisolvent": False
+            }
+        },
+        {
+            "process": "Slot Die Coating",
+            "config": {
+                "solvents": 3,  # Perovskite
+                "solutes": 8,
+            }
+        },
+        {"process": "Evaporation"},  # LiF
+        {
+            "process": "Spin Coating",
+            "config": {
+                "solvents": 2,  # Passivation
+                "solutes": 2,
+                "spinsteps": 2,
+                "antisolvent": False
+            }
+        },
+        {"process": "Evaporation"},  # C60
+        {"process": "ALD"},          # SnO2
+        {"process": "Sputtering"},   # IZO
+        {"process": "Evaporation"}   # Silver
+    ]
+}
+
+# Aleja's process
+ALEJA_SEQUENCE = {
+    "name": "Aleja's Process",
+    "description": "Aleja's process with multiple slot die coating and spin coating steps.",
+    "author": "Aleja",
+    "sequence": [
+        {"process": "Experiment Info"},
+        {"process": "Cleaning UV-Ozone", "config": {"solvents": 4}},
+        {
+            "process": "Spin Coating",
+            "config": {
+                "solvents": 1,  # NiOx
+                "solutes": 1,
+                "spinsteps": 1,
+                "antisolvent": False
+            }
+        },
+        {
+            "process": "Slot Die Coating",
+            "config": {
+                "solvents": 1,  # NiOx
+                "solutes": 1,
+                "spinsteps": 1,
+                "antisolvent": False
+            }
+        },
+        {
+            "process": "Slot Die Coating",
+            "config": {
+                "solvents": 1,  # Alumina
+                "solutes": 1,
+                "spinsteps": 1,
+                "antisolvent": False
+            }
+        },
+        {
+            "process": "Spin Coating",
+            "config": {
+                "solvents": 1,  # SAM
+                "solutes": 1,
+                "spinsteps": 1,
+                "antisolvent": False
+            }
+        },
+        {
+            "process": "Slot Die Coating",
+            "config": {
+                "solvents": 1,  # SAM
+                "solutes": 1,
+                "spinsteps": 1,
+                "antisolvent": False
+            }
+        },
+        {
+            "process": "Slot Die Coating",
+            "config": {
+                "solvents": 4,  # Perovskite
+                "solutes": 4,
+                "spinsteps": 1,
+                "antisolvent": False
+            }
+        },
+        {"process": "Evaporation"},  # C60
+        {"process": "Evaporation"},  # BCP
+        {"process": "Evaporation"},  # Metal contact
+    ]
+}
+
 # Dictionary of all available sequences
 AVAILABLE_SEQUENCES = {
     "test": TEST_SEQUENCE,
@@ -268,5 +451,9 @@ AVAILABLE_SEQUENCES = {
     "gasquenched": SPINBOT_GASQUENCHED_SEQUENCE,
     "philippe": PHILIPPE_SEQUENCE,
     "hybrid": HYBRID_SEQUENCE,
-    "sop": SOP_SEQUENCE
+    "sop": SOP_SEQUENCE,
+    "ink_recycling": INK_RECYCLING_SEQUENCE,
+    "yiran_slot_die": YIRAN_SLOT_DIE_SEQUENCE,
+    "yiran_tandem": YIRAN_TANDEM_SEQUENCE,
+    "aleja": ALEJA_SEQUENCE
 }
