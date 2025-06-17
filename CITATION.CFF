@@ -1,0 +1,33 @@
+cff-version: 1.2.0
+title: NOMAD Hysprint Plugin
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Götte
+  - faminly-names: Michael
+    orcid:''
+  - given-names: Dimitra
+    family-names: Gkogkou
+    orcid: 'https://orcid.org/0000-0002-6758-2645'
+  - given-names: Paolo
+    family-names: Graniero
+    orcid: 'https://orcid.org/0000-0002-3835-0861'
+  - given-names: Edgar	
+    family-names: Nandayapa Bermudez
+    orcid: 'https://orcid.org/0000-0002-5248-7143'
+  - given-names: Yousef
+    family-names: Razeghi
+    orcid: ''
+ 
+doi: TODO:Create Zenodo upload (check Nomad Measurements)
+repository-code: 'https://github.com/nomad-hzb/nomad-hysprint'
+url: 'https://nomad-hzb.github.io/nomad-baseclasses'
+abstract: >-
+  `nomad-hysprint` is a plugin for the NOMAD software (https://zenodo.org/doi/10.5281/zenodo.8366162) 
+  adding data schemas and parsers of deposition and characterization methods used in perovskite solar cells.
+  The baseclasses folder is the heart of this plugin, containing several NOMAD schemas developed at Helmoltz-Zentrum Berlin (HZB). 
+  The data schemas continue to develop with the community to ultimately provide Findable, 
+  Accessible, Interoperable, and Reusable (FAIR) data.
+license: Apache-2.0
