@@ -41,7 +41,7 @@ def main():
                       help='Exclude test values from the template')
     
     args = parser.parse_args()
-    create_excel(args.sequence, args.output, not args.no_test)
+    create_excel(args.sequence, args.output, args.test)
 
 if __name__ == '__main__':
     main()
