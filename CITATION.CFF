@@ -19,7 +19,7 @@ authors:
     orcid: 'https://orcid.org/0000-0002-5248-7143'
   - given-names: Yousef
     family-names: Razeghi
-    orcid: ''
+    orcid: 'https://orcid.org/0000-0002-0007-630X'
  
 doi: TODO:Create Zenodo upload (check Nomad Measurements)
 repository-code: 'https://github.com/nomad-hzb/nomad-hysprint'
