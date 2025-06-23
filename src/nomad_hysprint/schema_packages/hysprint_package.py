@@ -18,9 +18,13 @@
 
 import os
 import random
+import re
 import string
 
 import numpy as np
+import pandas as pd
+
+# NOMAD imports
 from baseclasses import (
     BaseMeasurement,
     BaseProcess,
@@ -99,11 +103,14 @@ from nomad.datamodel.metainfo.plot import PlotlyFigure, PlotSection
 from nomad.datamodel.results import ELN, Material, Properties, Results
 from nomad.metainfo import Quantity, SchemaPackage, Section, SubSection
 from nomad.units import ureg
+from nomad_luqy_plugin.schema_packages.schema_package import (
+    AbsPLMeasurement,
+    ELNAnnotation,
+    NOMADMeasurementsCategory,
+)
 from pynxtools.dataconverter.convert import convert
 
 m_package = SchemaPackage()
-
-
 # %% ####################### Entities
 
 
@@ -962,6 +969,105 @@ class HySprint_JVmeasurement(JVMeasurement, EntryData):
                 get_jv_archive(jv_dict, self.data_file, self)
 
         super().normalize(archive, logger)
+
+
+class HySprint_LuminescenceMeasurement(AbsPLMeasurement, EntryData):
+    """
+    Parser for HySprint Absolute Photoluminescence (PL) measurements.
+    Inherits from AbsPLMeasurement to reuse its structure and functionality.
+    """
+
+    m_def = Section(
+        label='HySprint Absolute PL Measurement',
+        categories=[NOMADMeasurementsCategory],
+        a_eln=ELNAnnotation(
+            lane_width='800px',
+        ),
+    )
+
+    def normalize(self, archive, logger):
+        """
+        Normalizes the HySprint Absolute PL measurement file by parsing metadata
+        and spectral data, and integrates with the AbsPLMeasurement structure.
+        """
+        logger.debug('Starting HySprint_LuminescenceMeasurement.normalize', data_file=self.data_file)
+
+        # Call the parent class's normalize method
+        super().normalize(archive, logger)
+
+        # Additional normalization logic specific to HySprint measurements
+        if self.data_file:
+            with archive.m_context.raw_file(self.data_file, 'tr', encoding='latin-1') as f:
+                lines = f.readlines()
+
+            # Extract timestamps
+            timestamp_parts = re.split(r'\t+', lines[0].strip())
+            date_part = timestamp_parts[0]
+            time_parts = timestamp_parts[1:]
+            timestamps = [f'{date_part} {t}' for t in time_parts]
+
+            # Find where spectral data starts
+            spectral_start_idx = next(
+                i for i, line in enumerate(lines) if line.strip().startswith('Wavelength')
+            )
+            meta_lines = lines[1:spectral_start_idx]
+
+            # Parse metadata
+            meta_records = []
+            for line in meta_lines:
+                parts = re.split(r'\t+', line.strip())
+                if len(parts) < 2:
+                    continue
+                param = parts[0].strip()
+                values = parts[1:]
+                for i, val in enumerate(values):
+                    val_clean = val.strip().replace('--', '')
+                    if val_clean and i < len(timestamps):
+                        try:
+                            val_clean = float(val_clean)
+                        except ValueError:
+                            continue
+                        unit_match = re.search(r'\((.*?)\)', param)
+                        unit = unit_match.group(1) if unit_match else ''
+                        param_name = re.sub(r'\(.*?\)', '', param).strip()
+                        meta_records.append(
+                            {
+                                'measurement_id': i + 1,
+                                'timestamp': timestamps[i],
+                                'parameter': param_name,
+                                'value': val_clean,
+                                'unit': unit,
+                            }
+                        )
+
+            # Parse spectral data
+            spectral_lines = lines[spectral_start_idx + 2 :]  # skip header and blank line
+            spectral_data = []
+            for line in spectral_lines:
+                parts = re.split(r'\t+', line.strip())
+                if len(parts) < 2:
+                    continue
+                try:
+                    wl = float(parts[0])
+                    for i in range(len(timestamps)):
+                        flux = parts[i + 1].strip().replace('--', '')
+                        if flux:
+                            try:
+                                flux_val = float(flux)
+                            except ValueError:
+                                continue
+                            spectral_data.append(
+                                {'measurement_id': i + 1, 'wavelength_nm': wl, 'flux_density': flux_val}
+                            )
+                except (ValueError, IndexError):
+                    continue
+
+            # Convert to DataFrames and assign as class attributes
+            self.meta_data = pd.DataFrame(meta_records)
+            self.spectral_data = pd.DataFrame(spectral_data)
+
+            logger.info(f'Parsed metadata records: {len(self.meta_data)}')
+            logger.info(f'Parsed spectral data points: {len(self.spectral_data)}')
 
 
 class HySprint_SimpleMPPTracking(MPPTracking, EntryData):
