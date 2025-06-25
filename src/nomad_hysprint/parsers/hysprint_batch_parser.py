@@ -119,6 +119,7 @@ class HySprintExperimentParser(MatchingParser):
         archives = [map_batch(sample_ids, batch_id, upload_id, HySprint_Batch)]
         substrates = []
         substrates_col = [
+            'Date',
             'Sample dimension',
             'Sample area [cm^2]',
             'Pixel area [cm^2]',
