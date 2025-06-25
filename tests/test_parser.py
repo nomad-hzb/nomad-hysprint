@@ -592,7 +592,7 @@ def test_hy_batch_parser_new_cols(monkeypatch):  # noqa: PLR0915
 
 def test_hy_batch_parser_ink_recycling(monkeypatch):
     """Test the ink recycling parser integration"""
-    
+
     file = '20250616_ink_recycling_test.xlsx'
     file_name = os.path.join('tests', 'data', file)
     file_archive = parse(file_name)[0]
