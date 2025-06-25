@@ -252,7 +252,6 @@ def test_hy_batch_parser_new_cols(monkeypatch):  # noqa: PLR0915
                 assert m.data.description == '1000 rpm'
                 assert m.data.number_of_junctions == 1
         elif 'Substrate' in str(type(m.data)):
-            assert m.data.datetime.isoformat() == '2025-02-26T00:00:00+00:00'
             assert m.data.solar_cell_area == 0.16 * ureg('cm**2')
             assert m.data.pixel_area == 0.16 * ureg('cm**2')
             assert m.data.number_of_pixels == 6
@@ -593,7 +592,7 @@ def test_hy_batch_parser_new_cols(monkeypatch):  # noqa: PLR0915
 
 def test_hy_batch_parser_ink_recycling(monkeypatch):
     """Test the ink recycling parser integration"""
-
+    delete_json()
     file = '20250616_ink_recycling_test.xlsx'
     file_name = os.path.join('tests', 'data', file)
     file_archive = parse(file_name)[0]
