@@ -17,7 +17,7 @@
 import numpy as np
 from baseclasses import BaseMeasurement, BaseProcess
 from nomad.datamodel.data import ArchiveSection, EntryData
-from nomad.metainfo import Datetime, MEnum, Package, Quantity, Section, SubSection
+from nomad.metainfo import Datetime, MEnum, Package, Quantity, Reference, Section, SubSection
 
 from .hysprint_package import HySprint_JVmeasurement
 
@@ -284,44 +284,6 @@ class Stability_CyclingStressProperties(ArchiveSection):
     )
 
 
-class StabilityMetrics(ArchiveSection):
-    """Key stability metrics derived from the stability test."""
-
-    m_def = Section(
-        a_eln=dict(
-            hide=['name', 'lab_id'],
-            properties=dict(order=['burn_in_time', 'ts80', 't80', 'degradation_rate']),
-        )
-    )
-
-    burn_in_time = Quantity(
-        type=np.float64,
-        unit='hour',
-        description='Time until stabilization after initial burn-in.',
-        a_eln=dict(component='NumberEditQuantity', defaultDisplayUnit='hour'),
-    )
-
-    ts80 = Quantity(
-        type=np.float64,
-        unit='hour',
-        description='Time to 80% of initial efficiency after stabilization.',
-        a_eln=dict(component='NumberEditQuantity', defaultDisplayUnit='hour'),
-    )
-
-    t80 = Quantity(
-        type=np.float64,
-        unit='hour',
-        description='Time to 80% of initial efficiency from t=0.',
-        a_eln=dict(component='NumberEditQuantity', defaultDisplayUnit='hour'),
-    )
-
-    degradation_rate = Quantity(
-        type=np.float64,
-        description='Rate of performance degradation after stabilization (percentage per hour).',
-        a_eln=dict(component='NumberEditQuantity', defaultDisplayUnit='1/hour'),
-    )
-
-
 class Stability_GlueBasedEncapsulation(ArchiveSection):
     """Defines the materials and process parameters for a glue-based encapsulation method."""
 
@@ -569,6 +531,83 @@ class Stability_MPPTrackingConditions(ArchiveSection):
     )
 
 
+class StabilityMeasurement(BaseMeasurement, EntryData):
+    """Key stability metrics derived from stability tests, as a standalone entry."""
+
+    m_def = Section(
+        a_eln=dict(
+            hide=[
+                'lab_id',
+                'users',
+                'positon_in_experimental_plan',
+                'method',
+                'batch',
+                'steps',
+                'atmosphere',
+                'instruments',
+            ],
+            properties=dict(
+                order=[
+                    'name',
+                    'datetime',
+                    'sample',
+                    'burn_in_time',
+                    'ts80',
+                    't80',
+                    'degradation_rate',
+                    'notes',
+                ]
+            ),
+        )
+    )
+
+    # sample = Quantity(
+    #     type=Reference(SolcarCellSample.m_def),
+    #     description='Reference to the sample for which these stability metrics are measured.',
+    #     a_eln=dict(component='ReferenceEditQuantity', query_section='SolcarCellSample'),
+    # )
+
+    burn_in_time = Quantity(
+        type=np.float64,
+        unit='hour',
+        description='Time until stabilization after initial burn-in.',
+        a_eln=dict(component='NumberEditQuantity', defaultDisplayUnit='hour'),
+    )
+
+    ts80 = Quantity(
+        type=np.float64,
+        unit='hour',
+        description='Time to 80% of initial efficiency after stabilization.',
+        a_eln=dict(component='NumberEditQuantity', defaultDisplayUnit='hour'),
+    )
+
+    t80 = Quantity(
+        type=np.float64,
+        unit='hour',
+        description='Time to 80% of initial efficiency from t=0.',
+        a_eln=dict(component='NumberEditQuantity', defaultDisplayUnit='hour'),
+    )
+
+    degradation_rate = Quantity(
+        type=np.float64,
+        description='Rate of performance degradation after stabilization (percentage per hour).',
+        a_eln=dict(component='NumberEditQuantity', defaultDisplayUnit='1/hour'),
+    )
+
+    notes = Quantity(
+        type=str,
+        description='Additional notes or observations about the stability metrics.',
+        a_eln=dict(component='RichTextEditQuantity'),
+    )
+
+
+class StabilityMeasurement_Section(ArchiveSection):
+    """A link to the sample already in the stability test, with all stability metrics and plots"""
+
+    # TODO
+    pass
+
+
 class StabilityTest(BaseProcess, EntryData):
     """Main stability test class including all conditions and measurements."""
 
@@ -588,9 +627,10 @@ class StabilityTest(BaseProcess, EntryData):
                 order=[
                     'name',
                     'datetime',
-                    'sample',
+                    'samples',
                     'isos_protocol',
                     'custom_protocol_description',
+                    'stability_measurements',
                     'glue_encapsulation',
                     'lamination_encapsulation',
                     'light_stress',
@@ -599,7 +639,6 @@ class StabilityTest(BaseProcess, EntryData):
                     'atmospheric_stress',
                     'mpp_tracking',
                     'cycling_stress',
-                    'stability_metrics',
                 ]
             ),
         )
@@ -666,7 +705,12 @@ class StabilityTest(BaseProcess, EntryData):
 
     cycling_stress = SubSection(section_def=Stability_CyclingStressProperties, repeats=False)
 
-    stability_metrics = SubSection(section_def=StabilityMetrics, repeats=False)
+    stability_measurements = Quantity(
+        type=Reference(StabilityMeasurement.m_def),
+        description='Reference to a standalone StabilityMeasurement for this test.',
+        a_eln=dict(component='ReferenceEditQuantity', query_section='StabilityMeasurement'),
+        shape=['*'],
+    )
 
 
 m_package.__init_metainfo__()
