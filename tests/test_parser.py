@@ -58,6 +58,8 @@ def test_hy_batch_parser(excel_file, monkeypatch):  # noqa: PLR0915
             if 'Sample' in str(type(m.data)):
                 assert m.data.description == 'A'
                 assert m.data.number_of_junctions == 1
+            if 'Batch' in str(type(m.data)):
+                assert m.data.name == 'HZB_Test_1_1'
         elif 'Substrate' in str(type(m.data)):
             assert m.data.solar_cell_area == 10 * ureg('cm**2')
             assert m.data.pixel_area == 0.16 * ureg('cm**2')
