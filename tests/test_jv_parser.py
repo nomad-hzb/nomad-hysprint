@@ -25,7 +25,7 @@ def test_normalize_all(parsed_archive, monkeypatch):
 
 
 def test_hysprint_jv_parser(monkeypatch):
-    file = 'HZB_MiGo_20230913_Batch-Test-1_0_0.notessfdsf.jv.txt'
+    file = 'HZB_MiGo_20230913_Batch-Test-1_0_0.notessfdsf.jv.TXT'
     archive = get_archive(file, monkeypatch)
     normalize_all(archive)
 
@@ -217,7 +217,8 @@ def test_iris_jv_parser(monkeypatch):
     assert abs(archive.data.averaging - 3.0) < 1e-6
 
     # Test curves exist
-    assert len(archive.data.jv_curve) == 24  # 6 cells (a-f) × 4 measurements (Forward/Reverse × Light/Dark)
+    # 6 cells (a-f) × 4 measurements (Forward/Reverse × Light/Dark)
+    assert len(archive.data.jv_curve) == 24
 
     # Test first JV curve (index 0): a_Forward_Dark
     curve0 = archive.data.jv_curve[0]
