@@ -27,15 +27,9 @@ from baseclasses.helper.utilities import (
     set_sample_reference,
 )
 from nomad.datamodel import EntryArchive
-from nomad.datamodel.data import (
-    EntryData,
-)
-from nomad.datamodel.metainfo.basesections import (
-    Activity,
-)
-from nomad.metainfo import (
-    Quantity,
-)
+from nomad.datamodel.data import EntryData
+from nomad.datamodel.metainfo.basesections import Activity
+from nomad.metainfo import Quantity
 from nomad.parsing import MatchingParser
 
 from nomad_hysprint.schema_packages.hysprint_package import (
@@ -105,11 +99,10 @@ class HySprintParser(MatchingParser):
         if len(mainfile_split) > 2:
             notes = '.'.join(mainfile_split[1:-2])
         measurment_type = mainfile_split[-2].lower()
+        mainfile_split[-1] = mainfile_split[-1].lower()
         entry = HySprint_Measurement()
         if mainfile_split[-1] == 'mpt' and measurment_type == 'hy':
-            from nomad_hysprint.schema_packages.file_parser.mps_file_parser import (
-                read_mpt_file,
-            )
+            from nomad_hysprint.schema_packages.file_parser.mps_file_parser import read_mpt_file
 
             with open(mainfile) as f:
                 metadata, _, technique = read_mpt_file(f)
@@ -138,7 +131,9 @@ class HySprintParser(MatchingParser):
             entry = HySprint_JVmeasurement()
         if mainfile_split[-1] == 'txt' and measurment_type == 'spv':
             entry = HySprint_trSPVmeasurement()
-        if (mainfile_split[-1] == 'txt' or mainfile_split[-1] == 'TRQ') and measurment_type == 'eqe':
+        if (
+            mainfile_split[-1] == 'txt' or mainfile_split[-1] == 'trq'  # was TRQ
+        ) and measurment_type == 'eqe':
             entry = HySprint_EQEmeasurement()
         if mainfile_split[-1] in ['tif', 'tiff'] and measurment_type.lower() == 'sem':
             entry = HySprint_SEM()
