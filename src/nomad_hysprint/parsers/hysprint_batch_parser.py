@@ -115,7 +115,11 @@ class HySprintExperimentParser(MatchingParser):
         df = pd.read_excel(mainfile, header=[0, 1])
 
         sample_ids = df['Experiment Info']['Nomad ID'].dropna().to_list()
-        batch_id = '_'.join(sample_ids[0].split('_')[:-1])
+        batch_id = (
+            '_'.join(sample_ids[0].split('_')[1:])
+            if sample_ids[0].split('_')[0].startswith('C-')  # custom sample ID format C-1_HZB_Test_1_1
+            else '_'.join(sample_ids[0].split('_')[:-1])  # standard sample ID format HZB_Test_1_1_C-1
+        )
         archives = [map_batch(sample_ids, batch_id, upload_id, HySprint_Batch)]
         substrates = []
         substrates_col = [
