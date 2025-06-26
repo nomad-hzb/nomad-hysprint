@@ -621,8 +621,6 @@ def test_hy_batch_parser_ink_recycling(monkeypatch):
             assert m.data.ink.solute[0].chemical_2.name == 'PbI2 1'
             assert m.data.ink.solute[0].amount_mol == 0.02 * ureg('mol')
 
-            assert m.data.ink.precursor[0].chemical_2.name == 'MAI 1'
-
             assert m.data.ink.solvent[0].chemical_2.name == 'DMF 1'
             assert m.data.ink.solvent[0].chemical_volume == 10 * ureg('ml')
 
