@@ -7,7 +7,7 @@ type: software
 authors:
   - given-names: Michael
   - family-names: Götte
-    orcid:'https://orcid.org/0009-0008-1278-8890'
+    orcid: 'https://orcid.org/0009-0008-1278-8890'
   - given-names: Jose A.
   - family-names: Marquez
     orcid: 'https://orcid.org/0000-0002-8173-2566'
