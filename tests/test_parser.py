@@ -248,6 +248,7 @@ def test_hy_batch_parser_new_cols(monkeypatch):  # noqa: PLR0915
         if 'Sample' in str(type(m.data)) or 'Batch' in str(type(m.data)):
             count_samples_batches += 1
             if 'Sample' in str(type(m.data)):
+                assert m.data.datetime.isoformat() == '2025-02-26T00:00:00+00:00'
                 assert m.data.description == '1000 rpm'
                 assert m.data.number_of_junctions == 1
         elif 'Substrate' in str(type(m.data)):
