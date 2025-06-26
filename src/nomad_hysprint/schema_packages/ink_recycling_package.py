@@ -1,6 +1,6 @@
 import numpy as np
 from baseclasses import BaseMeasurement
-from baseclasses.solution import Solution, SolutionChemical
+from baseclasses.solution import Solution
 from nomad.datamodel.data import ArchiveSection, EntryData
 from nomad.metainfo import Quantity, SchemaPackage, Section, SubSection
 
@@ -71,7 +71,6 @@ class InkRecycling_Ink(Solution, ArchiveSection):
             hide=['lab_id', 'users'],
         )
     )
-    precursor = SubSection(section_def=SolutionChemical, repeats=True)
 
 
 class InkRecycling_RecyclingExperiment(BaseMeasurement, EntryData):
