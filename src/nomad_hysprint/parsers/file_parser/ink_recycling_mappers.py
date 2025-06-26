@@ -8,7 +8,6 @@ from nomad_hysprint.schema_packages.ink_recycling_package import (
     InkRecycling_FunctionalLiquid,
     InkRecycling_Ink,
     InkRecycling_Results,
-    InkRecycling_SoluteChemical,
 )
 
 
@@ -42,7 +41,7 @@ def map_ink_recycling(i, j, lab_ids, data, upload_id, ink_recycling_class):
 
     for solute in sorted(set(solutes)):
         final_solutes.append(
-            InkRecycling_SoluteChemical(
+            SolutionChemical(
                 chemical_2=PubChemPureSubstanceSectionCustom(
                     name=get_value(data, f'{solute} name', None, False),
                     load_data=False,
