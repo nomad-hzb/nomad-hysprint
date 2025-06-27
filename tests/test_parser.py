@@ -1,4 +1,5 @@
 import os
+import re
 
 import pytest
 from nomad.client import normalize_all, parse
@@ -35,9 +36,11 @@ def test_normalize_all(parsed_archive, monkeypatch):
     delete_json()
 
 
-def test_hy_batch_parser(monkeypatch):  # noqa: PLR0915
-    file = '20250114_experiment_file.xlsx'
-    file_name = os.path.join('tests', 'data', file)
+@pytest.mark.parametrize(
+    'excel_file', ['20250114_experiment_file.xlsx', '20250114_prefix_format_sample_ids_test.xlsx']
+)
+def test_hy_batch_parser(excel_file, monkeypatch):  # noqa: PLR0915
+    file_name = os.path.join('tests', 'data', excel_file)
     file_archive = parse(file_name)[0]
     assert len(file_archive.data.processed_archive) == 27
 
@@ -56,6 +59,8 @@ def test_hy_batch_parser(monkeypatch):  # noqa: PLR0915
             if 'Sample' in str(type(m.data)):
                 assert m.data.description == 'A'
                 assert m.data.number_of_junctions == 1
+            if 'Batch' in str(type(m.data)):
+                assert re.match(r'hzb_TestP_AA_\d+$', m.data.name) is not None
         elif 'Substrate' in str(type(m.data)):
             assert m.data.solar_cell_area == 10 * ureg('cm**2')
             assert m.data.pixel_area == 0.16 * ureg('cm**2')
