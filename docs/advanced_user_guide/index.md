@@ -1,0 +1,1 @@
+Guide for for users of the [HZB NOMAD OASIS](https://nomad-hzb-se.de/nomad-oasis/gui/search/eln) that want to engange in more elaborate workflows, such as manually creating entries using the existing schemas, get started with parsers for their measurements or create their own Voila/Jupyter Notebooks for their custom visualization and analysis purposes. 
