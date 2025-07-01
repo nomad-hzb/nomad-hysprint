@@ -1,6 +1,6 @@
 # Voila Analysis Tools
 
-The data team has developed a suite of interactive Voila notebooks (based on Jupyter and Python) to streamline your data management and analysis workflow. These user-friendly tools include:
+The data steward team has developed a suite of interactive Voila notebooks (based on Jupyter and Python) to streamline your data management and analysis workflow. These user-friendly tools include:
 
 - **Design of Experiments:** Plan and structure your experimental approach
 - **MPPT Analyzer:** Evaluate maximum power point tracking performance
@@ -21,5 +21,6 @@ In the NOMAD platform, navigate to the **Explore** tab and click the **Voila** o
 
 There is a larger collection of Voila scripts available as well as the option to create your own Voila scripts for your customized visualization and analysis. Check this guide to find out how: [Make Your Own Voila Tool](../advanced_user_guide/make_your_own_voila.md). For further questions on what scripts are available, please contact our team.
 
-> **Please always stop the voila script running once you are done with it to release resources**
-> **Restart the voila between processes so that the information gets updated**
+> **Stop the voila scripts once you are done with them in order to release resources**
+
+> **Restart the voila script between processes so that the information gets updated**

@@ -1,7 +1,7 @@
 # Uploading Measurement Data
 
 In addition to synthesis and process data, the Hysprint plugin supports uploading measurement data and linking it to your samples and processes.
-> Note: Measurements get connected to samples via their sample ID and therefore you need to have uploaded or created already a sample.
+> Note: Measurements get connected to samples via their sample ID and therefore you need to have an already uploaded sample.
 ---
 
 ## Supported Measurement File Types

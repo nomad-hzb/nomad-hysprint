@@ -8,10 +8,10 @@ This guide is designed for users of the [HZB NOMAD OASIS](https://nomad-hzb-se.d
 3. The team will add you to the group, enabling seamless data sharing with your colleagues.
 
 ### Step 1: Get Your Personalized Spreadsheet (or create your own)
-For facilitating data upload, you will need a spreadsheet tracking your sample preparation sequence. [Go to Spreadsheet Workflow](01-spreadsheet_workflow.md)
+For facilitating data upload, you will need a spreadsheet tracking your sample preparation sequence. [Go to Spreadsheet Workflow](01-spreadsheet_workflow.md).
 ### Step 2: Upload data
-After filling up the experimental tracking spreadsheet, you seamlessly upload this data following the [upload data guide](02-upload_data.md)
+After filling up the experimental tracking spreadsheet, you seamlessly upload this data following the [upload data guide](02-upload_data.md).
 ### Step 3: Upload Measurements
-Once sample information is uploaded, you can also upload measurements connected to these samples, following the [upload measurements guide](03-upload_measurements.md)
+Once sample information is uploaded, you can also upload measurements connected to these samples, following the [upload measurements guide](03-upload_measurements.md).
 ### Use voila analysis tools
-Explore a collection of data admin and visualization tools powered by [Voila notebooks](04-voila_analysis_tools.md) tailored to the needs of solar cells research. 
+Explore a collection of data administration and visualization tools powered by [Voila notebooks](04-voila_analysis_tools.md) and tailored for the needs of solar cells research. 
