@@ -107,6 +107,19 @@ def map_specs_lab_prodigy_data(res):
         analyzer_parameters=analyzer_parameters,
         source_parameters=source_parameters,
     )
+
+    comment = map_value(res.get('Comment'), False, False)
+    if comment:
+        for c in comment.split('<br>'):
+            if 'Sample Bias Voltage' in c:
+                section.sample_bias_voltage = map_value(
+                    c.split('=', 1)[1][:-1], is_number=True, with_unit=False
+                )
+            if 'He-gas pressure' in c:
+                section.sample_bias_voltage = map_value(
+                    c.split('=', 1)[1][:-4], is_number=True, with_unit=False
+                )
+
     method = 'XPS'
     if 'ConstantFinalState' in res.get('Scan Mode'):
         method = 'CFSYS'
