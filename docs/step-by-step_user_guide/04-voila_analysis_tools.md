@@ -18,3 +18,6 @@ The data team has developed a suite of interactive Voila notebooks (based on Jup
 In the NOMAD platform, navigate to the **Explore** tab and click the **Voila** option to visit the list of available Voila notebooks. Follow the visual guide on [how to navigate them](https://scribehow.com/viewer/How_to_Work_on_the_HZB_Nomad_Oasis__bRbhHOaCR2S3dBIeQLYw8A?referrer=documents).
 
 There is a larger collection of Voila scripts available as well as the option to create your own Voila scripts for your customized visualization and analysis. Check this guide to find out how: [Make Your Own Voila Tool](../advanced_user_guide/make_your_own_voila.md). For further questions on what scripts are available, contact our team.
+
+**Please always stop the voila script running once you are done with it to release resources**
+**Restart the voila between processes so that the information gets updated**

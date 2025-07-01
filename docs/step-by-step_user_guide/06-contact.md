@@ -1,6 +1,6 @@
 # Contact & Support
 
-For questions, support, or to contribute to the Hysprint plugin, please contact the HZB NOMAD team:
+For questions, support, or to contribute to the Hysprint plugin, please contact the HZB SE-ALM NOMAD team:
 
 **Email:**  
 - michael.goette@helmholtz-berlin.de  
