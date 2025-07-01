@@ -116,7 +116,7 @@ def map_specs_lab_prodigy_data(res):
                     c.split('=', 1)[1][:-1], is_number=True, with_unit=False
                 )
             if 'He-gas pressure' in c:
-                section.sample_bias_voltage = map_value(
+                section.he_gas_pressure = map_value(
                     c.split('=', 1)[1][:-4], is_number=True, with_unit=False
                 )
 
