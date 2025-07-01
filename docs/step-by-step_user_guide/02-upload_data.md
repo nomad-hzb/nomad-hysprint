@@ -5,7 +5,9 @@ Once you have prepared your experiment data using the Hysprint Excel template, y
 ---
 
 ## Steps to Upload Data from Spreadsheet
-Please follow the visual guide for [uploading your experimental spreadsheet](https://scribehow.com/viewer/How_to_Work_on_the_HZB_Nomad_Oasis__bRbhHOaCR2S3dBIeQLYw8A?referrer=documents)
+Please follow the visual guide for uploading your experimental spreadsheet:
+
+<iframe src="https://scribehow.com/embed/How_to_Work_on_the_HZB_Nomad_Oasis__bRbhHOaCR2S3dBIeQLYw8A" width="100%" height="800" allow="fullscreen" style="aspect-ratio: 1 / 1; border: 0; min-height: 480px"></iframe>
 
 1. **Prepare your spreadsheet:**
    - Ensure required fields are filled and data is consistent following the correct format.

@@ -6,7 +6,7 @@ The data team has developed a suite of interactive Voila notebooks (based on Jup
 - **MPPT Analyzer:** Evaluate maximum power point tracking performance
 - **Samples Overview:** Get comprehensive views of your research samples
 - **EQE Analyzer:** Analyze external quantum efficiency measurements
-- **File Uploader:** Simplify the data submission process
+- **File Uploader:** Simplify the measurement uploading process
 - **JV Analysis Tool:** Examine current-voltage characteristics
 - **PLI Plots:** Analyze photoluminescence imaging data
 - **Sample History:** Track the complete lifecycle of your samples

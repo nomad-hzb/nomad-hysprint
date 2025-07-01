@@ -21,7 +21,9 @@ Unsupported formats can be uploaded within the sample upload for the experiment,
 ## How to Upload Measurement Files
 
 ### Option 1 (Recommended Workflow): Voila Notebook
-- Please follow the visual guide for [adding your measurement files](https://scribehow.com/viewer/How_to_Work_on_the_HZB_Nomad_Oasis__bRbhHOaCR2S3dBIeQLYw8A?referrer=documents)
+- Please follow the following visual guide for adding your measurement files:
+
+<iframe src="https://scribehow.com/embed/How_to_Work_on_the_HZB_Nomad_Oasis__bRbhHOaCR2S3dBIeQLYw8A" width="100%" height="800" allow="fullscreen" style="aspect-ratio: 1 / 1; border: 0; min-height: 480px"></iframe>
 
 ### Option 2: Naming the File Yourself
 
@@ -41,5 +43,5 @@ If you drag and drop these files (multiple at once possible) in your upload:
 
 It automatically creates the respective NOMAD entry (e.g. `HySprint_JVmeasurement`), links it to the corresponding sample, and puts the note in the comment.
 
-<iframe src="https://scribehow.com/embed/How_to_Work_on_the_HZB_Nomad_Oasis__bRbhHOaCR2S3dBIeQLYw8A" width="100%" height="800" allow="fullscreen" style="aspect-ratio: 1 / 1; border: 0; min-height: 480px"></iframe>
+
 

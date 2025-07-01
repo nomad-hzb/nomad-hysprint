@@ -14,4 +14,4 @@ After filling up the experimental tracking spreadsheet, you seamlessly upload th
 ### Step 3: Upload Measurements
 Once sample information is uploaded, you can also upload measurements connected to these samples, following the [upload measurements guide](03-upload_measurements.md)
 ### Use voila analysis tools
-Explore a collection of data admin and visualization tools powered by [Voila notebooks](04-voila_analysis_tools) tailored to the needs of solar cells research. 
+Explore a collection of data admin and visualization tools powered by [Voila notebooks](04-voila_analysis_tools.md) tailored to the needs of solar cells research. 
