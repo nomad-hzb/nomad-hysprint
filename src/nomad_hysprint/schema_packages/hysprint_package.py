@@ -1421,19 +1421,14 @@ class HySprint_XRD_XY(XRD, EntryData):
             hide=[
                 'lab_id',
                 'users',
-                'location',
                 'end_time',
                 'steps',
                 'instruments',
-                'results',
-                'steps',
-                'instruments',
-                'results',
                 'metadata_file',
                 'shifted_data',
                 'identifier',
             ],
-            properties=dict(order=['name', 'data_file', 'samples', 'solution']),
+            properties=dict(order=['name', 'data_file', 'samples']),
         ),
         a_plot=[
             {
