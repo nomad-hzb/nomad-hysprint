@@ -871,7 +871,6 @@ class HySprint_trSPVmeasurement(trSPVMeasurement, EntryData):
 
     def normalize(self, archive, logger):
         from baseclasses.helper.archive_builder.spv_archive import get_spv_archive
-
         from nomad_hysprint.schema_packages.file_parser.spv_parser import get_spv_data
 
         if self.data_file and self.data is None and self.properties is None:
@@ -930,7 +929,6 @@ class HySprint_JVmeasurement(JVMeasurement, EntryData):
 
     def normalize(self, archive, logger):
         from baseclasses.helper.archive_builder.jv_archive import get_jv_archive
-
         from nomad_hysprint.schema_packages.file_parser.jv_parser import get_jv_data
 
         if not self.samples and self.data_file:
@@ -1035,7 +1033,6 @@ class HySprint_MPPTracking(MPPTrackingHsprintCustom, PlotSection, EntryData):
     def normalize(self, archive, logger):
         from baseclasses.helper.archive_builder.mpp_hysprint_archive import get_mpp_hysprint_samples
         from baseclasses.helper.utilities import rewrite_json
-
         from nomad_hysprint.schema_packages.file_parser.load_mpp_hysprint import load_mpp_file
 
         if self.data_file and self.load_data_from_file:
@@ -1505,7 +1502,6 @@ class HySprint_CyclicVoltammetry(CyclicVoltammetry, EntryData):
                         get_cv_properties,
                         get_voltammetry_data,
                     )
-
                     from nomad_hysprint.schema_packages.file_parser.mps_file_parser import read_mpt_file
 
                     metadata, data, technique = read_mpt_file(f)
@@ -1597,7 +1593,6 @@ class HySprint_ElectrochemicalImpedanceSpectroscopy(ElectrochemicalImpedanceSpec
                         get_eis_properties,
                         get_meta_data,
                     )
-
                     from nomad_hysprint.schema_packages.file_parser.mps_file_parser import read_mpt_file
 
                     metadata, data, technique = read_mpt_file(f)
@@ -1659,7 +1654,6 @@ class HySprint_OpenCircuitVoltage(OpenCircuitVoltage, EntryData):
                         get_ocv_properties,
                         get_voltammetry_data,
                     )
-
                     from nomad_hysprint.schema_packages.file_parser.mps_file_parser import read_mpt_file
 
                     metadata, data, technique = read_mpt_file(f)
