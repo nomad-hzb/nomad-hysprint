@@ -1,4 +1,5 @@
 import os
+import re
 
 import pytest
 from nomad.client import normalize_all, parse
@@ -35,9 +36,11 @@ def test_normalize_all(parsed_archive, monkeypatch):
     delete_json()
 
 
-def test_hy_batch_parser(monkeypatch):  # noqa: PLR0915
-    file = '20250114_experiment_file.xlsx'
-    file_name = os.path.join('tests', 'data', file)
+@pytest.mark.parametrize(
+    'excel_file', ['20250114_experiment_file.xlsx', '20250114_prefix_format_sample_ids_test.xlsx']
+)
+def test_hy_batch_parser(excel_file, monkeypatch):  # noqa: PLR0915
+    file_name = os.path.join('tests', 'data', excel_file)
     file_archive = parse(file_name)[0]
     assert len(file_archive.data.processed_archive) == 27
 
@@ -56,6 +59,8 @@ def test_hy_batch_parser(monkeypatch):  # noqa: PLR0915
             if 'Sample' in str(type(m.data)):
                 assert m.data.description == 'A'
                 assert m.data.number_of_junctions == 1
+            if 'Batch' in str(type(m.data)):
+                assert re.match(r'hzb_TestP_AA_\d+$', m.data.name) is not None
         elif 'Substrate' in str(type(m.data)):
             assert m.data.solar_cell_area == 10 * ureg('cm**2')
             assert m.data.pixel_area == 0.16 * ureg('cm**2')
@@ -248,6 +253,7 @@ def test_hy_batch_parser_new_cols(monkeypatch):  # noqa: PLR0915
         if 'Sample' in str(type(m.data)) or 'Batch' in str(type(m.data)):
             count_samples_batches += 1
             if 'Sample' in str(type(m.data)):
+                assert m.data.datetime.isoformat() == '2025-02-26T00:00:00+00:00'
                 assert m.data.description == '1000 rpm'
                 assert m.data.number_of_junctions == 1
         elif 'Substrate' in str(type(m.data)):
@@ -619,8 +625,7 @@ def test_hy_batch_parser_ink_recycling(monkeypatch):
             assert m.data.ink.solute[0].chemical_mass == 5000 * ureg('mg')
             assert m.data.ink.solute[0].concentration_mol == 1.5 * ureg('M').to('mol / milliliter')
             assert m.data.ink.solute[0].chemical_2.name == 'PbI2 1'
-
-            assert m.data.ink.precursor[0].chemical_2.name == 'MAI 1'
+            assert m.data.ink.solute[0].amount_mol == 0.02 * ureg('mol')
 
             assert m.data.ink.solvent[0].chemical_2.name == 'DMF 1'
             assert m.data.ink.solvent[0].chemical_volume == 10 * ureg('ml')

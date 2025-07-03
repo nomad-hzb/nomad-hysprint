@@ -16,18 +16,16 @@ def map_ink_recycling(i, j, lab_ids, data, upload_id, ink_recycling_class):
 
     solvents = []
     solutes = []
-    precursors = []
+
     for col in data.index:
         if col.lower().startswith('solvent'):
             solvents.append(' '.join(col.split(' ')[:2]))
         if col.lower().startswith('solute'):
             solutes.append(' '.join(col.split(' ')[:2]))
-        if col.lower().startswith('precursor'):
-            precursors.append(' '.join(col.split(' ')[:2]))
 
     final_solvents = []
     final_solutes = []
-    final_precursors = []
+
     for solvent in sorted(set(solvents)):
         final_solvents.append(
             SolutionChemical(
@@ -46,28 +44,16 @@ def map_ink_recycling(i, j, lab_ids, data, upload_id, ink_recycling_class):
                     name=get_value(data, f'{solute} name', None, False),
                     load_data=False,
                 ),
-                concentration_mol=get_value(data, f'{solute} concentration [M]', None, unit='M'),
                 chemical_mass=get_value(data, f'{solute} amount [g]', None, unit='g'),
+                amount_mol=get_value(data, f'{solute} moles [mol]', None, unit='mol'),
+                concentration_mol=get_value(data, f'{solute} concentration [M]', None, unit='M'),
             )
         )
         # substance amount in mol
         # solute_mol = get_value(
         #    data, f'{solute} moles [mol]', None, unit='mol'),
 
-    for precursor in sorted(set(precursors)):
-        final_precursors.append(
-            SolutionChemical(
-                chemical_2=PubChemPureSubstanceSectionCustom(
-                    name=get_value(data, f'{precursor} name', None, False),
-                    load_data=False,
-                ),
-                # chemical_mass=get_value(
-                #     data, f'{precursor} moles [mol]', None, unit='mol'
-                # ),
-            )
-        )
-
-    ink = InkRecycling_Ink(solvent=final_solvents, solute=final_solutes, precursor=final_precursors)
+    ink = InkRecycling_Ink(solvent=final_solvents, solute=final_solutes)
     ink_recycling_archive.ink = ink
 
     ink_recycling_archive.FL = InkRecycling_FunctionalLiquid(
