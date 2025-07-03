@@ -1047,9 +1047,6 @@ class HySprint_MPPTracking(MPPTrackingHsprintCustom, PlotSection, EntryData):
             #     encoding = get_encoding(f)
 
             with archive.m_context.raw_file(self.data_file, 'tr', encoding='ascii') as f:
-                if os.path.splitext(f.name)[-1] != '.csv':
-                    return
-
                 data = load_mpp_file(f.read())  # , encoding)
 
             self.samples = get_mpp_hysprint_samples(self, data)
