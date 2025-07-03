@@ -21,16 +21,8 @@ import random
 import string
 
 import numpy as np
-from baseclasses import (
-    BaseMeasurement,
-    BaseProcess,
-    Batch,
-    LayerDeposition,
-    ReadableIdentifiersCustom,
-)
-from baseclasses.assays import (
-    EnvironmentMeasurement,
-)
+from baseclasses import BaseMeasurement, BaseProcess, Batch, LayerDeposition, ReadableIdentifiersCustom
+from baseclasses.assays import EnvironmentMeasurement
 from baseclasses.characterizations import XPS, XRD, XPSSpecsLabProdigySettings, XRDData
 from baseclasses.characterizations.electron_microscopy import SEM_Microscope_Merlin
 from baseclasses.chemical import Chemical
@@ -142,9 +134,7 @@ class HySprint_ExperimentalPlan(ExperimentalPlan, EntryData):
     def normalize(self, archive, logger):
         super().normalize(archive, logger)
 
-        from baseclasses.helper.execute_solar_sample_plan import (
-            execute_solar_sample_plan,
-        )
+        from baseclasses.helper.execute_solar_sample_plan import execute_solar_sample_plan
 
         execute_solar_sample_plan(self, archive, HySprint_Sample, HySprint_Batch, logger)
 
@@ -880,13 +870,8 @@ class HySprint_trSPVmeasurement(trSPVMeasurement, EntryData):
     )
 
     def normalize(self, archive, logger):
-        from baseclasses.helper.archive_builder.spv_archive import (
-            get_spv_archive,
-        )
-
-        from nomad_hysprint.schema_packages.file_parser.spv_parser import (
-            get_spv_data,
-        )
+        from baseclasses.helper.archive_builder.spv_archive import get_spv_archive
+        from nomad_hysprint.schema_packages.file_parser.spv_parser import get_spv_data
 
         if self.data_file and self.data is None and self.properties is None:
             # todo detect file format
@@ -943,10 +928,7 @@ class HySprint_JVmeasurement(JVMeasurement, EntryData):
 
     def normalize(self, archive, logger):
         from baseclasses.helper.archive_builder.jv_archive import get_jv_archive
-
-        from nomad_hysprint.schema_packages.file_parser.jv_parser import (
-            get_jv_data,
-        )
+        from nomad_hysprint.schema_packages.file_parser.jv_parser import get_jv_data
 
         if not self.samples and self.data_file:
             search_id = self.data_file.split('.')[0]
@@ -992,9 +974,7 @@ class HySprint_SimpleMPPTracking(MPPTracking, EntryData):
     )
 
     def normalize(self, archive, logger):
-        from nomad_hysprint.schema_packages.file_parser.mppt_simple import (
-            read_mppt_file,
-        )
+        from nomad_hysprint.schema_packages.file_parser.mppt_simple import read_mppt_file
 
         if not self.samples and self.data_file:
             search_id = self.data_file.split('.')[0]
@@ -1050,14 +1030,9 @@ class HySprint_MPPTracking(MPPTrackingHsprintCustom, PlotSection, EntryData):
     )
 
     def normalize(self, archive, logger):
-        from baseclasses.helper.archive_builder.mpp_hysprint_archive import (
-            get_mpp_hysprint_samples,
-        )
+        from baseclasses.helper.archive_builder.mpp_hysprint_archive import get_mpp_hysprint_samples
         from baseclasses.helper.utilities import rewrite_json
-
-        from nomad_hysprint.schema_packages.file_parser.load_mpp_hysprint import (
-            load_mpp_file,
-        )
+        from nomad_hysprint.schema_packages.file_parser.load_mpp_hysprint import load_mpp_file
 
         if self.data_file and self.load_data_from_file:
             self.load_data_from_file = False
@@ -1068,9 +1043,6 @@ class HySprint_MPPTracking(MPPTrackingHsprintCustom, PlotSection, EntryData):
             #     encoding = get_encoding(f)
 
             with archive.m_context.raw_file(self.data_file, 'tr', encoding='ascii') as f:
-                if os.path.splitext(f.name)[-1] != '.csv':
-                    return
-
                 data = load_mpp_file(f.read())  # , encoding)
 
             self.samples = get_mpp_hysprint_samples(self, data)
@@ -1534,10 +1506,7 @@ class HySprint_CyclicVoltammetry(CyclicVoltammetry, EntryData):
                         get_cv_properties,
                         get_voltammetry_data,
                     )
-
-                    from nomad_hysprint.schema_packages.file_parser.mps_file_parser import (
-                        read_mpt_file,
-                    )
+                    from nomad_hysprint.schema_packages.file_parser.mps_file_parser import read_mpt_file
 
                     metadata, data, technique = read_mpt_file(f)
                     get_voltammetry_data(data, self)
@@ -1628,10 +1597,7 @@ class HySprint_ElectrochemicalImpedanceSpectroscopy(ElectrochemicalImpedanceSpec
                         get_eis_properties,
                         get_meta_data,
                     )
-
-                    from nomad_hysprint.schema_packages.file_parser.mps_file_parser import (
-                        read_mpt_file,
-                    )
+                    from nomad_hysprint.schema_packages.file_parser.mps_file_parser import read_mpt_file
 
                     metadata, data, technique = read_mpt_file(f)
                     get_eis_data(data, self)
@@ -1692,10 +1658,7 @@ class HySprint_OpenCircuitVoltage(OpenCircuitVoltage, EntryData):
                         get_ocv_properties,
                         get_voltammetry_data,
                     )
-
-                    from nomad_hysprint.schema_packages.file_parser.mps_file_parser import (
-                        read_mpt_file,
-                    )
+                    from nomad_hysprint.schema_packages.file_parser.mps_file_parser import read_mpt_file
 
                     metadata, data, technique = read_mpt_file(f)
                     get_voltammetry_data(data, self)
@@ -1767,7 +1730,6 @@ class HZB_NKData(NKData, EntryData):
 
         with archive.m_context.raw_file(self.data_file, 'tr', encoding=encoding) as f:
             from baseclasses.helper.archive_builder.nk_archive import get_nk_archive
-
             from nomad_hysprint.schema_packages.file_parser.nk_parser import get_nk_data
 
             nk_data, metadata = get_nk_data(f.read())
