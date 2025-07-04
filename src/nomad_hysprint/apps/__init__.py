@@ -1,18 +1,28 @@
 from nomad.config.models.plugins import AppEntryPoint
 from nomad.config.models.ui import (
     App,
+    Axis,  # added for histogram x-axis
     Column,
+    Columns,
+    Dashboard,
     FilterMenu,
     FilterMenus,
     FilterMenuSizeEnum,
     Filters,
     Format,
+    Layout,
+    Menu,  # for settings menu
+    MenuItemHistogram,
+    MenuItemTerms,  # use histogram for numeric data
+    MenuSizeEnum,  # for menu sizing
     ModeEnum,
     RowActionNorth,
     RowActions,
     RowDetails,
     Rows,
     RowSelection,
+    SearchQuantities,
+    WidgetScatterPlot,
 )
 
 schema_name = 'nomad_hysprint.schema_packages.hysprint_package.HySprint_VoilaNotebook'
@@ -90,5 +100,170 @@ hysprint_voila_app = AppEntryPoint(
             details=RowDetails(),
             selection=RowSelection(),
         ),
+    ),
+)
+
+
+schema = 'nomad_hysprint.schema_packages.hysprint_package.HySprint_AbsPLMeasurement'
+
+absolute_pl_app = AppEntryPoint(
+    name='Absolute Luminescence',
+    description='A search app for absolute photoluminescence experiments.',
+    app=App(
+        label='Absolute Luminescence',
+        path='abs-luminescence',
+        category='Measurements',
+        breadcrumb='Explore Absolute Luminescence Measurements',
+        search_quantities=SearchQuantities(include=[f'*#{schema}']),
+        columns=Columns(
+            selected=[
+                'entry_id',
+            ],
+            options={
+                'entry_id': Column(
+                    quantity='entry_id',
+                    selected=False,
+                ),
+                'sample_name': Column(
+                    quantity=f'data.samples[0].name#{schema}',  # noqa: E501
+                    selected=True,
+                    label='Sample Name',
+                ),
+                'luqy': Column(
+                    quantity=f'data.results[0].luminescence_quantum_yield#{schema}',  # noqa: E501
+                    selected=True,
+                    label='LuQY (%)',
+                ),
+                'bandgap': Column(
+                    quantity=f'data.results[0].bandgap#{schema}',  # noqa: E501
+                    selected=True,
+                ),
+                'quasi_fermi_level_splitting': Column(
+                    quantity=f'data.results[0].quasi_fermi_level_splitting#{schema}',  # noqa: E501
+                    selected=True,
+                    label='QFLS',
+                ),
+                'derived_jsc': Column(
+                    quantity=f'data.results[0].derived_jsc#{schema}',  # noqa: E501
+                    selected=True,
+                    format={'decimals': 3, 'mode': 'standard'},
+                    unit='mA/cm**2',
+                    label='Jsc',
+                ),
+            },
+        ),
+        menu=Menu(
+            items=[
+                Menu(
+                    title='Measurement Settings',
+                    size=MenuSizeEnum.MD,
+                    items=[
+                        MenuItemHistogram(
+                            x={
+                                'search_quantity': f'data.settings.laser_intensity_suns#{schema}'  # noqa: E501
+                            },  # noqa: E501
+                            title='Laser Intensity (suns)',
+                            show_input=True,
+                            nbins=30,
+                        ),
+                        MenuItemHistogram(
+                            x=Axis(
+                                search_quantity=f'data.settings.bias_voltage#{schema}',  # noqa: E501
+                            ),
+                            title='Bias Voltage',
+                            show_input=True,
+                            nbins=30,
+                        ),
+                        MenuItemHistogram(
+                            x=Axis(
+                                search_quantity=f'data.settings.smu_current_density#{schema}',  # noqa: E501
+                                unit='mA/cm**2',
+                            ),
+                            title='SMU Current Density',
+                            show_input=True,
+                            nbins=30,
+                        ),
+                    ],
+                ),
+                # New Menu for Entry Information (changed from FilterMenu to Menu)
+                Menu(
+                    title='Author | Sample | Dataset',
+                    size='md',
+                    items=[
+                        MenuItemTerms(search_quantity='authors.name'),
+                        MenuItemTerms(
+                            search_quantity=f'data.samples.name#{schema}',
+                            title='Sample Name',
+                        ),
+                        MenuItemHistogram(x={'search_quantity': 'upload_create_time'}),
+                        MenuItemTerms(search_quantity='datasets.dataset_name'),
+                    ],
+                ),
+                # New Menu for Results Histograms
+                MenuItemHistogram(
+                    x=Axis(
+                        search_quantity=f'data.results.luminescence_quantum_yield#{schema}',  # noqa: E501
+                    ),
+                    title='LuQY (%)',
+                    show_input=True,
+                    nbins=30,
+                ),
+                MenuItemHistogram(
+                    x=Axis(
+                        search_quantity=f'data.results.bandgap#{schema}',  # noqa: E501
+                    ),
+                    title='Bandgap',
+                    show_input=True,
+                    nbins=30,
+                ),
+                MenuItemHistogram(
+                    x=Axis(
+                        search_quantity=f'data.results.quasi_fermi_level_splitting#{schema}',  # noqa: E501
+                    ),
+                    title='QFLS',
+                    show_input=True,
+                    nbins=30,
+                ),
+                MenuItemHistogram(
+                    x=Axis(
+                        search_quantity=f'data.results.derived_jsc#{schema}',  # noqa: E501
+                        unit='mA/cm**2',
+                        format={'decimals': 3, 'mode': 'standard'},
+                    ),
+                    title='Jsc',
+                    show_input=True,
+                    nbins=30,
+                ),
+            ],
+        ),
+        dashboard=Dashboard(
+            widgets=[
+                WidgetScatterPlot(
+                    title='Bandgap vs. LuQY',
+                    autorange=True,
+                    layout={
+                        'lg': Layout(h=4, minH=3, minW=3, w=6, x=0, y=0),
+                        'md': Layout(h=5, minH=3, minW=3, w=7, x=0, y=0),
+                        'sm': Layout(h=6, minH=3, minW=3, w=6, x=0, y=0),
+                        'xl': Layout(h=6, minH=3, minW=3, w=6, x=0, y=0),
+                        'xxl': Layout(h=6, minH=3, minW=3, w=6, x=0, y=0),
+                    },
+                    x=Axis(
+                        search_quantity=f'data.results[0].bandgap#{schema}',  # noqa: E501
+                    ),
+                    y=Axis(
+                        search_quantity=f'data.results[0].luminescence_quantum_yield#{schema}',  # noqa: E501
+                        title='LuQY (%)',
+                    ),
+                    color=f'data.results[0].quasi_fermi_level_splitting#{schema}',  # noqa: E501
+                    size=1000,
+                ),
+            ]
+        ),
+        filters_locked={
+            'results.eln.sections': [
+                'HySprint_AbsPLMeasurement',
+            ]
+        },
     ),
 )
