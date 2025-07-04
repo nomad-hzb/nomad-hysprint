@@ -39,6 +39,7 @@ from nomad.metainfo import (
 from nomad.parsing import MatchingParser
 
 from nomad_hysprint.schema_packages.hysprint_package import (
+    HySprint_AbsPLMeasurement,
     HySprint_CyclicVoltammetry,
     HySprint_ElectrochemicalImpedanceSpectroscopy,
     HySprint_EQEmeasurement,
@@ -135,6 +136,8 @@ class HySprintParser(MatchingParser):
                 entry = HySprint_OpenCircuitVoltage()
         if mainfile_split[-1] == 'txt' and measurment_type == 'jv':
             entry = HySprint_JVmeasurement()
+        if mainfile_split[-1] == 'txt' and measurment_type == 'abspl':
+            entry = HySprint_AbsPLMeasurement()
         if mainfile_split[-1] == 'txt' and measurment_type == 'spv':
             entry = HySprint_trSPVmeasurement()
         if (mainfile_split[-1] == 'txt' or mainfile_split[-1] == 'TRQ') and measurment_type == 'eqe':

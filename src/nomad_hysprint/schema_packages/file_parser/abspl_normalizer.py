@@ -74,7 +74,6 @@ def parse_header(lines, logger):
 
 
 def parse_numeric_data(lines, data_start_idx, logger):
-
     wavelengths = []
     lum_flux = []
     raw_counts = []
@@ -107,4 +106,3 @@ def parse_numeric_data(lines, data_start_idx, logger):
     )
 
     return wavelengths, lum_flux, raw_counts, dark_counts
-

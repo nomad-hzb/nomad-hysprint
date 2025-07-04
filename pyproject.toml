@@ -31,6 +31,7 @@ license = { file = "LICENSE" }
 dependencies = [
     "nomad-lab>=1.3.16rc1",
     'nomad-baseclasses @ git+https://github.com/nomad-hzb/nomad-baseclasses.git',
+    'nomad-luqy-plugin @ git+https://github.com/Pepe-Marquez/nomad-luqy-plugin.git',
     'nomad-measurements',
     'httpx==0.27.2',
     'pynxtools-xps@git+https://github.com/FAIRmat-NFDI/pynxtools-xps.git',
@@ -138,3 +139,4 @@ hysprint_experiment_parser = "nomad_hysprint.parsers:hysprint_experiment_parser"
 ink_recycling_package = "nomad_hysprint.schema_packages:ink_recycling_package"
 
 hysprint_voila_app = "nomad_hysprint.apps:hysprint_voila_app"
+absolute_pl_app = "nomad_hysprint.apps:absolute_pl_app"
