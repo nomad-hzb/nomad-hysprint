@@ -137,6 +137,9 @@ absolute_pl_app = AppEntryPoint(
                 'bandgap': Column(
                     quantity=f'data.results[0].bandgap#{schema}',  # noqa: E501
                     selected=True,
+                    unit='eV',
+                    format={'decimals': 3, 'mode': 'standard'},
+                    label='Bandgap',
                 ),
                 'quasi_fermi_level_splitting': Column(
                     quantity=f'data.results[0].quasi_fermi_level_splitting#{schema}',  # noqa: E501
@@ -213,6 +216,7 @@ absolute_pl_app = AppEntryPoint(
                         search_quantity=f'data.results.bandgap#{schema}',  # noqa: E501
                     ),
                     title='Bandgap',
+                    unit='eV',
                     show_input=True,
                     nbins=30,
                 ),
@@ -222,6 +226,7 @@ absolute_pl_app = AppEntryPoint(
                     ),
                     title='QFLS',
                     show_input=True,
+                    unit='eV',
                     nbins=30,
                 ),
                 MenuItemHistogram(
@@ -250,13 +255,16 @@ absolute_pl_app = AppEntryPoint(
                     },
                     x=Axis(
                         search_quantity=f'data.results[0].bandgap#{schema}',  # noqa: E501
+                        unit='eV',
                     ),
                     y=Axis(
                         search_quantity=f'data.results[0].luminescence_quantum_yield#{schema}',  # noqa: E501
                         title='LuQY (%)',
+                        scale='log',
                     ),
                     color=f'data.results[0].quasi_fermi_level_splitting#{schema}',  # noqa: E501
                     size=1000,
+                    unit='eV',
                 ),
             ]
         ),
