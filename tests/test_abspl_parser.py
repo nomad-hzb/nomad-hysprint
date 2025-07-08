@@ -37,3 +37,19 @@ def test_hysprint_abspl_parser(monkeypatch):
 
     # Clean up
     delete_json()
+
+
+def test_hysprint_abspl_parser_hy(monkeypatch):
+    file = '100 40-1.abspl.txt'
+    archive = get_archive(file, monkeypatch)
+    normalize_all(archive)
+
+    # Test data exists
+    assert archive.data
+    assert archive.data.results
+    assert archive.data.results[0].bandgap == 1.671 * ureg('eV')
+    assert archive.data.results[0].quasi_fermi_level_splitting == 1.172 * ureg('eV')
+    assert archive.data.results[0].i_voc == 1.168 * ureg('V')
+
+    # Clean up
+    delete_json()
