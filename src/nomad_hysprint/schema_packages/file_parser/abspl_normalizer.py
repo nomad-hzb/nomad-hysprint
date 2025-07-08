@@ -29,7 +29,8 @@ def parse_header(lines, logger):
     header_map_result = {
         'LuQY (%)': 'luminescence_quantum_yield',
         'QFLS (eV)': 'quasi_fermi_level_splitting',
-        'iVoc (V)': 'quasi_fermi_level_splitting',
+        'iVoc (V) HET': 'quasi_fermi_level_splitting',
+        'iVoc (V)': 'i_voc',
         'Bandgap (eV)': 'bandgap',
         'Jsc (mA/cm2)': 'derived_jsc',
     }
@@ -79,7 +80,7 @@ def parse_numeric_data(lines, data_start_idx, logger):
     dark_counts = []
 
     if data_start_idx is not None and data_start_idx < len(lines):
-        MIN_PARTS_COUNT = 4
+        MIN_PARTS_COUNT = 3
         for line in lines[data_start_idx:]:
             if not line.strip():
                 continue
@@ -90,6 +91,8 @@ def parse_numeric_data(lines, data_start_idx, logger):
                 wavelengths.append(float(parts[0]))
                 lum_flux.append(float(parts[1]))
                 raw_counts.append(float(parts[2]))
+                if len(parts) == 3:
+                    continue  # Some files may not have dark counts
                 dark_counts.append(float(parts[3]))
             except ValueError:
                 logger.debug('Could not parse numeric row', row=line)
