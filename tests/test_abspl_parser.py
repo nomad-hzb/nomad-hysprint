@@ -31,6 +31,10 @@ def test_hysprint_abspl_parser(monkeypatch):
     # Test data exists
     assert archive.data
     assert archive.data.results
+    assert archive.data.results[0].wavelength
+    assert archive.data.results[0].luminescence_flux_density
+    assert archive.data.results[0].raw_spectrum_counts
+    assert archive.data.results[0].dark_spectrum_counts
     assert archive.data.results[0].bandgap == 1.424 * ureg('eV')
     assert archive.data.results[0].derived_jsc == 26.46 * ureg('mA/cm**2')
     assert archive.data.results[0].quasi_fermi_level_splitting == 1.094 * ureg('eV')
@@ -47,6 +51,10 @@ def test_hysprint_abspl_parser_hy(monkeypatch):
     # Test data exists
     assert archive.data
     assert archive.data.results
+    assert archive.data.results[0].wavelength
+    assert archive.data.results[0].luminescence_flux_density
+    assert archive.data.results[0].raw_spectrum_counts
+    assert not archive.data.results[0].dark_spectrum_counts
     assert archive.data.results[0].bandgap == 1.671 * ureg('eV')
     assert archive.data.results[0].quasi_fermi_level_splitting == 1.172 * ureg('eV')
     assert archive.data.results[0].i_voc == 1.168 * ureg('V')
