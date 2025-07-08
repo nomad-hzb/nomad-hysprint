@@ -886,6 +886,17 @@ class HySprint_trSPVmeasurement(trSPVMeasurement, EntryData):
         super().normalize(archive, logger)
 
 
+class HySprint_AbsPLResult(AbsPLResult):
+    m_def = Section(label='AbsPLResult with iVoc')
+
+    i_voc = Quantity(
+        type=np.float64,
+        unit='V',
+        description='iVoc in V, e.g. 1.23.',
+        a_eln=dict(component='NumberEditQuantity', label='iVoc'),
+    )
+
+
 class HySprint_AbsPLMeasurement(AbsPLMeasurement, EntryData):
     m_def = Section(label='Absolute PL Measurement')
 
@@ -914,7 +925,7 @@ class HySprint_AbsPLMeasurement(AbsPLMeasurement, EntryData):
 
                 # Set results header values
                 if not self.results:
-                    self.results = [AbsPLResult()]
+                    self.results = [HySprint_AbsPLResult()]
                 for key, val in result_vals.items():
                     setattr(self.results[0], key, val)
 

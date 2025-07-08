@@ -29,7 +29,8 @@ def parse_header(lines, logger):
     header_map_result = {
         'LuQY (%)': 'luminescence_quantum_yield',
         'QFLS (eV)': 'quasi_fermi_level_splitting',
-        'iVoc (V)': 'quasi_fermi_level_splitting',
+        'iVoc (V) HET': 'quasi_fermi_level_splitting',
+        'iVoc (V)': 'i_voc',
         'Bandgap (eV)': 'bandgap',
         'Jsc (mA/cm2)': 'derived_jsc',
     }
