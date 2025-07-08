@@ -58,6 +58,6 @@ def test_hysprint_abspl_parser_hy(monkeypatch):
     assert len(archive.data.results[0].luminescence_flux_density) > 0
     assert len(archive.data.results[0].raw_spectrum_counts) > 0
     assert len(archive.data.results[0].dark_spectrum_counts) == 0
-    
+
     # Clean up
     delete_json()
