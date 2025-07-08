@@ -11,11 +11,11 @@ Delay time (s)	0.000
 Bandgap (eV)	1.671
 Jsc (mA/cm2)	19.31
 EQE @ laser wavelength	0.90
-Laser spot size (cm²)	0.14
-Subcell area (cm²)	1.000
+Laser spot size (cmÂ²)	0.14
+Subcell area (cmÂ²)	1.000
 Subcell	--
 ----------------------------
-Wavelength (nm)	Luminescence flux density (photons/(s cm² nm))	Raw spectrum (counts)
+Wavelength (nm)	Luminescence flux density (photons/(s cmÂ² nm))	Raw spectrum (counts)
 3.959752E+2	0.000000E+0	1.522400E+3
 3.967686E+2	0.000000E+0	1.514200E+3
 3.975619E+2	0.000000E+0	1.509200E+3

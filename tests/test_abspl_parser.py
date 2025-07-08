@@ -31,10 +31,10 @@ def test_hysprint_abspl_parser(monkeypatch):
     # Test data exists
     assert archive.data
     assert archive.data.results
-    assert archive.data.results[0].wavelength
-    assert archive.data.results[0].luminescence_flux_density
-    assert archive.data.results[0].raw_spectrum_counts
-    assert archive.data.results[0].dark_spectrum_counts
+    assert len(archive.data.results[0].wavelength) > 0
+    assert len(archive.data.results[0].luminescence_flux_density) > 0
+    assert len(archive.data.results[0].raw_spectrum_counts) > 0
+    assert len(archive.data.results[0].dark_spectrum_counts) > 0
     assert archive.data.results[0].bandgap == 1.424 * ureg('eV')
     assert archive.data.results[0].derived_jsc == 26.46 * ureg('mA/cm**2')
     assert archive.data.results[0].quasi_fermi_level_splitting == 1.094 * ureg('eV')
@@ -51,13 +51,13 @@ def test_hysprint_abspl_parser_hy(monkeypatch):
     # Test data exists
     assert archive.data
     assert archive.data.results
-    assert archive.data.results[0].wavelength
-    assert archive.data.results[0].luminescence_flux_density
-    assert archive.data.results[0].raw_spectrum_counts
-    assert not archive.data.results[0].dark_spectrum_counts
+    assert len(archive.data.results[0].wavelength) > 0
+    assert len(archive.data.results[0].luminescence_flux_density) > 0
+    assert len(archive.data.results[0].raw_spectrum_counts) > 0
+    assert len(archive.data.results[0].dark_spectrum_counts) == 0
     assert archive.data.results[0].bandgap == 1.671 * ureg('eV')
-    assert archive.data.results[0].quasi_fermi_level_splitting == 1.172 * ureg('eV')
-    assert archive.data.results[0].i_voc == 1.168 * ureg('V')
+    assert archive.data.results[0].quasi_fermi_level_splitting == 1.168 * ureg('eV')
+    assert archive.data.results[0].i_voc == 1.172 * ureg('V')
 
     # Clean up
     delete_json()
