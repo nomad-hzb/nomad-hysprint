@@ -44,20 +44,20 @@ def test_hysprint_abspl_parser(monkeypatch):
 
 
 def test_hysprint_abspl_parser_hy(monkeypatch):
-    file = '100 40-1.abspl.txt'
+    file = '100_40-1.abspl.txt'
     archive = get_archive(file, monkeypatch)
     normalize_all(archive)
 
     # Test data exists
     assert archive.data
     assert archive.data.results
+    assert archive.data.results[0].bandgap == 1.671 * ureg('eV')
+    assert archive.data.results[0].quasi_fermi_level_splitting == 1.168 * ureg('eV')
+    assert archive.data.results[0].i_voc == 1.172 * ureg('V')
     assert len(archive.data.results[0].wavelength) > 0
     assert len(archive.data.results[0].luminescence_flux_density) > 0
     assert len(archive.data.results[0].raw_spectrum_counts) > 0
     assert len(archive.data.results[0].dark_spectrum_counts) == 0
-    assert archive.data.results[0].bandgap == 1.671 * ureg('eV')
-    assert archive.data.results[0].quasi_fermi_level_splitting == 1.168 * ureg('eV')
-    assert archive.data.results[0].i_voc == 1.172 * ureg('V')
-
+    
     # Clean up
     delete_json()

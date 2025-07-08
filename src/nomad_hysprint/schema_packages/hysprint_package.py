@@ -934,7 +934,6 @@ class HySprint_AbsPLMeasurement(AbsPLMeasurement, EntryData):
                 self.results[0].luminescence_flux_density = np.array(lum_flux, dtype=float)
                 self.results[0].raw_spectrum_counts = np.array(raw_counts, dtype=float)
                 self.results[0].dark_spectrum_counts = np.array(dark_counts, dtype=float)
-                print(self.results[0].wavelength)
 
             except Exception as e:
                 logger.warning(f'Could not parse the data file "{self.data_file}": {e}')
