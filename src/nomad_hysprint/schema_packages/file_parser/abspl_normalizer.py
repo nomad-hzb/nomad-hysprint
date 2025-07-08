@@ -80,7 +80,7 @@ def parse_numeric_data(lines, data_start_idx, logger):
     dark_counts = []
 
     if data_start_idx is not None and data_start_idx < len(lines):
-        MIN_PARTS_COUNT = 4
+        MIN_PARTS_COUNT = 3
         for line in lines[data_start_idx:]:
             if not line.strip():
                 continue
@@ -91,6 +91,8 @@ def parse_numeric_data(lines, data_start_idx, logger):
                 wavelengths.append(float(parts[0]))
                 lum_flux.append(float(parts[1]))
                 raw_counts.append(float(parts[2]))
+                if len(parts) == 3:
+                    continue  # Some files may not have dark counts
                 dark_counts.append(float(parts[3]))
             except ValueError:
                 logger.debug('Could not parse numeric row', row=line)
