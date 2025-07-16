@@ -23,6 +23,7 @@ from nomad.config.models.ui import (
     RowSelection,
     SearchQuantities,
     WidgetScatterPlot,
+    WidgetTerms,
 )
 
 schema_name = 'nomad_hysprint.schema_packages.hysprint_package.HySprint_VoilaNotebook'
@@ -99,6 +100,34 @@ hysprint_voila_app = AppEntryPoint(
             ),
             details=RowDetails(),
             selection=RowSelection(),
+        ),
+        dashboard=Dashboard(
+            widgets=[
+                WidgetTerms(
+                    title='Voila Notebook Tags',
+                    quantity='results.eln.tags',
+                    scale='linear',
+                    layout={
+                        'lg': Layout(h=4, minH=3, minW=3, w=6, x=0, y=0),
+                        'md': Layout(h=5, minH=3, minW=3, w=7, x=0, y=0),
+                        'sm': Layout(h=6, minH=3, minW=3, w=6, x=0, y=0),
+                        'xl': Layout(h=6, minH=3, minW=3, w=6, x=0, y=0),
+                        'xxl': Layout(h=6, minH=3, minW=3, w=6, x=0, y=0),
+                    },
+                ),
+                WidgetTerms(
+                    title='Authors',
+                    quantity='authors.name',
+                    scale='linear',
+                    layout={
+                        'lg': Layout(h=4, minH=3, minW=3, w=6, x=0, y=0),
+                        'md': Layout(h=5, minH=3, minW=3, w=7, x=0, y=0),
+                        'sm': Layout(h=6, minH=3, minW=3, w=6, x=0, y=0),
+                        'xl': Layout(h=6, minH=3, minW=3, w=6, x=0, y=0),
+                        'xxl': Layout(h=6, minH=3, minW=3, w=6, x=0, y=0),
+                    },
+                ),
+            ]
         ),
     ),
 )
