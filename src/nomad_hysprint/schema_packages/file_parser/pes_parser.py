@@ -6,14 +6,14 @@ Created on Fri Jun  6 19:44:15 2025
 """
 
 from baseclasses.characterizations import (
-    XPSSpecsLabProdigyAnalyzerParameters,
-    XPSSpecsLabProdigySettings,
-    XPSSpecsLabProdigySourceParameters,
+    PESSpecsLabProdigyAnalyzerParameters,
+    PESSpecsLabProdigySettings,
+    PESSpecsLabProdigySourceParameters,
 )
 from nomad.units import ureg
 
 
-def parse_xps_xy_file(filedata):
+def parse_pes_xy_file(filedata):
     res = {}
     current = res
     key = None
@@ -54,7 +54,7 @@ def map_value(value, is_number=False, with_unit=False):
 
 
 def map_specs_lab_prodigy_data(res):
-    analyzer_parameters = XPSSpecsLabProdigyAnalyzerParameters(
+    analyzer_parameters = PESSpecsLabProdigyAnalyzerParameters(
         polar_angle=map_value(res['Analyzer Parameters'].get('Polar Angle'), True, True),
         azimuth_angle=map_value(res['Analyzer Parameters'].get('Azimuth Angle'), True, True),
         rotation_angle=map_value(res['Analyzer Parameters'].get('Rotation Angle'), True, True),
@@ -68,7 +68,7 @@ def map_specs_lab_prodigy_data(res):
         focus_displacement=map_value(res['Analyzer Parameters'].get('Focus Displacement 1'), True, True),
         l1=map_value(res['Analyzer Parameters'].get('L1'), True, True),
     )
-    source_parameters = XPSSpecsLabProdigySourceParameters(
+    source_parameters = PESSpecsLabProdigySourceParameters(
         polar_angle=map_value(res['Source Parameters'].get('Polar Angle'), True, True),
         azimuth_angle=map_value(res['Source Parameters'].get('Azimuth Angle'), True, True),
         excitation_energy=map_value(res['Source Parameters'].get('Excitation Energy'), True, True),
@@ -87,7 +87,7 @@ def map_specs_lab_prodigy_data(res):
         focused=map_value(res['Source Parameters'].get('focused'), False, False),
         settings_summary=map_value(res['Source Parameters'].get('Settings Summary'), False, False),
     )
-    section = XPSSpecsLabProdigySettings(
+    section = PESSpecsLabProdigySettings(
         region=map_value(res.get('Region'), False, False),
         calibration_file=map_value(res.get('Calibration File'), False, False),
         analyzer_lens_mode=map_value(res.get('Analyzer Lens Mode'), False, False),
@@ -136,4 +136,4 @@ def map_specs_lab_prodigy_data(res):
 # folder = '/home/a2853/Downloads/1File_Per_Scan/'
 # for file in os.listdir(folder):
 #     with open(os.path.join(folder, file), encoding='ISO-8859-15') as f:
-#         res = parse_xps_xy_file(f.read())
+#         res = parse_pes_xy_file(f.read())

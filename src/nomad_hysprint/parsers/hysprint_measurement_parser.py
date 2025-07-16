@@ -46,13 +46,13 @@ from nomad_hysprint.schema_packages.hysprint_package import (
     HySprint_JVmeasurement,
     HySprint_Measurement,
     HySprint_OpenCircuitVoltage,
+    HySprint_PES,
     HySprint_PLImaging,
     HySprint_PLmeasurement,
     HySprint_SEM,
     HySprint_SimpleMPPTracking,
     HySprint_trSPVmeasurement,
     HySprint_UVvismeasurement,
-    HySprint_XPS,
     HySprint_XRD_XY,
     HZB_EnvironmentMeasurement,
     HZB_NKData,
@@ -151,8 +151,8 @@ class HySprintParser(MatchingParser):
             entry = HySprint_PLImaging()
         if measurment_type == 'xrd' and mainfile_split[-1] == 'xy':
             entry = HySprint_XRD_XY()
-        if measurment_type == 'xps' and mainfile_split[-1] in ['xy']:
-            entry = HySprint_XPS()
+        if measurment_type == 'pes' and mainfile_split[-1] in ['xy']:
+            entry = HySprint_PES()
         if measurment_type == 'uvvis':
             entry = HySprint_UVvismeasurement()
             entry.data_file = [os.path.basename(mainfile)]

@@ -1519,7 +1519,7 @@ class HySprint_XRD_XY(XRD, EntryData):
         super().normalize(archive, logger)
 
 
-class HySprint_XPS(XPS, EntryData):
+class HySprint_PES(PES, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=[
@@ -1535,7 +1535,7 @@ class HySprint_XPS(XPS, EntryData):
     )
 
     nxs_file = Quantity(type=HDF5Reference)
-    specs_lab_prodigy_metadata = SubSection(section_def=XPSSpecsLabProdigySettings)
+    specs_lab_prodigy_metadata = SubSection(section_def=PESSpecsLabProdigySettings)
 
     def normalize(self, archive, logger):
         if not self.samples and self.data_file:
@@ -1544,12 +1544,12 @@ class HySprint_XPS(XPS, EntryData):
 
         if self.data_file:
             with archive.m_context.raw_file(self.data_file, 'tr') as f:
-                from nomad_hysprint.schema_packages.file_parser.xps_parser import (
+                from nomad_hysprint.schema_packages.file_parser.pes_parser import (
                     map_specs_lab_prodigy_data,
-                    parse_xps_xy_file,
+                    parse_pes_xy_file,
                 )
 
-                results = parse_xps_xy_file(f.read())
+                results = parse_pes_xy_file(f.read())
                 self.specs_lab_prodigy_metadata, method = map_specs_lab_prodigy_data(results)
                 self.datetime = convert_datetime(
                     results['Acquisition Date'], datetime_format='%Y-%m-%d %H:%M:%S UTC', utc=True
