@@ -6,10 +6,13 @@ The data steward team has developed a suite of interactive Voila notebooks (base
 - **MPPT Analyzer:** Evaluate maximum power point tracking performance
 - **Samples Overview:** Get comprehensive views of your research samples
 - **EQE Analyzer:** Analyze external quantum efficiency measurements
+- **AbsPL Analyzer:** Analyze absolute PL measurements, compare spectra across batches
 - **File Uploader:** Simplify the measurement uploading process
 - **JV Analysis Tool:** Examine current-voltage characteristics
 - **PLI Plots:** Analyze photoluminescence imaging data
 - **Sample History:** Track the complete lifecycle of your samples
+
+We are continuing to develop these tools and are open for feedback and ideas!
 
 ---
 

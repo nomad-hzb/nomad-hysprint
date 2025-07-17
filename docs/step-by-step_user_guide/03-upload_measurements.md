@@ -7,11 +7,12 @@ In addition to synthesis and process data, the Hysprint plugin supports uploadin
 ## Supported Measurement File Types
 - JV
 - EQE
-- MPPT
-- XRD
-- XPS
+- MPPT 
+- XRD (xy-files)
+- PES (XPS, NUPS, CFSYS, He-UPS)
 - SEM
 - PL
+- AbsPL
 
 
 Unsupported formats can be uploaded within the sample upload for the experiment, but will be available only as raw files.
@@ -35,7 +36,7 @@ If you created an experimental plan and samples with IDs (see: [create_experimen
 Example:
 `HZB_MiGo_20231109_BatchX_3_0.after_3_days.jv.txt`
 
-- The first part is the ID, then you can put some individual note, then the type (e.g. `eqe`, `jv`, `pl`, `hy`, `spv`, `uvvis`, `sem`, `xrd`, `pli`), and finally the file type.
+- The first part is the ID, then you can put some individual note, then the type (e.g. `eqe`, `jv`, `pl`, `hy`, `spv`, `uvvis`, `sem`, `xrd`, `pli`, `pes`, `xps`, `abspl`), and finally the file type.
 
 If you drag and drop these files (multiple at once possible) in your upload:
 
