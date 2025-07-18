@@ -157,6 +157,10 @@ def test_hy_batch_parser(excel_file, monkeypatch):  # noqa: PLR0915
             assert m.data.properties.speed == 12 * ureg('mm/s')
             assert m.data.properties.fluence == 12 * ureg('J/cm**2')
             assert m.data.properties.power_in_percent == 3
+            assert m.data.properties.dead_area == 1 * ureg('cm**2')
+            assert m.data.properties.cell_width == 2 * ureg('mm')
+            assert m.data.properties.number_of_cells == 6
+            assert m.data.description == 'Test'
 
         elif m.data.positon_in_experimental_plan == 6:
             assert 'SlotDie' in str(type(m.data))
@@ -168,6 +172,7 @@ def test_hy_batch_parser(excel_file, monkeypatch):  # noqa: PLR0915
             assert m.data.properties.flow_rate == (12 * ureg('uL/minute')).to('ml/minute')
             assert m.data.properties.slot_die_head_distance_to_thinfilm == 4 * ureg('mm')
             assert m.data.properties.slot_die_head_speed == 2 * ureg('mm/s')
+            assert m.data.properties.temperature == ureg.Quantity(25, ureg('°C'))
             assert m.data.quenching.air_knife_angle == 1 * ureg('°')
             assert m.data.quenching.bead_volume == 12 * ureg('mm/s')
             assert m.data.quenching.drying_speed == 12 * ureg('cm/minute')
