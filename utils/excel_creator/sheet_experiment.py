@@ -204,6 +204,7 @@ def add_experiment_sheet(workbook, process_sequence, is_testing=False):
                         make_label('Air knife gap [cm]', 0.5),
                         make_label('Bead volume [mm/s]', 2),
                         make_label('Drying speed [cm/min]', 30),
+                        make_label('Chuck heating temperature [°C]', 25),
                     ]
                 )
 
@@ -341,6 +342,10 @@ def add_experiment_sheet(workbook, process_sequence, is_testing=False):
                 make_label('Fluence [J/cm2]', 0.5),
                 make_label('Power [%]', 75),
                 make_label('Recipe file', 'test_scribing_recipe.xml'),
+                make_label('Dead area [cm2]', 2),
+                make_label('Width of cell [mm]', 5),
+                make_label('Number of cells', 6),
+                make_label('Notes', "Laser Note"),
             ]
             return steps
 
