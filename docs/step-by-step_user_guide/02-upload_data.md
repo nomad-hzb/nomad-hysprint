@@ -15,15 +15,17 @@ Please follow the visual guide for uploading your experimental spreadsheet:
       - Save the file in `.xlsx` format.
 2. **Access the NOMAD Upload Interface:**
       - Go to the [NOMAD Upload Page](https://nomad-lab.eu/prod/v1/staging/gui/upload).
-3. **Name and group**
+3. **Name the upload:**
       - Give a name to the upload. Click the edit upload members, choose group from drowdown and start typing your group's name, so that the data is visible by your group.
-4. **Upload your file:**
+4. **Share the data:**
+      - Click the edit upload members button, choose group from the dropdown list and start typing your group's name, so that the data is visible by your group. Likewise, you can share with singular users of this OASIS.
+5. **Upload your file:**
       - Drag and drop your `.xlsx` file or use the file picker.
-5. **Parsing and Validation:**
+6. **Parsing and Validation:**
       - NOMAD will automatically parse your file using the Hysprint plugin.
       - Review any warnings or errors and correct your file if needed.
-6. **Publish or Share:**
-      - Once validated, you can publish your data or share it with collaborators.
+7. **Publish:**
+      - Once validated, you can (but don't have to) publish your data; This is an optional step which you might need when preparing a publication for example. Sharing with your group and other users of this OASIS is done already in step 4. 
 
 ---
 

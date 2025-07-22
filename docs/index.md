@@ -14,9 +14,9 @@ The Hysprint plugin extends the NOMAD baseclasses to provide specialized schemas
 
 ## Getting Started
 
-- [Step-by-step user guide](step-by-step_user_guide/01-spreadsheet_workflow.md)
+- [Step-by-step user guide](step-by-step_user_guide/00-overview.md)
 - [Advanced user guide](advanced_user_guide/make_your_own_voila.md)
-- [How to Cite](step-by-step_user_guide/06-how_to_cite.md)
-- [Contact](step-by-step_user_guide/07-contact.md)
+- [How to Cite](step-by-step_user_guide/05-how_to_cite.md)
+- [Contact](step-by-step_user_guide/06-contact.md)
 
 For more details on the underlying schemas, see the [baseclasses documentation](../../nomad-baseclasses/docs/index.md).
