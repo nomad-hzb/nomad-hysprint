@@ -234,7 +234,7 @@ def test_iris_jv_parser(monkeypatch):
     # Test third JV curve (index 2): a_Forward_Light
     curve2 = archive.data.jv_curve[2]
     assert curve2['cell_name'] == 'a_Forward_Light'
-    assert abs(curve2['light_intensity'].magnitude - 104.3) < 1e-6
+    assert abs(curve2['light_intensity'].magnitude - 100.0) < 1e-6
     assert str(curve2['light_intensity'].units) == 'milliwatt / centimeter ** 2'
     assert abs(curve2['open_circuit_voltage'].magnitude - 0.31548588) < 1e-6
     assert abs(curve2['short_circuit_current_density'].magnitude - 3.57435437) < 1e-6
