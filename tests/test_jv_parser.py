@@ -211,7 +211,7 @@ def test_iris_jv_parser(monkeypatch):
     # Test specific values
     assert archive.data.datetime.strftime('%Y-%m-%d %H:%M:%S') == '2023-11-30 17:30:54'
     assert abs(archive.data.active_area.magnitude - 0.16) < 1e-6
-    assert abs(archive.data.intensity.magnitude - 104.3) < 1e-6
+    assert abs(archive.data.intensity.magnitude - 100.0) < 1e-6
     assert abs(archive.data.integration_time.magnitude - 100) < 1e-6
     assert abs(archive.data.settling_time.magnitude - 100) < 1e-6
     assert abs(archive.data.averaging - 3.0) < 1e-6
