@@ -206,7 +206,7 @@ def get_jv_data_iris(filedata):
     jv_dict = {}
     jv_dict['datetime'] = convert_datetime(df_header.iloc[0, 0], '%H:%M:%S - %d.%m.%Y')
     jv_dict['active_area'] = list(ast.literal_eval(df_header.iloc[12, 0]))[0]
-    jv_dict['intensity'] = float(df_header.iloc[27, 0]) / 100 * 100
+    jv_dict['intensity'] = float(df_header.iloc[15, 0])  # Power Density
     jv_dict['integration_time'] = float(df_header.iloc[9, 0]) * 1000
     jv_dict['settling_time'] = float(df_header.iloc[10, 0]) * 1000
     jv_dict['averaging'] = float(df_header.iloc[8, 0])
