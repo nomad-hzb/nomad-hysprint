@@ -119,7 +119,7 @@ def test_hysprint_jv_parser(monkeypatch):
     assert abs(archive.data.jv_curve[5].current_density.magnitude[-1] - (-22.17339)) < 1e-6
 
     # Test corrected area
-    archive.data.corrected_area = 0.32 * ureg.cm**2
+    archive.data.corrected_active_area = 0.32 * ureg.cm**2
     mock_normalize_all(archive)
 
     # Verify normalize_all was called twice - once at start and once after setting corrected_area
@@ -127,7 +127,7 @@ def test_hysprint_jv_parser(monkeypatch):
     assert mock_normalize_all.call_args_list == [call(archive), call(archive)]
 
     assert archive.data.active_area.magnitude == 0.16
-    assert archive.data.corrected_area.magnitude == 0.32
+    assert archive.data.corrected_active_area.magnitude == 0.32
     assert archive.data.jv_curve[2].efficiency == pytest.approx(
         10.514867,
         abs=1e-4,
@@ -240,7 +240,8 @@ def test_iris_jv_parser(monkeypatch):
     assert abs(archive.data.averaging - 3.0) < 1e-6
 
     # Test curves exist
-    assert len(archive.data.jv_curve) == 24  # 6 cells (a-f) × 4 measurements (Forward/Reverse × Light/Dark)
+    # 6 cells (a-f) × 4 measurements (Forward/Reverse × Light/Dark)
+    assert len(archive.data.jv_curve) == 24
 
     # Test first JV curve (index 0): a_Forward_Dark
     curve0 = archive.data.jv_curve[0]
