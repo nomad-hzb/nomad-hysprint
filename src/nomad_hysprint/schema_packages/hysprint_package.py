@@ -1406,7 +1406,9 @@ class HySprint_Simple_NMR(NMR, EntryData):
         if self.data_file:
             with archive.m_context.raw_file(self.data_file, 'tr') as f:
                 if os.path.splitext(self.data_file)[-1] == '.txt' and self.data is None:
-                    from parsers.nmr_parser import get_nmr_data_hysprint_txt
+                    from nomad_hysprint.schema_packages.file_parser.nmr_parser import (
+                        get_nmr_data_hysprint_txt,
+                    )
 
                     shift, intensity, dt = get_nmr_data_hysprint_txt(f.read())
                     self.datetime = dt
