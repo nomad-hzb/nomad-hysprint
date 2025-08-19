@@ -23,7 +23,7 @@ import string
 import numpy as np
 from baseclasses import BaseMeasurement, BaseProcess, Batch, LayerDeposition, ReadableIdentifiersCustom
 from baseclasses.assays import EnvironmentMeasurement
-from baseclasses.characterizations import PES, XRD, PESSpecsLabProdigySettings, XRDData
+from baseclasses.characterizations import NMR, PES, XRD, NMRData, PESSpecsLabProdigySettings, XRDData
 from baseclasses.characterizations.electron_microscopy import SEM_Microscope_Merlin
 from baseclasses.chemical import Chemical
 from baseclasses.chemical_energy import (
@@ -1371,6 +1371,46 @@ class HySprint_SEM(SEM_Microscope_Merlin, EntryData):
         if not self.samples and self.detector_data:
             search_id = self.detector_data[0].split('.')[0]
             set_sample_reference(archive, self, search_id, upload_id=archive.metadata.upload_id)
+        super().normalize(archive, logger)
+
+
+class HySprint_Simple_NMR(NMR, EntryData):
+    m_def = Section(
+        a_eln=dict(
+            hide=[
+                'lab_id',
+                'users',
+                'end_time',
+                'steps',
+                'instruments',
+            ],
+            properties=dict(order=['name', 'data_file', 'samples']),
+        ),
+        a_plot=[
+            {
+                'x': ['data/shift'],
+                'y': ['data/intensity'],
+                'layout': {
+                    'yaxis': {'fixedrange': False, 'title': 'Counts'},
+                    'xaxis': {'fixedrange': False},
+                },
+            },
+        ],
+    )
+
+    def normalize(self, archive, logger):
+        if not self.samples and self.data_file:
+            search_id = self.data_file.split('.')[0]
+            set_sample_reference(archive, self, search_id, upload_id=archive.metadata.upload_id)
+
+        if self.data_file:
+            with archive.m_context.raw_file(self.data_file, 'tr') as f:
+                if os.path.splitext(self.data_file)[-1] == '.txt' and self.data is None:
+                    from parsers.nmr_parser import get_nmr_data_hysprint_txt
+
+                    shift, intensity, dt = get_nmr_data_hysprint_txt(f.read())
+                    self.datetime = dt
+                    self.data = NMRData(shift=shift, intensity=intensity)
         super().normalize(archive, logger)
 
 
