@@ -101,7 +101,7 @@ from nomad.datamodel.data import ArchiveSection, EntryData
 from nomad.datamodel.hdf5 import HDF5Reference
 from nomad.datamodel.metainfo.plot import PlotlyFigure, PlotSection
 from nomad.datamodel.results import ELN, Material, Properties, Results
-from nomad.metainfo import Quantity, SchemaPackage, Section, SubSection
+from nomad.metainfo import Datetime, Quantity, SchemaPackage, Section, SubSection
 from nomad.units import ureg
 from nomad_luqy_plugin.schema_packages.schema_package import (
     AbsPLMeasurement,
@@ -304,6 +304,21 @@ class HySprint_Ink(Ink, EntryData):
     )
 
 
+class AlternativeID(ArchiveSection):
+    m_def = Section(label_quantity='alternative_id')
+    alternative_id = Quantity(type=str, a_eln=dict(component='StringEditQuantity'))
+    location = Quantity(type=str, a_eln=dict(component='StringEditQuantity'))
+    description = Quantity(type=str, a_eln=dict(component='RichTextEditQuantity'))
+    url_to_resource = Quantity(type=str, a_eln=dict(component='URLEditQuantity'))
+
+
+class LocationLog(ArchiveSection):
+    m_def = Section(label_quantity='location')
+    location = Quantity(type=str)
+    moved_by = Quantity(type=str)
+    datetime = Quantity(type=Datetime)
+
+
 class HySprint_Sample(SolcarCellSample, EntryData):
     m_def = Section(
         a_eln=dict(
@@ -313,6 +328,9 @@ class HySprint_Sample(SolcarCellSample, EntryData):
         a_template=dict(institute='HZB_Hysprint'),
         label_quantity='sample_id',
     )
+
+    alternative_id = SubSection(section_def=AlternativeID, repeats=True)
+    location_log = SubSection(section_def=LocationLog, repeats=True)
 
 
 class HySprint_BasicSample(BasicSampleWithID, EntryData):
