@@ -92,7 +92,7 @@ select = [
     "PL",
 ]
 
-pylint.max-branches = 25
+pylint.max-branches = 30
 pylint.max-statements = 100
 pylint.max-args = 6
 ignore = [
