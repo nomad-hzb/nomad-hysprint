@@ -50,6 +50,7 @@ from nomad_hysprint.schema_packages.hysprint_package import (
     HySprint_PLImaging,
     HySprint_PLmeasurement,
     HySprint_SEM,
+    HySprint_Simple_NMR,
     HySprint_SimpleMPPTracking,
     HySprint_trSPVmeasurement,
     HySprint_UVvismeasurement,
@@ -151,6 +152,8 @@ class HySprintParser(MatchingParser):
             entry = HySprint_PLImaging()
         if measurment_type == 'xrd' and mainfile_split[-1] == 'xy':
             entry = HySprint_XRD_XY()
+        if measurment_type == 'nmr' and mainfile_split[-1] == 'txt':
+            entry = HySprint_Simple_NMR()
         if measurment_type == 'pes' and mainfile_split[-1] in ['xy']:
             entry = HySprint_PES()
         if measurment_type == 'uvvis':

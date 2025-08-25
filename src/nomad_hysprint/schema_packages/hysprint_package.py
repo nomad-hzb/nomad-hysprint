@@ -1489,6 +1489,48 @@ class HySprint_SEM(SEM_Microscope_Merlin, EntryData):
         super().normalize(archive, logger)
 
 
+class HySprint_Simple_NMR(NMR, EntryData):
+    m_def = Section(
+        a_eln=dict(
+            hide=[
+                'lab_id',
+                'users',
+                'end_time',
+                'steps',
+                'instruments',
+            ],
+            properties=dict(order=['name', 'data_file', 'samples']),
+        ),
+        a_plot=[
+            {
+                'x': ['data/chemical_shift'],
+                'y': ['data/intensity'],
+                'layout': {
+                    'yaxis': {'fixedrange': False, 'title': 'Counts'},
+                    'xaxis': {'fixedrange': False},
+                },
+            },
+        ],
+    )
+
+    def normalize(self, archive, logger):
+        if not self.samples and self.data_file:
+            search_id = self.data_file.split('.')[0]
+            set_sample_reference(archive, self, search_id, upload_id=archive.metadata.upload_id)
+
+        if self.data_file:
+            with archive.m_context.raw_file(self.data_file, 'tr') as f:
+                if os.path.splitext(self.data_file)[-1] == '.txt' and self.data is None:
+                    from nomad_hysprint.schema_packages.file_parser.nmr_parser import (
+                        get_nmr_data_hysprint_txt,
+                    )
+
+                    chemical_shift, intensity, dt = get_nmr_data_hysprint_txt(f.read())
+                    self.datetime = dt
+                    self.data = NMRData(chemical_shift=chemical_shift, intensity=intensity)
+        super().normalize(archive, logger)
+
+
 class HySprint_XRD_XY(XRD, EntryData):
     m_def = Section(
         a_eln=dict(
