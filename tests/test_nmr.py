@@ -1,6 +1,5 @@
 import pytest
 from nomad.client import normalize_all
-from nomad.units import ureg
 
 from utils import delete_json, get_archive
 
@@ -23,7 +22,7 @@ def test_normalize_all(parsed_archive, monkeypatch):
     delete_json()
 
 
-def test_mppt_simple_parser(file, monkeypatch):
+def test_nmr_simple_parser(file, monkeypatch):
     archive = get_archive(file, monkeypatch)
     normalize_all(archive)
     assert archive.data
@@ -33,8 +32,8 @@ def test_mppt_simple_parser(file, monkeypatch):
     assert hasattr(archive.data, 'data')
 
     # Test properties with proper unit handling
-    assert archive.data.data.chemical_shift[0] == 180.0 * ureg('ppm')
-    assert archive.data.data.intensity[0] == 180.0
+    assert archive.data.data.chemical_shift[0] == pytest.approx(16.33405)
+    assert archive.data.data.intensity[0] == pytest.approx(1003.5625)
 
     # Clean up
     delete_json()
