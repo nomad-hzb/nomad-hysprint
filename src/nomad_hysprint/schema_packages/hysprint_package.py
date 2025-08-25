@@ -1388,7 +1388,7 @@ class HySprint_Simple_NMR(NMR, EntryData):
         ),
         a_plot=[
             {
-                'x': ['data/shift'],
+                'x': ['data/chemical_shift'],
                 'y': ['data/intensity'],
                 'layout': {
                     'yaxis': {'fixedrange': False, 'title': 'Counts'},
@@ -1410,9 +1410,9 @@ class HySprint_Simple_NMR(NMR, EntryData):
                         get_nmr_data_hysprint_txt,
                     )
 
-                    shift, intensity, dt = get_nmr_data_hysprint_txt(f.read())
+                    chemical_shift, intensity, dt = get_nmr_data_hysprint_txt(f.read())
                     self.datetime = dt
-                    self.data = NMRData(shift=shift, intensity=intensity)
+                    self.data = NMRData(chemical_shift=chemical_shift, intensity=intensity)
         super().normalize(archive, logger)
 
 
