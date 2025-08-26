@@ -77,7 +77,8 @@ def arrange_eqe_columns(df):
     if x[1] - x[2] > 0:
         x = np.flip(x)
         y = np.flip(y)
-
+    if any(y < -0.2):
+        y *= -1
     photon_energy_raw = x
     eqe_raw = y
     return photon_energy_raw, eqe_raw
