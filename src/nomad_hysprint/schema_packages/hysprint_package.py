@@ -931,6 +931,119 @@ class HySprint_trSPVmeasurement(trSPVMeasurement, EntryData):
         super().normalize(archive, logger)
 
 
+<<<<<<< HEAD
+=======
+class HySprint_AbsPLResult(AbsPLResult):
+    m_def = Section(label='AbsPLResult with iVoc')
+
+    i_voc = Quantity(
+        type=np.float64,
+        unit='V',
+        description='iVoc in V, e.g. 1.23.',
+        a_eln=dict(component='NumberEditQuantity', label='iVoc'),
+    )
+
+
+class HySprint_AbsPLMeasurement(AbsPLMeasurement, EntryData):
+    m_def = Section(label='Absolute PL Measurement')
+    @staticmethod
+    def is_multi_entry_abspl_file(file_path, archive, logger): 
+        """
+        Heuristically detect if an AbsPL file is a multi-entry (multi-measurement) dataset.
+        Assumes `file_path` is a string path to the file on disk.
+        """
+        try:
+            with archive.m_context.raw_file(file_path, mode='rb') as f:
+                raw_bytes = f.read()
+                text = raw_bytes.decode('cp1252', errors='replace')
+                lines = text.splitlines()
+
+        except Exception as e:
+            print(f'Error reading file in is_multi_entry_abspl_file: {e}')
+            return False
+
+        for line in lines:
+            if line.strip().lower().startswith('wavelength'):
+                if len(line.split('\t')) > 4:
+                    return True
+
+        return False
+
+    def normalize(self, archive, logger):  # noqa: PLR0912, PLR0915
+        logger.debug('Starting HySprint_AbsPLMeasurement.normalize', data_file=self.data_file)
+        if self.settings is None:
+            self.settings = AbsPLSettings()
+        if self.is_multi_entry_abspl_file(self.data_file, archive, logger):#Multi entry file parser
+
+            if self.data_file:
+                try:
+                    from nomad_hysprint.schema_packages.file_parser.abspl_multi_parser import parse_abspl_multi_entry_data
+
+                    # Call the new parser function
+                    (
+                        settings_vals,
+                        result_vals,
+                        wavelengths,
+                        lum_flux,
+                    ) = parse_abspl_multi_entry_data(self.data_file, archive, logger)
+
+                    # Set settings
+                    for key, val in settings_vals.items():
+                        setattr(self.settings, key, val)
+
+                    # Set results header values
+                    if not self.results:
+                        self.results = [HySprint_AbsPLResult()]
+                    for key, val in result_vals.items():
+                        setattr(self.results[0], key, val)
+
+                    # Set spectral array data
+                    # self.results[0].wavelength = np.array(wavelengths, dtype=float)
+                    self.results[0].wavelength = np.array(wavelengths, dtype=float)
+                    self.results[0].luminescence_flux_density = np.array(lum_flux, dtype=float).ravel()
+
+                except Exception as e:
+                    logger.warning(f'Could not parse the data file "{self.data_file}": {e}')
+                    print(e)
+        else:         #Single entry file parser 
+
+            if self.data_file:
+                try:
+                    from nomad_hysprint.schema_packages.file_parser.abspl_normalizer import parse_abspl_data
+
+                    # Call the new parser function
+                    (
+                        settings_vals,
+                        result_vals,
+                        wavelengths,
+                        lum_flux,
+                        raw_counts,
+                        dark_counts,
+                    ) = parse_abspl_data(self.data_file, archive, logger)
+
+                    # Set settings
+                    for key, val in settings_vals.items():
+                        setattr(self.settings, key, val)
+
+                    # Set results header values
+                    if not self.results:
+                        self.results = [HySprint_AbsPLResult()]
+                    for key, val in result_vals.items():
+                        setattr(self.results[0], key, val)
+
+                    # Set spectral array data
+                    self.results[0].wavelength = np.array(wavelengths, dtype=float)
+                    self.results[0].luminescence_flux_density = np.array(lum_flux, dtype=float)
+                    self.results[0].raw_spectrum_counts = np.array(raw_counts, dtype=float)
+                    self.results[0].dark_spectrum_counts = np.array(dark_counts, dtype=float)
+
+                except Exception as e:
+                    logger.warning(f'Could not parse the data file "{self.data_file}": {e}')
+                    print(e)
+
+        super().normalize(archive, logger)
+
+>>>>>>> 41716bf (AbsPL: multi-measurement parser + plotting normalize + tests)
 
 class HySprint_JVmeasurement(JVMeasurement, EntryData):
     m_def = Section(
