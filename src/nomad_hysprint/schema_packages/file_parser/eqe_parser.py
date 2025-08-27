@@ -71,7 +71,7 @@ def arrange_eqe_columns(df):
     if any(x > 10):  # check if energy (eV) or wavelength (nm)
         x = hc_eVnm / x
     # check if EQE is given in (%), if so it's translated to abs. numbers
-    if any(abs(y) > 10):
+    if any(np.abs(y) > 10):
         y = y / 100
 
     if x[1] - x[2] > 0:
