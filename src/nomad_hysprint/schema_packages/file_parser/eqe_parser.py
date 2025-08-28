@@ -45,8 +45,7 @@ def interpolate_eqe(photon_energy_raw, eqe_raw):
     photon_energy_interpolated = np.linspace(
         min(photon_energy_raw), max(photon_energy_raw), 1000, endpoint=True
     )
-    eqe_interpolated = np.interp(photon_energy_interpolated,
-                                 photon_energy_raw, eqe_raw)
+    eqe_interpolated = np.interp(photon_energy_interpolated, photon_energy_raw, eqe_raw)
 
     return photon_energy_interpolated, eqe_interpolated
 
@@ -107,8 +106,7 @@ def read_file(filedata, header_lines=None):
     else:
         try:
             # header_lines - 1 assumes last header line is column names
-            df = pd.read_csv(StringIO(filedata), header=int(
-                header_lines - 1), sep='\t')
+            df = pd.read_csv(StringIO(filedata), header=int(header_lines - 1), sep='\t')
             if len(df.columns) < 2:
                 raise IndexError
         except IndexError:
@@ -118,8 +116,7 @@ def read_file(filedata, header_lines=None):
                     raise IndexError
             except IndexError:
                 try:
-                    df = pd.read_csv(StringIO(filedata),
-                                     header=int(header_lines), sep='\t')
+                    df = pd.read_csv(StringIO(filedata), header=int(header_lines), sep='\t')
                     if len(df.columns) < 2:
                         raise IndexError
                 except IndexError:
