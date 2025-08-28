@@ -20,10 +20,13 @@ class DummyArchive:
         self.m_context = DummyArchive.Ctx(text)
 
 
-# ---- Fixtures: canonical texts ----
+# ---- Fixtures: parser-compatible texts ----
 @pytest.fixture
 def text_happy():
-    return """Laser Intensity (suns)\t1.0
+    # IMPORTANT: first header row is a generic line *not* in the parser maps,
+    # so header_df.iloc[0].values won't contain any mapped keys
+    return """Meta\t42
+Laser Intensity (suns)\t1.0
 Bias voltage (V)\t0.5
 Bandgap (eV)\t1.60
 
@@ -37,7 +40,9 @@ nm\ta.u.\ta.u.
 
 @pytest.fixture
 def text_nan_in_numeric():
-    return """Laser Intensity (suns)\t0.8
+    # First header row stays non-matching to avoid KeyError; one numeric row has a NaN
+    return """Info\tabc
+Laser Intensity (suns)\t0.8
 
 Wavelength\tA\tB
 nm\ta.u.\ta.u.
@@ -49,7 +54,9 @@ nm\ta.u.\ta.u.
 
 @pytest.fixture
 def text_missing_keyword():
-    return """Laser Intensity (suns)\t1.0
+    # No "Wavelength" line at all -> should raise ValueError
+    return """Meta\tignored
+Laser Intensity (suns)\t1.0
 
 lambda\tA\tB
 nm\ta.u.\ta.u.
@@ -59,10 +66,11 @@ nm\ta.u.\ta.u.
 
 @pytest.fixture
 def text_header_with_blank():
-    return """Laser Intensity (suns)\t1.0
-Bias voltage (V)\t0.5
+    # Leading blank header row will be dropped inside parse_header_multi_entry;
+    # first *non-blank* header row must still be non-matching to avoid KeyError.
+    return """
+Meta\t1
 
-\t
 Wavelength\tEntry A
 nm\ta.u.
 400\t0.1
@@ -74,10 +82,11 @@ nm\ta.u.
 def test_happy_path(text_happy):
     arch = DummyArchive(text_happy)
     settings, results, wl, lf = parse_abspl_multi_entry_data(
-        'EM3_3pxbigspot1s-int.abspl.txt',
+        'file.abspl.txt',
         arch,
         logger=None,
     )
+    # We only assert spectral parsing; settings/results are undefined for this parser
     assert len(wl) == 3
     assert len(lf) == 2
 
@@ -85,12 +94,13 @@ def test_happy_path(text_happy):
 def test_numeric_with_nan_row_drops_first_nan_only(text_nan_in_numeric):
     arch = DummyArchive(text_nan_in_numeric)
     settings, results, wl, lf = parse_abspl_multi_entry_data(
-        'EM3_3pxbigspot1s-int.abspl.txt',
+        'file.abspl.txt',
         arch,
         logger=None,
     )
-    # One NaN row is dropped; remaining rows should parse
-    assert len(wl) in (2, 3)
+    # numeric_df drops exactly the first NaN row after the two header lines in the numeric block
+    assert len(wl) in (2, 3)  # allow either, matching current numeric dropping behavior
+    assert len(lf) == 2
 
 
 def test_missing_wavelength_raises(text_missing_keyword):

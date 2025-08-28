@@ -931,8 +931,6 @@ class HySprint_trSPVmeasurement(trSPVMeasurement, EntryData):
         super().normalize(archive, logger)
 
 
-<<<<<<< HEAD
-=======
 class HySprint_AbsPLResult(AbsPLResult):
     m_def = Section(label='AbsPLResult with iVoc')
 
@@ -1043,7 +1041,6 @@ class HySprint_AbsPLMeasurement(AbsPLMeasurement, EntryData):
 
         super().normalize(archive, logger)
 
->>>>>>> 41716bf (AbsPL: multi-measurement parser + plotting normalize + tests)
 
 class HySprint_JVmeasurement(JVMeasurement, EntryData):
     m_def = Section(
