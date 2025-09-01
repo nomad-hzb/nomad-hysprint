@@ -25,7 +25,9 @@ def get_nmr_data_hysprint_txt(filedata):
             continue
         intensity.append(float(line))
 
+
     dt_str = lines[0].split('=', 1)[1].strip().strip(' Central European Summer Time')
+
 
     f = '%A, %B %d, %Y at %I:%M:%S %p'
     dt_obj = datetime.strptime(dt_str, f)

@@ -38,7 +38,10 @@ from baseclasses import (
 from baseclasses.assays import (
     EnvironmentMeasurement,
 )
-from baseclasses.characterizations import XPS, XRD, PESSpecsLabProdigySettings, XRDData
+
+from baseclasses.assays import EnvironmentMeasurement
+from baseclasses.characterizations import NMR, PES, XRD, NMRData, PESSpecsLabProdigySettings, XRDData
+
 from baseclasses.characterizations.electron_microscopy import SEM_Microscope_Merlin
 from baseclasses.chemical import Chemical
 from baseclasses.chemical_energy import (
@@ -106,6 +109,7 @@ from nomad.datamodel.metainfo.plot import PlotlyFigure, PlotSection
 from nomad.datamodel.results import ELN, Material, Properties, Results
 from nomad.metainfo import Datetime, Quantity, SchemaPackage, Section, SubSection
 from nomad.units import ureg
+
 from nomad_luqy_plugin.schema_packages.schema_package import (
     AbsPLMeasurement,
     ELNAnnotation,
@@ -113,6 +117,8 @@ from nomad_luqy_plugin.schema_packages.schema_package import (
     AbsPLResult,
 )
 
+from nomad_luqy_plugin.schema_packages.schema_package import AbsPLMeasurement, AbsPLResult, AbsPLSettings
+from pynxtools.dataconverter.convert import convert
 from pynxtools.dataconverter.convert import convert
 from nomad_luqy_plugin.schema_packages.schema_package import AbsPLMeasurement
 from nomad_luqy_plugin.schema_packages.schema_package import (
@@ -944,6 +950,7 @@ class HySprint_AbsPLResult(AbsPLResult):
 
 class HySprint_AbsPLMeasurement(AbsPLMeasurement, EntryData):
     m_def = Section(label='Absolute PL Measurement')
+
     @staticmethod
     def is_multi_entry_abspl_file(file_path, archive, logger): 
         """
@@ -1038,6 +1045,42 @@ class HySprint_AbsPLMeasurement(AbsPLMeasurement, EntryData):
                 except Exception as e:
                     logger.warning(f'Could not parse the data file "{self.data_file}": {e}')
                     print(e)
+
+
+
+        if self.data_file:
+            try:
+                from nomad_hysprint.schema_packages.file_parser.abspl_normalizer import parse_abspl_data
+
+                # Call the new parser function
+                (
+                    settings_vals,
+                    result_vals,
+                    wavelengths,
+                    lum_flux,
+                    raw_counts,
+                    dark_counts,
+                ) = parse_abspl_data(self.data_file, archive, logger)
+
+                # Set settings
+                for key, val in settings_vals.items():
+                    setattr(self.settings, key, val)
+
+                # Set results header values
+                if not self.results:
+                    self.results = [HySprint_AbsPLResult()]
+                for key, val in result_vals.items():
+                    setattr(self.results[0], key, val)
+
+                # Set spectral array data
+                self.results[0].wavelength = np.array(wavelengths, dtype=float)
+                self.results[0].luminescence_flux_density = np.array(lum_flux, dtype=float)
+                self.results[0].raw_spectrum_counts = np.array(raw_counts, dtype=float)
+                self.results[0].dark_spectrum_counts = np.array(dark_counts, dtype=float)
+
+            except Exception as e:
+                logger.warning(f'Could not parse the data file "{self.data_file}": {e}')
+                print(e)
 
         super().normalize(archive, logger)
 
