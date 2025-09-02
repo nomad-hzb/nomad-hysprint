@@ -171,7 +171,7 @@ class HySprintExperimentParser(MatchingParser):
                 if 'laser' in col.lower() and 'scribing' in col.lower():
                     archives.append(map_laser_scribing(i, j, lab_ids, row, upload_id, HySprint_LaserScribing))
 
-                if 'ink' in col.lower and 'recycling' in col.lower():
+                if 'ink' in col.lower() and 'recycling' in col.lower():
                     archives.append(
                         map_ink_recycling(i, j, lab_ids, row, upload_id, InkRecycling_RecyclingExperiment)
                     )
