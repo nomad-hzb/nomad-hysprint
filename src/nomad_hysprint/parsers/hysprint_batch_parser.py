@@ -186,7 +186,7 @@ class HySprintExperimentParser(MatchingParser):
 
                 if 'evaporation' in col.lower():
                     coevap = False
-                    if 'co' in col.lower() and 'Evaporation' in col.lower():
+                    if 'co' in col.lower() and 'evaporation' in col.lower():
                         coevap = True
                     archives.append(
                         map_evaporation(i, j, lab_ids, row, upload_id, HySprint_Evaporation, coevap)
