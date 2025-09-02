@@ -121,7 +121,8 @@ class HySprintExperimentParser(MatchingParser):
             .split('_')[0]
             .lower()
             .startswith('c-')  # custom sample ID format C-1_HZB_Test_1_1
-            else '_'.join(sample_ids[0].split('_')[:-1])  # standard sample ID format HZB_Test_1_1_C-1
+            # standard sample ID format HZB_Test_1_1_C-1
+            else '_'.join(sample_ids[0].split('_')[:-1])
         )
         archives = [map_batch(sample_ids, batch_id, upload_id, HySprint_Batch)]
         substrates = []
@@ -164,18 +165,18 @@ class HySprintExperimentParser(MatchingParser):
                     for _, x in df[['Experiment Info', col]].iterrows()
                     if x[col].astype('object').equals(row.astype('object'))
                 ]
-                if 'Cleaning' in col:
+                if 'cleaning' in col.lower():
                     archives.append(map_cleaning(i, j, lab_ids, row, upload_id, HySprint_Cleaning))
 
-                if 'Laser Scribing' in col:
+                if 'laser' in col.lower() and 'scribing' in col.lower():
                     archives.append(map_laser_scribing(i, j, lab_ids, row, upload_id, HySprint_LaserScribing))
 
-                if 'Ink Recycling' in col:
+                if 'ink' in col.lower and 'recycling' in col.lower():
                     archives.append(
                         map_ink_recycling(i, j, lab_ids, row, upload_id, InkRecycling_RecyclingExperiment)
                     )
 
-                if 'Generic Process' in col:  # move up
+                if 'generic' in col.lower() and 'process' in col.lower():  # move up
                     generic_process = map_generic(i, j, lab_ids, row, upload_id, HySprint_Process)
                     map_generic_parameters(generic_process[1], row)
                     archives.append(generic_process)
@@ -183,29 +184,29 @@ class HySprintExperimentParser(MatchingParser):
                 if pd.isna(row.get('Material name')):
                     continue
 
-                if 'Evaporation' in col:
+                if 'evaporation' in col.lower():
                     coevap = False
-                    if 'Co-Evaporation' in col:
+                    if 'co' in col.lower() and 'Evaporation' in col.lower():
                         coevap = True
                     archives.append(
                         map_evaporation(i, j, lab_ids, row, upload_id, HySprint_Evaporation, coevap)
                     )
 
-                if 'Spin Coating' in col:
+                if 'spin' in col.lower() and 'coating' in col.lower():
                     archives.append(map_spin_coating(i, j, lab_ids, row, upload_id, HySprint_SpinCoating))
 
-                if 'Slot Die Coating' in col:
+                if 'slot' in col.lower and 'die' in col.lower() and 'coating' in col.lower():
                     archives.append(map_sdc(i, j, lab_ids, row, upload_id, HySprint_SlotDieCoating))
 
-                if 'Sputtering' in col:
+                if 'sputtering' in col.lower():
                     archives.append(map_sputtering(i, j, lab_ids, row, upload_id, HySprint_Sputtering))
 
-                if 'Inkjet Printing' in col:
+                if 'inkjet' in col.lower() and 'printing' in col.lower():
                     archives.append(
                         map_inkjet_printing(i, j, lab_ids, row, upload_id, HySprint_Inkjet_Printing)
                     )
 
-                if 'ALD' in col:
+                if 'ald' in col.lower():
                     archives.append(
                         map_atomic_layer_deposition(i, j, lab_ids, row, upload_id, IRIS_AtomicLayerDeposition)
                     )
