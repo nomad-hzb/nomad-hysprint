@@ -195,7 +195,7 @@ class HySprintExperimentParser(MatchingParser):
                 if 'spin' in col.lower() and 'coating' in col.lower():
                     archives.append(map_spin_coating(i, j, lab_ids, row, upload_id, HySprint_SpinCoating))
 
-                if 'slot' in col.lower and 'die' in col.lower() and 'coating' in col.lower():
+                if 'slot' in col.lower() and 'die' in col.lower() and 'coating' in col.lower():
                     archives.append(map_sdc(i, j, lab_ids, row, upload_id, HySprint_SlotDieCoating))
 
                 if 'sputtering' in col.lower():
