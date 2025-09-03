@@ -26,6 +26,20 @@ from nomad.config.models.ui import (
     WidgetTerms,
 )
 
+from nomad_hysprint.apps.solar_cell_overview import solar_cell_overview
+
+solar_cell_overview_entry_point = AppEntryPoint(
+    name='SOlarCellOverview',
+    description="""
+      This app allows you to search **solar cell data** within NOMAD. The filter
+      menu on the left and the shown default columns are specifically designed
+      for solar cell exploration. The dashboard directly shows useful
+      interactive statistics about the data.
+    """,
+    app=solar_cell_overview,
+)
+
+
 schema_name = 'nomad_hysprint.schema_packages.hysprint_package.HySprint_VoilaNotebook'
 hysprint_voila_app = AppEntryPoint(
     name='voila',

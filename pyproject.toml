@@ -138,3 +138,4 @@ ink_recycling_package = "nomad_hysprint.schema_packages:ink_recycling_package"
 
 hysprint_voila_app = "nomad_hysprint.apps:hysprint_voila_app"
 absolute_pl_app = "nomad_hysprint.apps:absolute_pl_app"
+solar_cell_overview_entry_point = "nomad_hysprint.apps:solar_cell_overview_entry_point"
