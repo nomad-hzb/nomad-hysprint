@@ -135,7 +135,7 @@ solar_cell_overview = App(
                 title='PCE Timeline',
                 autorange=True,
                 x=Axis(
-                    search_quantity=f'data.datetime#{schema}',
+                    search_quantity='entry_create_time',
                     title='Datetime',
                     scale='linear',
                 ),
