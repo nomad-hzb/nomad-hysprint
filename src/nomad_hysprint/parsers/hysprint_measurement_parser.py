@@ -27,15 +27,9 @@ from baseclasses.helper.utilities import (
     set_sample_reference,
 )
 from nomad.datamodel import EntryArchive
-from nomad.datamodel.data import (
-    EntryData,
-)
-from nomad.datamodel.metainfo.basesections import (
-    Activity,
-)
-from nomad.metainfo import (
-    Quantity,
-)
+from nomad.datamodel.data import EntryData
+from nomad.datamodel.metainfo.basesections import Activity
+from nomad.metainfo import Quantity
 from nomad.parsing import MatchingParser
 
 from nomad_hysprint.schema_packages.hysprint_package import (
@@ -109,9 +103,7 @@ class HySprintParser(MatchingParser):
         measurment_type = mainfile_split[-2].lower()
         entry = HySprint_Measurement()
         if mainfile_split[-1].lower() == 'mpt' and measurment_type == 'hy':
-            from nomad_hysprint.schema_packages.file_parser.mps_file_parser import (
-                read_mpt_file,
-            )
+            from nomad_hysprint.schema_packages.file_parser.mps_file_parser import read_mpt_file
 
             with open(mainfile) as f:
                 metadata, _, technique = read_mpt_file(f)
