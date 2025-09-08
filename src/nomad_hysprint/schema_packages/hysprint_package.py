@@ -890,7 +890,6 @@ class HySprint_trSPVmeasurement(trSPVMeasurement, EntryData):
 
     def normalize(self, archive, logger):
         from baseclasses.helper.archive_builder.spv_archive import get_spv_archive
-
         from nomad_hysprint.schema_packages.file_parser.spv_parser import get_spv_data
 
         if self.data_file and self.data is None and self.properties is None:
@@ -1040,7 +1039,6 @@ class HySprint_JVmeasurement(JVMeasurement, EntryData):
 
     def normalize(self, archive, logger):
         from baseclasses.helper.archive_builder.jv_archive import get_jv_archive
-
         from nomad_hysprint.schema_packages.file_parser.jv_parser import get_jv_data
 
         if not self.samples and self.data_file:
@@ -1145,7 +1143,6 @@ class HySprint_MPPTracking(MPPTrackingHsprintCustom, PlotSection, EntryData):
     def normalize(self, archive, logger):
         from baseclasses.helper.archive_builder.mpp_hysprint_archive import get_mpp_hysprint_samples
         from baseclasses.helper.utilities import rewrite_json
-
         from nomad_hysprint.schema_packages.file_parser.load_mpp_hysprint import load_mpp_file
 
         if self.data_file and self.load_data_from_file:
@@ -1157,7 +1154,7 @@ class HySprint_MPPTracking(MPPTrackingHsprintCustom, PlotSection, EntryData):
             #     encoding = get_encoding(f)
 
             with archive.m_context.raw_file(self.data_file, 'tr', encoding='ascii') as f:
-                if os.path.splitext(f.name)[-1] != '.csv':
+                if os.path.splitext(f.name)[-1].lower() != '.csv':
                     return
 
                 data = load_mpp_file(f.read())  # , encoding)
@@ -1488,7 +1485,7 @@ class HySprint_XRD_XY(XRD, EntryData):
 
         if self.data_file:
             with archive.m_context.raw_file(self.data_file, 'tr') as f:
-                if os.path.splitext(self.data_file)[-1] == '.xy' and self.data is None:
+                if os.path.splitext(self.data_file)[-1].lower() == '.xy' and self.data is None:
                     if 'Id' in f.readline():
                         skiprows = 1
                         data = pd.read_csv(f, sep=' |\t', header=None, skiprows=skiprows)
@@ -1655,12 +1652,11 @@ class HySprint_CyclicVoltammetry(CyclicVoltammetry, EntryData):
             set_sample_reference(archive, self, search_id, upload_id=archive.metadata.upload_id)
         if self.data_file:
             with archive.m_context.raw_file(self.data_file, 'rt') as f:
-                if os.path.splitext(self.data_file)[-1] == '.mpt':
+                if os.path.splitext(self.data_file)[-1].lower() == '.mpt':
                     from baseclasses.helper.archive_builder.mpt_get_archive import (
                         get_cv_properties,
                         get_voltammetry_data,
                     )
-
                     from nomad_hysprint.schema_packages.file_parser.mps_file_parser import read_mpt_file
 
                     metadata, data, technique = read_mpt_file(f)
@@ -1671,7 +1667,7 @@ class HySprint_CyclicVoltammetry(CyclicVoltammetry, EntryData):
             with archive.m_context.raw_file(self.data_file, 'rt') as f:
                 file_content = f.read()
                 if (
-                    os.path.splitext(self.data_file)[-1] == '.csv'
+                    os.path.splitext(self.data_file)[-1].lower() == '.csv'
                     and 'Experiment:' in file_content
                     and 'Start date:' in file_content
                     and 'Time (s)' in file_content
@@ -1746,13 +1742,12 @@ class HySprint_ElectrochemicalImpedanceSpectroscopy(ElectrochemicalImpedanceSpec
             set_sample_reference(archive, self, search_id, upload_id=archive.metadata.upload_id)
         if self.data_file:
             with archive.m_context.raw_file(self.data_file, 'rt') as f:
-                if os.path.splitext(self.data_file)[-1] == '.mpt':
+                if os.path.splitext(self.data_file)[-1].lower() == '.mpt':
                     from baseclasses.helper.archive_builder.mpt_get_archive import (
                         get_eis_data,
                         get_eis_properties,
                         get_meta_data,
                     )
-
                     from nomad_hysprint.schema_packages.file_parser.mps_file_parser import read_mpt_file
 
                     metadata, data, technique = read_mpt_file(f)
@@ -1809,12 +1804,11 @@ class HySprint_OpenCircuitVoltage(OpenCircuitVoltage, EntryData):
             set_sample_reference(archive, self, search_id, upload_id=archive.metadata.upload_id)
         if self.data_file:
             with archive.m_context.raw_file(self.data_file, 'rt') as f:
-                if os.path.splitext(self.data_file)[-1] == '.mpt':
+                if os.path.splitext(self.data_file)[-1].lower() == '.mpt':
                     from baseclasses.helper.archive_builder.mpt_get_archive import (
                         get_ocv_properties,
                         get_voltammetry_data,
                     )
-
                     from nomad_hysprint.schema_packages.file_parser.mps_file_parser import read_mpt_file
 
                     metadata, data, technique = read_mpt_file(f)
@@ -1826,7 +1820,7 @@ class HySprint_OpenCircuitVoltage(OpenCircuitVoltage, EntryData):
             with archive.m_context.raw_file(self.data_file, 'rt') as f:
                 file_content = f.read()
                 if (
-                    os.path.splitext(self.data_file)[-1] == '.csv'
+                    os.path.splitext(self.data_file)[-1].lower() == '.csv'
                     and 'Experiment:' in file_content
                     and 'Start date:' in file_content
                     and 'Time (s)' in file_content
@@ -1887,7 +1881,6 @@ class HZB_NKData(NKData, EntryData):
 
         with archive.m_context.raw_file(self.data_file, 'tr', encoding=encoding) as f:
             from baseclasses.helper.archive_builder.nk_archive import get_nk_archive
-
             from nomad_hysprint.schema_packages.file_parser.nk_parser import get_nk_data
 
             nk_data, metadata = get_nk_data(f.read())

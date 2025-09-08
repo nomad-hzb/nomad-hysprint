@@ -77,8 +77,10 @@ def update_general_process_entries(entry, entry_id, archive, logger):
     query = {
         'entry_id': entry_id,
     }
-    search_result = search(owner='all', query=query, user_id=archive.metadata.main_author.user_id)
-    entry_type = search_result.data[0].get('entry_type') if len(search_result.data) == 1 else None
+    search_result = search(owner='all', query=query,
+                           user_id=archive.metadata.main_author.user_id)
+    entry_type = search_result.data[0].get(
+        'entry_type') if len(search_result.data) == 1 else None
     if entry_type != 'HySprint_Measurement':
         return None
     new_entry_dict = entry.m_to_dict()
@@ -94,7 +96,8 @@ def update_general_process_entries(entry, entry_id, archive, logger):
         pass
         # logger.error('Error in processing data: ', e)
     print(type(entry).__name__)
-    new_entry = getattr(sys.modules[__name__], type(entry).__name__).m_from_dict(new_entry_dict)
+    new_entry = getattr(sys.modules[__name__], type(
+        entry).__name__).m_from_dict(new_entry_dict)
     return new_entry
 
 
@@ -108,7 +111,7 @@ class HySprintParser(MatchingParser):
             notes = '.'.join(mainfile_split[1:-2])
         measurment_type = mainfile_split[-2].lower()
         entry = HySprint_Measurement()
-        if mainfile_split[-1] == 'mpt' and measurment_type == 'hy':
+        if mainfile_split[-1].lower() == 'mpt' and measurment_type.lower() == 'hy':
             from nomad_hysprint.schema_packages.file_parser.mps_file_parser import (
                 read_mpt_file,
             )
@@ -121,7 +124,7 @@ class HySprintParser(MatchingParser):
                 entry = HySprint_OpenCircuitVoltage()
             if 'Potentio Electrochemical Impedance Spectroscopy' in technique:
                 entry = HySprint_ElectrochemicalImpedanceSpectroscopy()
-        if mainfile_split[-1] == 'csv' and measurment_type == 'hy':
+        if mainfile_split[-1].lower() == 'csv' and measurment_type == 'hy':
             with open(mainfile) as f:
                 file_content = f.read()
             if (
@@ -136,39 +139,41 @@ class HySprintParser(MatchingParser):
                 and 'Aux A (V)' in file_content
             ):
                 entry = HySprint_OpenCircuitVoltage()
-        if mainfile_split[-1] in ['txt', 'json'] and measurment_type == 'jv':
+        if mainfile_split[-1].lower() in ['txt', 'json'] and measurment_type.lower() == 'jv':
             entry = HySprint_JVmeasurement()
-        if mainfile_split[-1] == 'txt' and measurment_type == 'abspl':
+        if mainfile_split[-1].lower() == 'txt' and measurment_type == 'abspl':
             entry = HySprint_AbsPLMeasurement()
-        if mainfile_split[-1] == 'txt' and measurment_type == 'spv':
+        if mainfile_split[-1].lower() == 'txt' and measurment_type == 'spv':
             entry = HySprint_trSPVmeasurement()
-        if (mainfile_split[-1] == 'txt' or mainfile_split[-1] == 'TRQ') and measurment_type == 'eqe':
+        if (
+            mainfile_split[-1].lower() == 'txt' or mainfile_split[-1].upper() == 'TRQ'
+        ) and measurment_type == 'eqe':
             entry = HySprint_EQEmeasurement()
-        if mainfile_split[-1] in ['tif', 'tiff'] and measurment_type.lower() == 'sem':
+        if mainfile_split[-1].lower() in ['tif', 'tiff'] and measurment_type.lower() == 'sem':
             entry = HySprint_SEM()
             entry.detector_data = [os.path.basename(mainfile)]
         if measurment_type == 'pl':
             entry = HySprint_PLmeasurement()
         if measurment_type == 'pli':
             entry = HySprint_PLImaging()
-        if measurment_type == 'xrd' and mainfile_split[-1] == 'xy':
+        if measurment_type == 'xrd' and mainfile_split[-1].lower() == 'xy':
             entry = HySprint_XRD_XY()
-        if measurment_type == 'nmr' and mainfile_split[-1] == 'txt':
+        if measurment_type == 'nmr' and mainfile_split[-1].lower() == 'txt':
             entry = HySprint_Simple_NMR()
-        if measurment_type == 'pes' and mainfile_split[-1] in ['xy']:
+        if measurment_type == 'pes' and mainfile_split[-1].lower() in ['xy']:
             entry = HySprint_PES()
         if measurment_type == 'uvvis':
             entry = HySprint_UVvismeasurement()
             entry.data_file = [os.path.basename(mainfile)]
-        if mainfile_split[-1] in ['txt'] and measurment_type == 'env':
+        if mainfile_split[-1].lower() in ['txt'] and measurment_type == 'env':
             entry = HZB_EnvironmentMeasurement()
-        if mainfile_split[-1] in ['nk']:
+        if mainfile_split[-1].lower() in ['nk']:
             entry = HZB_NKData()
-        if mainfile_split[-1] in ['txt', 'csv'] and measurment_type == 'mppt':
+        if mainfile_split[-1].lower() in ['txt', 'csv'] and measurment_type == 'mppt':
             entry = HySprint_SimpleMPPTracking()
         archive.metadata.entry_name = os.path.basename(mainfile)
 
-        if mainfile_split[-1] not in ['nk']:
+        if mainfile_split[-1].lower() not in ['nk']:
             search_id = mainfile_split[0]
             set_sample_reference(archive, entry, search_id)
 
@@ -181,7 +186,8 @@ class HySprintParser(MatchingParser):
 
         file_name = f'{os.path.basename(mainfile)}.archive.json'
         eid = get_entry_id_from_file_name(file_name, archive)
-        archive.data = RawFileHZB(processed_archive=get_reference(archive.metadata.upload_id, eid))
+        archive.data = RawFileHZB(processed_archive=get_reference(
+            archive.metadata.upload_id, eid))
         new_entry_created = create_archive(entry, archive, file_name)
         if not new_entry_created:
             new_entry = update_general_process_entries(entry, eid, archive, logger)
