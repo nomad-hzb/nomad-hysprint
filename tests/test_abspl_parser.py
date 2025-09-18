@@ -52,7 +52,7 @@ def test_hysprint_abspl_parser_hy(monkeypatch):
     assert archive.data
     assert archive.data.results
     assert archive.data.results[0].bandgap == 1.671 * ureg('eV')
-    assert archive.data.results[0].quasi_fermi_level_splitting == 1.168 * ureg('eV')
+    assert archive.data.results[0].quasi_fermi_level_splitting_het == 1.168 * ureg('eV')
     assert archive.data.results[0].i_voc == 1.172 * ureg('V')
     assert len(archive.data.results[0].wavelength) > 0
     assert len(archive.data.results[0].luminescence_flux_density) > 0
