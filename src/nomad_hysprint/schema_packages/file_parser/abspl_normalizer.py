@@ -1,3 +1,34 @@
+from io import StringIO
+
+import pandas as pd
+
+header_map_settings = {
+    'Laser intensity (suns)': 'laser_intensity_suns',
+    'Bias Voltage (V)': 'bias_voltage',
+    'Bias voltage (V)': 'bias_voltage',
+    'SMU current density (mA/cm2)': 'smu_current_density',
+    'Integration Time (ms)': 'integration_time',
+    'Delay time (s)': 'delay_time',
+    'Delay Time (s)': 'delay_time',
+    'EQE @ laser wavelength': 'eqe_laser_wavelength',
+    'Laser spot size (cm²)': 'laser_spot_size',
+    'Laser spot size (cm�)': 'laser_spot_size',
+    'Subcell area (cm²)': 'subcell_area',
+    'Subcell area (cm�)': 'subcell_area',
+    'Subcell': 'subcell_description',
+}
+header_map_result = {
+    'LuQY (%)': 'luminescence_quantum_yield',
+    'QFLS (eV)': 'quasi_fermi_level_splitting',
+    'QFLS LuQY (eV)': 'quasi_fermi_level_splitting',
+    'QFLS HET (eV)': 'quasi_fermi_level_splitting_het',
+    'iVoc (V) HET': 'quasi_fermi_level_splitting_het',
+    'iVoc (V)': 'i_voc',
+    'Bandgap (eV)': 'bandgap',
+    'Jsc (mA/cm2)': 'derived_jsc',
+}
+
+
 def parse_abspl_data(data_file, archive, logger):
     """Parses the AbsPL data file and returns extracted settings and spectral arrays."""
     with archive.m_context.raw_file(data_file, mode='rb') as f:
@@ -13,28 +44,6 @@ def parse_abspl_data(data_file, archive, logger):
 
 
 def parse_header(lines, logger):
-    header_map_settings = {
-        'Laser intensity (suns)': 'laser_intensity_suns',
-        'Bias Voltage (V)': 'bias_voltage',
-        'SMU current density (mA/cm2)': 'smu_current_density',
-        'Integration Time (ms)': 'integration_time',
-        'Delay time (s)': 'delay_time',
-        'EQE @ laser wavelength': 'eqe_laser_wavelength',
-        'Laser spot size (cm²)': 'laser_spot_size',
-        'Laser spot size (cm�)': 'laser_spot_size',
-        'Subcell area (cm²)': 'subcell_area',
-        'Subcell area (cm�)': 'subcell_area',
-        'Subcell': 'subcell_description',
-    }
-    header_map_result = {
-        'LuQY (%)': 'luminescence_quantum_yield',
-        'QFLS (eV)': 'quasi_fermi_level_splitting',
-        'iVoc (V) HET': 'quasi_fermi_level_splitting',
-        'iVoc (V)': 'i_voc',
-        'Bandgap (eV)': 'bandgap',
-        'Jsc (mA/cm2)': 'derived_jsc',
-    }
-
     settings_vals = {}
     result_vals = {}
     header_done = False
@@ -106,3 +115,19 @@ def parse_numeric_data(lines, data_start_idx, logger):
     )
 
     return wavelengths, lum_flux, raw_counts, dark_counts
+
+
+def parse_multiple_abspl(filedata):
+    metadata_str, data_str = filedata.split('----------------------------', 1)
+    metadata = pd.read_csv(StringIO(metadata_str.strip()), sep='\t', header=None, index_col=0)
+    data = pd.read_csv(StringIO(data_str.strip()), sep='\t', header=None, skiprows=2)
+
+    settings_vals = {}
+    results = {}
+    for key in metadata.index:
+        if key in header_map_settings:
+            settings_vals[header_map_settings[key]] = metadata.loc[key][1]
+        if key in header_map_result:
+            results[header_map_result[key]] = metadata.loc[key]
+
+    return settings_vals, results, data
