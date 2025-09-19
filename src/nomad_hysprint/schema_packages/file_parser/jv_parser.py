@@ -248,8 +248,8 @@ def get_jv_data_iris_json(filedata):
     for m in data['data']:
         jv_dict['J_sc'].append(m['parameters']['J_sc'])
         jv_dict['V_oc'].append(m['parameters']['V_oc'])
-        jv_dict['Fill_factor'].append(m['parameters']['FF'])
-        jv_dict['Efficiency'].append(m['parameters']['Eff'])
+        jv_dict['Fill_factor'].append(m['parameters']['FF'] * 100)
+        jv_dict['Efficiency'].append(m['parameters']['Eff'] * 100)
         jv_dict['J_MPP'].append(m['parameters']['J_Mpp'])
         jv_dict['U_MPP'].append(m['parameters']['V_Mpp'])
         jv_dict['R_ser'].append(m['parameters']['R_s'])
