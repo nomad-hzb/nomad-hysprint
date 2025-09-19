@@ -291,7 +291,7 @@ def test_iris_jv_json_parser(monkeypatch):
     # Test first JV curve (index 0): a_Forward_Dark
     curve0 = archive.data.jv_curve[0]
     assert curve0['cell_name'] == 'A FWD'
-    assert round(curve0['open_circuit_voltage'], 5) == -0.00173
+    assert round(curve0['open_circuit_voltage'], 5) == -0.00173 * ureg('V')
     assert round(curve0['voltage'][0], 3) == -0.20 * ureg('V')
 
     # Clean up
