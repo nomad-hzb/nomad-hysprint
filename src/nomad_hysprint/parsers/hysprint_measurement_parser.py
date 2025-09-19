@@ -136,7 +136,7 @@ class HySprintParser(MatchingParser):
                 and 'Aux A (V)' in file_content
             ):
                 entry = HySprint_OpenCircuitVoltage()
-        if mainfile_split[-1] == 'txt' and measurment_type == 'jv':
+        if mainfile_split[-1] in ['txt', 'json'] and measurment_type == 'jv':
             entry = HySprint_JVmeasurement()
         if mainfile_split[-1] == 'txt' and measurment_type == 'abspl':
             entry = HySprint_AbsPLMeasurement()

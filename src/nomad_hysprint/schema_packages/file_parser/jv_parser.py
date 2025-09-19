@@ -17,6 +17,7 @@
 #
 
 import ast
+import json
 from io import StringIO
 
 import numpy as np
@@ -236,9 +237,40 @@ def get_jv_data_iris(filedata):
     return jv_dict
 
 
+def get_jv_data_iris_json(filedata):
+    data = json.loads(filedata)
+    jv_dict = {}
+    jv_dict['intensity'] = data['parameters']['irradiance'] / 10
+    jv_dict['settling_time'] = data['parameters']['settling_time_ms']
+    jv_dict['jv_curve'] = []
+    for c in ['J_sc', 'V_oc', 'Fill_factor', 'Efficiency', 'P_MPP', 'J_MPP', 'U_MPP', 'R_ser', 'R_par']:
+        jv_dict[c] = []
+    for m in data['data']:
+        jv_dict['J_sc'].append(m['parameters']['J_sc'])
+        jv_dict['V_oc'].append(m['parameters']['V_oc'])
+        jv_dict['Fill_factor'].append(m['parameters']['FF'])
+        jv_dict['Efficiency'].append(m['parameters']['Eff'])
+        jv_dict['J_MPP'].append(m['parameters']['J_Mpp'])
+        jv_dict['U_MPP'].append(m['parameters']['V_Mpp'])
+        jv_dict['R_ser'].append(m['parameters']['R_s'])
+        jv_dict['R_par'].append(m['parameters']['R_p'])
+        jv_dict['jv_curve'].append(
+            {
+                'name': m['pin'] + ' ' + m['direction'],
+                'voltage': [v['voltage'] for v in m['measurements']],
+                'current_density': [c['current_density'] for c in m['measurements']],
+            }
+        )
+
+    return jv_dict
+
+
 def get_jv_data(filedata):
     if filedata.startswith('Keithley'):
         return get_jv_data_hysprint(filedata), 'HySprint HyVap'
     if 'SoSim PVcomB' in filedata:
         return get_jv_data_pvcomb_1(filedata), 'PVcomB'
+    if filedata.startswith('{') and 'parameters' in filedata[:50]:
+        return get_jv_data_iris_json(filedata), 'IRIS'
+
     return get_jv_data_iris(filedata), 'IRIS HZBGloveBoxes Pero4SOSIMStorage'
