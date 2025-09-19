@@ -217,7 +217,8 @@ def test_iris_jv_parser(monkeypatch):
     assert abs(archive.data.averaging - 3.0) < 1e-6
 
     # Test curves exist
-    assert len(archive.data.jv_curve) == 24  # 6 cells (a-f) × 4 measurements (Forward/Reverse × Light/Dark)
+    # 6 cells (a-f) × 4 measurements (Forward/Reverse × Light/Dark)
+    assert len(archive.data.jv_curve) == 24
 
     # Test first JV curve (index 0): a_Forward_Dark
     curve0 = archive.data.jv_curve[0]
@@ -273,6 +274,25 @@ def test_iris_jv_parser(monkeypatch):
         assert 'cell_name' in curve
         assert 'voltage' in curve and len(curve['voltage']) > 0
         assert 'current_density' in curve and len(curve['current_density']) > 0
+
+    # Clean up
+    delete_json()
+
+
+def test_iris_jv_json_parser(monkeypatch):
+    file = 'hzb_TestP_AA_1_c-1.1_JM261.jv.txt'
+    archive = get_archive(file, monkeypatch)
+    normalize_all(archive)
+
+    # Test data exists
+    assert archive.data
+    assert len(archive.data.jv_curve) == 12
+
+    # Test first JV curve (index 0): a_Forward_Dark
+    curve0 = archive.data.jv_curve[0]
+    assert curve0['cell_name'] == 'A FWD'
+    assert curve0['fill_factor'] == 0.002465562
+    assert round(curve0['voltage'][0], 3) == -0.20 * ureg('V')
 
     # Clean up
     delete_json()
