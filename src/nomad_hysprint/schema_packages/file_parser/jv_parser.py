@@ -265,11 +265,6 @@ def get_jv_data_iris_json(filedata):
     return jv_dict
 
 
-file = '/home/a2853/Downloads/hzb_TestP_AA_1_c-1.1_JM261.jv.txt'
-with open(file) as f:
-    d = get_jv_data_iris_json(f.read())
-
-
 def get_jv_data(filedata):
     if filedata.startswith('Keithley'):
         return get_jv_data_hysprint(filedata), 'HySprint HyVap'
