@@ -1157,7 +1157,7 @@ class HySprint_MPPTracking(MPPTrackingHsprintCustom, PlotSection, EntryData):
             #     encoding = get_encoding(f)
 
             with archive.m_context.raw_file(self.data_file, 'tr', encoding='ascii') as f:
-                if os.path.splitext(f.name)[-1] != '.csv':
+                if os.path.splitext(f.name)[-1].lower() != '.csv':
                     return
 
                 data = load_mpp_file(f.read())  # , encoding)
@@ -1441,7 +1441,7 @@ class HySprint_Simple_NMR(NMR, EntryData):
 
         if self.data_file:
             with archive.m_context.raw_file(self.data_file, 'tr') as f:
-                if os.path.splitext(self.data_file)[-1] == '.txt' and self.data is None:
+                if os.path.splitext(self.data_file)[-1].lower() == '.txt' and self.data is None:
                     from nomad_hysprint.schema_packages.file_parser.nmr_parser import (
                         get_nmr_data_hysprint_txt,
                     )
@@ -1488,7 +1488,7 @@ class HySprint_XRD_XY(XRD, EntryData):
 
         if self.data_file:
             with archive.m_context.raw_file(self.data_file, 'tr') as f:
-                if os.path.splitext(self.data_file)[-1] == '.xy' and self.data is None:
+                if os.path.splitext(self.data_file)[-1].lower() == '.xy' and self.data is None:
                     if 'Id' in f.readline():
                         skiprows = 1
                         data = pd.read_csv(f, sep=' |\t', header=None, skiprows=skiprows)
@@ -1655,7 +1655,7 @@ class HySprint_CyclicVoltammetry(CyclicVoltammetry, EntryData):
             set_sample_reference(archive, self, search_id, upload_id=archive.metadata.upload_id)
         if self.data_file:
             with archive.m_context.raw_file(self.data_file, 'rt') as f:
-                if os.path.splitext(self.data_file)[-1] == '.mpt':
+                if os.path.splitext(self.data_file)[-1].lower() == '.mpt':
                     from baseclasses.helper.archive_builder.mpt_get_archive import (
                         get_cv_properties,
                         get_voltammetry_data,
@@ -1671,7 +1671,7 @@ class HySprint_CyclicVoltammetry(CyclicVoltammetry, EntryData):
             with archive.m_context.raw_file(self.data_file, 'rt') as f:
                 file_content = f.read()
                 if (
-                    os.path.splitext(self.data_file)[-1] == '.csv'
+                    os.path.splitext(self.data_file)[-1].lower() == '.csv'
                     and 'Experiment:' in file_content
                     and 'Start date:' in file_content
                     and 'Time (s)' in file_content
@@ -1746,7 +1746,7 @@ class HySprint_ElectrochemicalImpedanceSpectroscopy(ElectrochemicalImpedanceSpec
             set_sample_reference(archive, self, search_id, upload_id=archive.metadata.upload_id)
         if self.data_file:
             with archive.m_context.raw_file(self.data_file, 'rt') as f:
-                if os.path.splitext(self.data_file)[-1] == '.mpt':
+                if os.path.splitext(self.data_file)[-1].lower() == '.mpt':
                     from baseclasses.helper.archive_builder.mpt_get_archive import (
                         get_eis_data,
                         get_eis_properties,
@@ -1809,7 +1809,7 @@ class HySprint_OpenCircuitVoltage(OpenCircuitVoltage, EntryData):
             set_sample_reference(archive, self, search_id, upload_id=archive.metadata.upload_id)
         if self.data_file:
             with archive.m_context.raw_file(self.data_file, 'rt') as f:
-                if os.path.splitext(self.data_file)[-1] == '.mpt':
+                if os.path.splitext(self.data_file)[-1].lower() == '.mpt':
                     from baseclasses.helper.archive_builder.mpt_get_archive import (
                         get_ocv_properties,
                         get_voltammetry_data,
@@ -1826,7 +1826,7 @@ class HySprint_OpenCircuitVoltage(OpenCircuitVoltage, EntryData):
             with archive.m_context.raw_file(self.data_file, 'rt') as f:
                 file_content = f.read()
                 if (
-                    os.path.splitext(self.data_file)[-1] == '.csv'
+                    os.path.splitext(self.data_file)[-1].lower() == '.csv'
                     and 'Experiment:' in file_content
                     and 'Start date:' in file_content
                     and 'Time (s)' in file_content
