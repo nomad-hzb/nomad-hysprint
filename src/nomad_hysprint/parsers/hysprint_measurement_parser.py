@@ -150,7 +150,7 @@ class HySprintParser(MatchingParser):
             entry = HySprint_XRD_XY()
         if measurment_type.lower() == 'nmr' and mainfile_split[-1].lower() == 'txt':
             entry = HySprint_Simple_NMR()
-        if measurment_type == 'pes' and mainfile_split[-1].lower() in ['xy']:
+        if measurment_type.lower() == 'pes' and mainfile_split[-1].lower() in ['xy']:
             entry = HySprint_PES()
         if measurment_type == 'uvvis':
             entry = HySprint_UVvismeasurement()
