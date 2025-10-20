@@ -71,10 +71,8 @@ def update_general_process_entries(entry, entry_id, archive, logger):
     query = {
         'entry_id': entry_id,
     }
-    search_result = search(owner='all', query=query,
-                           user_id=archive.metadata.main_author.user_id)
-    entry_type = search_result.data[0].get(
-        'entry_type') if len(search_result.data) == 1 else None
+    search_result = search(owner='all', query=query, user_id=archive.metadata.main_author.user_id)
+    entry_type = search_result.data[0].get('entry_type') if len(search_result.data) == 1 else None
     if entry_type != 'HySprint_Measurement':
         return None
     new_entry_dict = entry.m_to_dict()
@@ -90,8 +88,7 @@ def update_general_process_entries(entry, entry_id, archive, logger):
         pass
         # logger.error('Error in processing data: ', e)
     print(type(entry).__name__)
-    new_entry = getattr(sys.modules[__name__], type(
-        entry).__name__).m_from_dict(new_entry_dict)
+    new_entry = getattr(sys.modules[__name__], type(entry).__name__).m_from_dict(new_entry_dict)
     return new_entry
 
 
@@ -179,8 +176,7 @@ class HySprintParser(MatchingParser):
 
         file_name = f'{os.path.basename(mainfile)}.archive.json'
         eid = get_entry_id_from_file_name(file_name, archive)
-        archive.data = RawFileHZB(processed_archive=get_reference(
-            archive.metadata.upload_id, eid))
+        archive.data = RawFileHZB(processed_archive=get_reference(archive.metadata.upload_id, eid))
         new_entry_created = create_archive(entry, archive, file_name)
         if not new_entry_created:
             new_entry = update_general_process_entries(entry, eid, archive, logger)
