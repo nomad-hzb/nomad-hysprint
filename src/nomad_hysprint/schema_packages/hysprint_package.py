@@ -62,6 +62,7 @@ from baseclasses.solar_energy import (
     StandardSampleSolarCell,
     Substrate,
     TimeResolvedPhotoluminescence,
+    TRPLProperties,
     UVvisMeasurement,
     trSPVMeasurement,
 )
@@ -878,7 +879,7 @@ class HySprint_trSPVmeasurement(trSPVMeasurement, EntryData):
             {
                 'label': 'Voltage',
                 'x': 'data/time',
-                'y': 'data/voltages/:/voltage',
+                'y': 'data/voltages/:/measurement',
                 'layout': {
                     'yaxis': {'fixedrange': False},
                     'xaxis': {'fixedrange': False, 'type': 'log'},
@@ -1241,8 +1242,8 @@ class HySprint_TimeResolvedPhotoluminescence(TimeResolvedPhotoluminescence, Entr
         ),
         a_plot=[
             {
-                'x': 'trpl_properties/:/time',
-                'y': 'trpl_properties/:/counts',
+                'x': 'trpl_properties/time',
+                'y': 'trpl_properties/counts',
                 'layout': {
                     'showlegend': True,
                     'yaxis': {'fixedrange': False, 'type': 'log'},
@@ -1256,6 +1257,25 @@ class HySprint_TimeResolvedPhotoluminescence(TimeResolvedPhotoluminescence, Entr
         if not self.samples and self.data_file:
             search_id = self.data_file.split('.')[0]
             set_sample_reference(archive, self, search_id, upload_id=archive.metadata.upload_id)
+
+        if self.data_file:
+            with archive.m_context.raw_file(self.data_file, 'br') as f:
+                encoding = get_encoding(f)
+            with archive.m_context.raw_file(self.data_file, 'tr', encoding=encoding) as f:
+                from nomad_hysprint.schema_packages.file_parser.trpl_parser import get_trpl_measurement
+
+                filedata = f.read()
+                data = get_trpl_measurement(filedata)
+
+            self.trpl_properties = TRPLProperties(
+                counts=data.get('counts'),
+                time=data.get('time'),
+                ns_per_bin=data.get('ns_per_bin'),
+                detection_wavelength=data.get('detection_wavelength'),
+                excitation_peak_wavelength=data.get('excitation_peak_wavelength'),
+                spotsize=data.get('spotsize'),
+                integration_time=data.get('integration_time'),
+            )
         super().normalize(archive, logger)
 
 
