@@ -879,7 +879,7 @@ class HySprint_trSPVmeasurement(trSPVMeasurement, EntryData):
             {
                 'label': 'Voltage',
                 'x': 'data/time',
-                'y': 'data/voltages/:/voltage',
+                'y': 'data/voltages/:/measurement',
                 'layout': {
                     'yaxis': {'fixedrange': False},
                     'xaxis': {'fixedrange': False, 'type': 'log'},
