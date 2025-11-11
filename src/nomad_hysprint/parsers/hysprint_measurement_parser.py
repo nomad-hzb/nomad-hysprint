@@ -134,7 +134,7 @@ class HySprintParser(MatchingParser):
             entry = HySprint_JVmeasurement()
         if mainfile_split[-1].lower() == 'txt' and measurment_type.lower() == 'abspl':
             entry = HySprint_AbsPLMeasurement()
-        if mainfile_split[-1].lower() == 'txt' and measurment_type.lower() in 'trspv':
+        if mainfile_split[-1].lower() == 'txt' and measurment_type.lower() in ['trspv', 'spv']:
             entry = HySprint_trSPVmeasurement()
         if mainfile_split[-1].lower() in ['txt', 'csv', 'dat'] and measurment_type.lower() in 'trpl':
             entry = HySprint_TimeResolvedPhotoluminescence()
