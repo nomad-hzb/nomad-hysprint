@@ -51,7 +51,7 @@ def get_trpl_measurement_wannsee(filedata):
     res.update(
         {
             'counts': df[' counts'],
-            'time': df['# delay_time [ps]'],
+            'time': df['# delay_time [ps]'] / 1000,
             'ns_per_bin': (df['# delay_time [ps]'].iloc[1] - df['# delay_time [ps]'].iloc[0]) / 1000,
         }
     )
@@ -62,7 +62,7 @@ def get_trpl_measurement_hy_auto(filedata):
     df = pd.read_csv(StringIO(filedata), index_col=0, header=0, sep='\t')
     return {
         'counts': df['counts [#]'],
-        'time': df['bins [ps]'],
+        'time': df['bins [ps]'] / 1000,
         'ns_per_bin': (df['bins [ps]'].iloc[1] - df['bins [ps]'].iloc[0]) / 1000,
     }
 
