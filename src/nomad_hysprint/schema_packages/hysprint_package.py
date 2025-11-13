@@ -1648,8 +1648,8 @@ class HySprint_DifferentialPulseVoltammetry(DifferentialPulseVoltammetry, EntryD
         a_plot=[
             {
                 'label': 'Voltage',
-                'x': 'time',
-                'y': 'voltage',
+                'x': 'voltage',
+                'y': 'current',
                 'layout': {
                     'yaxis': {'fixedrange': False},
                     'xaxis': {'fixedrange': False},
@@ -1685,9 +1685,11 @@ class HySprint_DifferentialPulseVoltammetry(DifferentialPulseVoltammetry, EntryD
                         metadata.iloc[1, 1].strip(), datetime_format='%d %B %Y', utc=False
                     )
 
-                    self.time = dpv_data['Time (s)'] * ureg('seconds')
-                    self.voltage = dpv_data[' Voltage (V)'] * ureg('V')
-                    self.current = (dpv_data[' Current (A)'] - dpv_data[' Reverse I (A)']) * ureg('A')
+                    self.time = np.double(dpv_data['Time (s)']) * ureg('seconds')
+                    self.voltage = np.double(dpv_data[' Voltage (V)']) * ureg('V')
+                    self.current = (
+                        np.double(dpv_data[' Current (A)']) - np.double(dpv_data[' Reverse I (A)'])
+                    ) * ureg('A')
         super().normalize(archive, logger)
 
 
@@ -1745,7 +1747,7 @@ class HySprint_CyclicVoltammetry(CyclicVoltammetry, EntryData):
         dpv_data = df[df[' Reverse I (A)'].astype(str).str.strip() != '']
         if dpv_data.empty:
             return
-        entry = HySprint_ElectrochemicalImpedanceSpectroscopy()
+        entry = HySprint_DifferentialPulseVoltammetry()
         entry.samples = self.samples
         entry.datetime = self.datetime
         entry.data_file = self.data_file
@@ -1796,7 +1798,6 @@ class HySprint_CyclicVoltammetry(CyclicVoltammetry, EntryData):
                     from io import StringIO
 
                     import pandas as pd
-                    import scipy as sc
                     from baseclasses.chemical_energy.voltammetry import VoltammetryCycleWithPlot
 
                     data = pd.read_csv(StringIO(file_content), skiprows=3, sep=',', encoding='utf-8')
@@ -1812,30 +1813,19 @@ class HySprint_CyclicVoltammetry(CyclicVoltammetry, EntryData):
                     cv_data = data[data[' Reverse I (A)'].astype(str).str.strip() == '']
                     if len(cv_data.columns) > 10:
                         cv_data = cv_data[cv_data.iloc[:, 10].astype(str).str.strip() == '']
-                    time = cv_data['Time (s)']
-                    voltage = cv_data[' Voltage (V)']
-                    current = cv_data[' Current (A)']
-                    charge = cv_data[' Charge (C)']
-                    print(cv_data)
+                    time = np.double(cv_data['Time (s)'])
+                    voltage = np.double(cv_data[' Voltage (V)'])
+                    current = np.double(cv_data[' Current (A)'])
+                    charge = np.double(cv_data[' Charge (C)'])
 
-                    cycle_indices = (
-                        [0]
-                        + list(sc.signal.argrelextrema(np.abs(np.array(voltage) - voltage[0]), np.less)[0])
-                        + [None]
-                    )
-                    cycles = []
-                    for i in range(len(cycle_indices) - 1):
-                        cycles.append(
-                            VoltammetryCycleWithPlot(
-                                name=f'Cycle {i}',
-                                time=time[cycle_indices[i] : cycle_indices[i + 1]] * ureg('seconds'),
-                                current=current[cycle_indices[i] : cycle_indices[i + 1]] * ureg('A'),
-                                voltage=voltage[cycle_indices[i] : cycle_indices[i + 1]] * ureg('V'),
-                                charge=charge[cycle_indices[i] : cycle_indices[i + 1]] * ureg('C'),
-                            )
+                    self.cycles = [
+                        VoltammetryCycleWithPlot(
+                            time=time * ureg('seconds'),
+                            current=current * ureg('A'),
+                            voltage=voltage * ureg('V'),
+                            charge=charge * ureg('C'),
                         )
-
-                    self.cycles = cycles
+                    ]
         super().normalize(archive, logger)
 
 
@@ -1923,12 +1913,12 @@ class HySprint_ElectrochemicalImpedanceSpectroscopy(ElectrochemicalImpedanceSpec
                         metadata.iloc[1, 1].strip(), datetime_format='%d %B %Y', utc=False
                     )
 
-                    self.time = eis_data['time/s'] * ureg('seconds')
-                    self.frequency = eis_data[' Frequency(Hz)'] * ureg('Hz')
-                    self.z_real = eis_data[" Z' (Ohm)"] * ureg('ohm')
-                    self.z_imaginary = eis_data[" Z'' (Ohm)"] * ureg('ohm')
-                    self.z_modulus = eis_data[' | Z | (Ohm)'] * ureg('ohm')
-                    self.z_angle = eis_data[' Phase (Deg)'] * ureg('degree')
+                    self.time = np.double(eis_data['Time (s)']) * ureg('seconds')
+                    self.frequency = np.double(eis_data[' Frequency (Hz)']) * ureg('Hz')
+                    self.z_real = np.double(eis_data[" Z' (Ohm)"]) * ureg('ohm')
+                    self.z_imaginary = np.double(eis_data[" Z'' (Ohm)"]) * ureg('ohm')
+                    self.z_modulus = np.double(eis_data[' | Z | (Ohm)']) * ureg('ohm')
+                    self.z_angle = np.double(eis_data[' Phase (Deg)']) * ureg('degree')
 
         super().normalize(archive, logger)
 
