@@ -1916,7 +1916,7 @@ class HySprint_ElectrochemicalImpedanceSpectroscopy(ElectrochemicalImpedanceSpec
                     self.time = np.double(eis_data['Time (s)']) * ureg('seconds')
                     self.frequency = np.double(eis_data[' Frequency (Hz)']) * ureg('Hz')
                     self.z_real = np.double(eis_data[" Z' (Ohm)"]) * ureg('ohm')
-                    self.z_imaginary = np.double(eis_data[" Z'' (Ohm)"]) * ureg('ohm')
+                    self.z_imaginary = (-1.0) * np.double(eis_data[" Z'' (Ohm)"]) * ureg('ohm')
                     self.z_modulus = np.double(eis_data[' | Z | (Ohm)']) * ureg('ohm')
                     self.z_angle = np.double(eis_data[' Phase (Deg)']) * ureg('degree')
 
