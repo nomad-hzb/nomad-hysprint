@@ -1692,8 +1692,8 @@ class HySprint_DifferentialPulseVoltammetry(DifferentialPulseVoltammetry, EntryD
                     ) * ureg('A')
                     if self.samples:
                         for s in self.samples:
-                            if s.reference == '/data':
-                                s.reference = None
+                            s.reference = None
+
         super().normalize(archive, logger)
 
 
@@ -1832,8 +1832,7 @@ class HySprint_CyclicVoltammetry(CyclicVoltammetry, EntryData):
                     ]
                     if self.samples:
                         for s in self.samples:
-                            if s.reference == '/data':
-                                s.reference = None
+                            s.reference = None
         super().normalize(archive, logger)
 
 
@@ -1929,8 +1928,7 @@ class HySprint_ElectrochemicalImpedanceSpectroscopy(ElectrochemicalImpedanceSpec
                     self.z_angle = np.double(eis_data[' Phase (Deg)']) * ureg('degree')
                     if self.samples:
                         for s in self.samples:
-                            if s.reference == '/data':
-                                s.reference = None
+                            s.reference = None
 
         super().normalize(archive, logger)
 
