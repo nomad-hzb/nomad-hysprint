@@ -28,6 +28,7 @@ from baseclasses.characterizations.electron_microscopy import SEM_Microscope_Mer
 from baseclasses.chemical import Chemical
 from baseclasses.chemical_energy import (
     CyclicVoltammetry,
+    DifferentialPulseVoltammetry,
     ElectrochemicalImpedanceSpectroscopy,
     ElectroChemicalSetup,
     Electrode,
@@ -37,7 +38,7 @@ from baseclasses.chemical_energy import (
 from baseclasses.data_transformations import NKData
 from baseclasses.experimental_plan import ExperimentalPlan
 from baseclasses.helper.add_solar_cell import add_band_gap
-from baseclasses.helper.utilities import convert_datetime, get_encoding, set_sample_reference
+from baseclasses.helper.utilities import convert_datetime, create_archive, get_encoding, set_sample_reference
 from baseclasses.material_processes_misc import (
     Cleaning,
     LaserScribing,
@@ -1619,6 +1620,77 @@ class HySprint_UVvismeasurement(UVvisMeasurement, EntryData):
         super().normalize(archive, logger)
 
 
+class HySprint_DifferentialPulseVoltammetry(DifferentialPulseVoltammetry, EntryData):
+    m_def = Section(
+        a_eln=dict(
+            hide=[
+                'lab_id',
+                'solution',
+                'users',
+                'location',
+                'end_time',
+                'steps',
+                'instruments',
+                'results',
+                'metadata_file',
+                'station',
+            ],
+            properties=dict(
+                order=[
+                    'name',
+                    'data_file',
+                    'environment',
+                    'setup',
+                    'samples',
+                ]
+            ),
+        ),
+        a_plot=[
+            {
+                'label': 'Voltage',
+                'x': 'time',
+                'y': 'voltage',
+                'layout': {
+                    'yaxis': {'fixedrange': False},
+                    'xaxis': {'fixedrange': False},
+                },
+            }
+        ],
+    )
+
+    def normalize(self, archive, logger):
+        if not self.samples and self.data_file:
+            search_id = self.data_file.split('.')[0]
+            set_sample_reference(archive, self, search_id, upload_id=archive.metadata.upload_id)
+        if self.data_file:
+            with archive.m_context.raw_file(self.data_file, 'rt') as f:
+                file_content = f.read()
+                if (
+                    os.path.splitext(self.data_file)[-1].lower() == '.csv'
+                    and 'Experiment:' in file_content
+                    and 'Start date:' in file_content
+                    and 'Time (s)' in file_content
+                    and 'Reverse I (A)' in file_content
+                ):
+                    from io import StringIO
+
+                    import pandas as pd
+
+                    data = pd.read_csv(StringIO(file_content), skiprows=3, sep=',', encoding='utf-8')
+                    dpv_data = data[data[' Reverse I (A)'].astype(str).str.strip() != '']
+                    metadata = pd.read_csv(
+                        StringIO(file_content), nrows=3, sep=',', encoding='utf-8', header=None
+                    )
+                    self.datetime = convert_datetime(
+                        metadata.iloc[1, 1].strip(), datetime_format='%d %B %Y', utc=False
+                    )
+
+                    self.time = dpv_data['Time (s)'] * ureg('seconds')
+                    self.voltage = dpv_data[' Voltage (V)'] * ureg('V')
+                    self.current = (dpv_data[' Current (A)'] - dpv_data[' Reverse I (A)']) * ureg('A')
+        super().normalize(archive, logger)
+
+
 class HySprint_CyclicVoltammetry(CyclicVoltammetry, EntryData):
     m_def = Section(
         a_eln=dict(
@@ -1669,6 +1741,31 @@ class HySprint_CyclicVoltammetry(CyclicVoltammetry, EntryData):
         ],
     )
 
+    def check_for_dpv_and_create(self, archive, df):
+        dpv_data = df[df[' Reverse I (A)'].astype(str).str.strip() != '']
+        if dpv_data.empty:
+            return
+        entry = HySprint_ElectrochemicalImpedanceSpectroscopy()
+        entry.samples = self.samples
+        entry.datetime = self.datetime
+        entry.data_file = self.data_file
+        file_name = archive.metadata.mainfile.replace('archive.json', 'dpv.archive.json')
+        create_archive(entry, archive, file_name)
+
+    def check_for_eis_and_create(self, archive, df):
+        if len(df.columns) <= 8:
+            return
+        eis_data = df[df.iloc[:, 10].astype(str).str.strip() != '']
+        if eis_data.empty:
+            return
+        entry = HySprint_ElectrochemicalImpedanceSpectroscopy()
+        entry.samples = self.samples
+        entry.datetime = self.datetime
+        entry.data_file = self.data_file
+        file_name = archive.metadata.mainfile.replace('archive.json', 'eis.archive.json')
+
+        create_archive(entry, archive, file_name)
+
     def normalize(self, archive, logger):
         if not self.samples and self.data_file:
             search_id = self.data_file.split('.')[0]
@@ -1699,24 +1796,46 @@ class HySprint_CyclicVoltammetry(CyclicVoltammetry, EntryData):
                     from io import StringIO
 
                     import pandas as pd
+                    import scipy as sc
                     from baseclasses.chemical_energy.voltammetry import VoltammetryCycleWithPlot
 
                     data = pd.read_csv(StringIO(file_content), skiprows=3, sep=',', encoding='utf-8')
+                    self.check_for_dpv_and_create(archive, data)
+                    self.check_for_eis_and_create(archive, data)
+
                     metadata = pd.read_csv(
                         StringIO(file_content), nrows=3, sep=',', encoding='utf-8', header=None
                     )
                     self.datetime = convert_datetime(
                         metadata.iloc[1, 1].strip(), datetime_format='%d %B %Y', utc=False
                     )
-                    self.cycles = [
-                        VoltammetryCycleWithPlot(
-                            time=data['Time (s)'][63:] * ureg('seconds'),
-                            voltage=data[' Voltage (V)'][63:] * ureg('V'),
-                            current=data[' Current (A)'][63:] * ureg('A'),
-                            charge=data[' Charge (C)'][63:] * ureg('C'),
-                        )
-                    ]
+                    cv_data = data[data[' Reverse I (A)'].astype(str).str.strip() == '']
+                    if len(cv_data.columns) > 10:
+                        cv_data = cv_data[cv_data.iloc[:, 10].astype(str).str.strip() == '']
+                    time = cv_data['Time (s)']
+                    voltage = cv_data[' Voltage (V)']
+                    current = cv_data[' Current (A)']
+                    charge = cv_data[' Charge (C)']
+                    print(cv_data)
 
+                    cycle_indices = (
+                        [0]
+                        + list(sc.signal.argrelextrema(np.abs(np.array(voltage) - voltage[0]), np.less)[0])
+                        + [None]
+                    )
+                    cycles = []
+                    for i in range(len(cycle_indices) - 1):
+                        cycles.append(
+                            VoltammetryCycleWithPlot(
+                                name=f'Cycle {i}',
+                                time=time[cycle_indices[i] : cycle_indices[i + 1]] * ureg('seconds'),
+                                current=current[cycle_indices[i] : cycle_indices[i + 1]] * ureg('A'),
+                                voltage=voltage[cycle_indices[i] : cycle_indices[i + 1]] * ureg('V'),
+                                charge=charge[cycle_indices[i] : cycle_indices[i + 1]] * ureg('C'),
+                            )
+                        )
+
+                    self.cycles = cycles
         super().normalize(archive, logger)
 
 
@@ -1781,6 +1900,35 @@ class HySprint_ElectrochemicalImpedanceSpectroscopy(ElectrochemicalImpedanceSpec
 
                     if 'Potentio' in technique and self.properties is None:
                         self.properties = get_eis_properties(metadata)
+            with archive.m_context.raw_file(self.data_file, 'rt') as f:
+                file_content = f.read()
+                if (
+                    os.path.splitext(self.data_file)[-1].lower() == '.csv'
+                    and 'Experiment:' in file_content
+                    and 'Start date:' in file_content
+                    and 'Time (s)' in file_content
+                    and "Z' (Ohm)" in file_content
+                ):
+                    from io import StringIO
+
+                    import pandas as pd
+
+                    data = pd.read_csv(StringIO(file_content), skiprows=3, sep=',', encoding='utf-8')
+                    eis_data = data[data.iloc[:, 10].astype(str).str.strip() != '']
+
+                    metadata = pd.read_csv(
+                        StringIO(file_content), nrows=3, sep=',', encoding='utf-8', header=None
+                    )
+                    self.datetime = convert_datetime(
+                        metadata.iloc[1, 1].strip(), datetime_format='%d %B %Y', utc=False
+                    )
+
+                    self.time = eis_data['time/s'] * ureg('seconds')
+                    self.frequency = eis_data[' Frequency(Hz)'] * ureg('Hz')
+                    self.z_real = eis_data[" Z' (Ohm)"] * ureg('ohm')
+                    self.z_imaginary = eis_data[" Z'' (Ohm)"] * ureg('ohm')
+                    self.z_modulus = eis_data[' | Z | (Ohm)'] * ureg('ohm')
+                    self.z_angle = eis_data[' Phase (Deg)'] * ureg('degree')
 
         super().normalize(archive, logger)
 
