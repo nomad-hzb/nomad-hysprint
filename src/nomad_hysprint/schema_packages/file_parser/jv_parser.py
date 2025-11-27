@@ -272,5 +272,6 @@ def get_jv_data(filedata):
         return get_jv_data_pvcomb_1(filedata), 'PVcomB'
     if filedata.startswith('{') and 'parameters' in filedata[:50]:
         return get_jv_data_iris_json(filedata), 'IRIS'
-
-    return get_jv_data_iris(filedata), 'IRIS HZBGloveBoxes Pero4SOSIMStorage'
+    if 'Location' in filedata[:200] and 'Sample' in filedata[:200] and 'User' in filedata[:200]:
+        return get_jv_data_iris(filedata), 'IRIS HZBGloveBoxes Pero4SOSIMStorage'
+    return None, None

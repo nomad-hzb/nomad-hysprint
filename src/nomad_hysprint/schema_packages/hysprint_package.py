@@ -1055,8 +1055,9 @@ class HySprint_JVmeasurement(JVMeasurement, EntryData):
 
             with archive.m_context.raw_file(self.data_file, 'tr', encoding=encoding) as f:
                 jv_dict, location = get_jv_data(f.read())
-                self.location = location
-                get_jv_archive(jv_dict, self.data_file, self)
+                if jv_dict:
+                    self.location = location
+                    get_jv_archive(jv_dict, self.data_file, self)
 
         super().normalize(archive, logger)
 
@@ -1101,15 +1102,16 @@ class HySprint_SimpleMPPTracking(MPPTracking, EntryData):
 
             with archive.m_context.raw_file(self.data_file, 'tr', encoding=encoding) as f:
                 data = read_mppt_file(f.read())
+            if data:
+                self.time = data['time_data']
+                self.voltage = data['voltage_data']
+                self.current_density = data['current_density_data']
+                self.power_density = data['power_data']
+                self.efficiency = data.get('efficiency_data')
+                self.properties = MPPTrackingProperties(
+                    time=data['total_time'], perturbation_voltage=data.get('step_size')
+                )
 
-            self.time = data['time_data']
-            self.voltage = data['voltage_data']
-            self.current_density = data['current_density_data']
-            self.power_density = data['power_data']
-            self.efficiency = data.get('efficiency_data')
-            self.properties = MPPTrackingProperties(
-                time=data['total_time'], perturbation_voltage=data.get('step_size')
-            )
         super().normalize(archive, logger)
 
 

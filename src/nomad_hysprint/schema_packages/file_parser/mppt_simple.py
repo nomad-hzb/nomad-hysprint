@@ -81,5 +81,5 @@ def read_mppt_file_2(filedata):
 def read_mppt_file(filedata):
     if 'time\tvoltage\tcurrent density\tpower\n' in filedata:
         return read_mppt_file_1(filedata)
-    else:
+    if 'MPPT_I' in filedata and 'MPPT_V' in filedata and 'MPPT_P' in filedata:
         return read_mppt_file_2(filedata)
