@@ -1049,14 +1049,17 @@ class HySprint_JVmeasurement(JVMeasurement, EntryData):
             search_id = self.data_file.split('.')[0]
             set_sample_reference(archive, self, search_id, upload_id=archive.metadata.upload_id)
         if self.data_file:
-            # todo detect file format
-            with archive.m_context.raw_file(self.data_file, 'br') as f:
-                encoding = get_encoding(f)
+            try:
+                # todo detect file format
+                with archive.m_context.raw_file(self.data_file, 'br') as f:
+                    encoding = get_encoding(f)
 
-            with archive.m_context.raw_file(self.data_file, 'tr', encoding=encoding) as f:
-                jv_dict, location = get_jv_data(f.read())
-                self.location = location
-                get_jv_archive(jv_dict, self.data_file, self)
+                with archive.m_context.raw_file(self.data_file, 'tr', encoding=encoding) as f:
+                    jv_dict, location = get_jv_data(f.read())
+                    self.location = location
+                    get_jv_archive(jv_dict, self.data_file, self)
+            except Exception:
+                print('Could not parse JV file')
 
         super().normalize(archive, logger)
 
@@ -1096,20 +1099,23 @@ class HySprint_SimpleMPPTracking(MPPTracking, EntryData):
             set_sample_reference(archive, self, search_id, upload_id=archive.metadata.upload_id)
 
         if self.data_file:
-            with archive.m_context.raw_file(self.data_file, 'br') as f:
-                encoding = get_encoding(f)
+            try:
+                with archive.m_context.raw_file(self.data_file, 'br') as f:
+                    encoding = get_encoding(f)
 
-            with archive.m_context.raw_file(self.data_file, 'tr', encoding=encoding) as f:
-                data = read_mppt_file(f.read())
+                with archive.m_context.raw_file(self.data_file, 'tr', encoding=encoding) as f:
+                    data = read_mppt_file(f.read())
 
-            self.time = data['time_data']
-            self.voltage = data['voltage_data']
-            self.current_density = data['current_density_data']
-            self.power_density = data['power_data']
-            self.efficiency = data.get('efficiency_data')
-            self.properties = MPPTrackingProperties(
-                time=data['total_time'], perturbation_voltage=data.get('step_size')
-            )
+                self.time = data['time_data']
+                self.voltage = data['voltage_data']
+                self.current_density = data['current_density_data']
+                self.power_density = data['power_data']
+                self.efficiency = data.get('efficiency_data')
+                self.properties = MPPTrackingProperties(
+                    time=data['total_time'], perturbation_voltage=data.get('step_size')
+                )
+            except Exception:
+                print('Could not parse MPPT File')
         super().normalize(archive, logger)
 
 
