@@ -96,7 +96,6 @@ def update_general_process_entries(entry, entry_id, archive, logger):
 class HySprintParser(MatchingParser):
     def parse(self, mainfile: str, archive: EntryArchive, logger):
         # Log a hello world, just to get us started. TODO remove from an actual parser.
-
         mainfile_split = os.path.basename(mainfile).split('.')
         notes = ''
         if len(mainfile_split) > 2:
@@ -169,14 +168,12 @@ class HySprintParser(MatchingParser):
         if mainfile_split[-1].lower() not in ['nk']:
             search_id = mainfile_split[0]
             set_sample_reference(archive, entry, search_id)
-
             entry.name = f'{search_id} {notes}'
             entry.description = f'Notes from file name: {notes}'
 
         if measurment_type not in ['uvvis', 'sem', 'SEM']:
             entry.data_file = os.path.basename(mainfile)
         entry.datetime = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
-
         file_name = f'{os.path.basename(mainfile)}.archive.json'
         eid = get_entry_id_from_file_name(file_name, archive)
         archive.data = RawFileHZB(processed_archive=get_reference(archive.metadata.upload_id, eid))

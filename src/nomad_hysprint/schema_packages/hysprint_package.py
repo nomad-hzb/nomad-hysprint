@@ -18,12 +18,30 @@
 
 import os
 import random
+import re
 import string
-
+from nomad_luqy_plugin.schema_packages.schema_package import (
+    AbsPLMeasurement,
+    AbsPLSettings,
+) 
 import numpy as np
-from baseclasses import BaseMeasurement, BaseProcess, Batch, LayerDeposition, ReadableIdentifiersCustom
+import pandas as pd
+
+# NOMAD imports
+from baseclasses import (
+    BaseMeasurement,
+    BaseProcess,
+    Batch,
+    LayerDeposition,
+    ReadableIdentifiersCustom,
+)
+from baseclasses.assays import (
+    EnvironmentMeasurement,
+)
+
 from baseclasses.assays import EnvironmentMeasurement
 from baseclasses.characterizations import NMR, PES, XRD, NMRData, PESSpecsLabProdigySettings, XRDData
+
 from baseclasses.characterizations.electron_microscopy import SEM_Microscope_Merlin
 from baseclasses.chemical import Chemical
 from baseclasses.chemical_energy import (
@@ -93,12 +111,27 @@ from nomad.datamodel.metainfo.plot import PlotlyFigure, PlotSection
 from nomad.datamodel.results import ELN, Material, Properties, Results
 from nomad.metainfo import Datetime, Quantity, SchemaPackage, Section, SubSection
 from nomad.units import ureg
+
+from nomad_luqy_plugin.schema_packages.schema_package import (
+    AbsPLMeasurement,
+    ELNAnnotation,
+    NOMADMeasurementsCategory,
+    AbsPLResult,
+)
+
 from nomad_luqy_plugin.schema_packages.schema_package import AbsPLMeasurement, AbsPLResult, AbsPLSettings
 from pynxtools.dataconverter.convert import convert
-
+from pynxtools.dataconverter.convert import convert
+from nomad_luqy_plugin.schema_packages.schema_package import AbsPLMeasurement
+from nomad_luqy_plugin.schema_packages.schema_package import (
+    AbsPLMeasurement,
+    AbsPLResult,
+    AbsPLSettings,
+    ELNAnnotation,
+    NOMADMeasurementsCategory,
+    parse_abspl_data,
+)
 m_package = SchemaPackage()
-
-
 # %% ####################### Entities
 
 
@@ -924,10 +957,102 @@ class HySprint_AbsPLResult(AbsPLResult):
 class HySprint_AbsPLMeasurement(AbsPLMeasurement, EntryData):
     m_def = Section(label='Absolute PL Measurement')
 
+    @staticmethod
+    def is_multi_entry_abspl_file(file_path, archive, logger): 
+        """
+        Heuristically detect if an AbsPL file is a multi-entry (multi-measurement) dataset.
+        Assumes `file_path` is a string path to the file on disk.
+        """
+        try:
+            with archive.m_context.raw_file(file_path, mode='rb') as f:
+                raw_bytes = f.read()
+                text = raw_bytes.decode('cp1252', errors='replace')
+                lines = text.splitlines()
+
+        except Exception as e:
+            print(f'Error reading file in is_multi_entry_abspl_file: {e}')
+            return False
+
+        for line in lines:
+            if line.strip().lower().startswith('wavelength'):
+                if len(line.split('\t')) > 4:
+                    return True
+
+        return False
+
     def normalize(self, archive, logger):  # noqa: PLR0912, PLR0915
         logger.debug('Starting HySprint_AbsPLMeasurement.normalize', data_file=self.data_file)
         if self.settings is None:
             self.settings = AbsPLSettings()
+        if self.is_multi_entry_abspl_file(self.data_file, archive, logger):#Multi entry file parser
+
+            if self.data_file:
+                try:
+                    from nomad_hysprint.schema_packages.file_parser.abspl_multi_parser import parse_abspl_multi_entry_data
+
+                    # Call the new parser function
+                    (
+                        settings_vals,
+                        result_vals,
+                        wavelengths,
+                        lum_flux,
+                    ) = parse_abspl_multi_entry_data(self.data_file, archive, logger)
+
+                    # Set settings
+                    for key, val in settings_vals.items():
+                        setattr(self.settings, key, val)
+
+                    # Set results header values
+                    if not self.results:
+                        self.results = [HySprint_AbsPLResult()]
+                    for key, val in result_vals.items():
+                        setattr(self.results[0], key, val)
+
+                    # Set spectral array data
+                    # self.results[0].wavelength = np.array(wavelengths, dtype=float)
+                    self.results[0].wavelength = np.array(wavelengths, dtype=float)
+                    self.results[0].luminescence_flux_density = np.array(lum_flux, dtype=float).ravel()
+
+                except Exception as e:
+                    logger.warning(f'Could not parse the data file "{self.data_file}": {e}')
+                    print(e)
+        else:         #Single entry file parser 
+
+            if self.data_file:
+                try:
+                    from nomad_hysprint.schema_packages.file_parser.abspl_normalizer import parse_abspl_data
+
+                    # Call the new parser function
+                    (
+                        settings_vals,
+                        result_vals,
+                        wavelengths,
+                        lum_flux,
+                        raw_counts,
+                        dark_counts,
+                    ) = parse_abspl_data(self.data_file, archive, logger)
+
+                    # Set settings
+                    for key, val in settings_vals.items():
+                        setattr(self.settings, key, val)
+
+                    # Set results header values
+                    if not self.results:
+                        self.results = [HySprint_AbsPLResult()]
+                    for key, val in result_vals.items():
+                        setattr(self.results[0], key, val)
+
+                    # Set spectral array data
+                    self.results[0].wavelength = np.array(wavelengths, dtype=float)
+                    self.results[0].luminescence_flux_density = np.array(lum_flux, dtype=float)
+                    self.results[0].raw_spectrum_counts = np.array(raw_counts, dtype=float)
+                    self.results[0].dark_spectrum_counts = np.array(dark_counts, dtype=float)
+
+                except Exception as e:
+                    logger.warning(f'Could not parse the data file "{self.data_file}": {e}')
+                    print(e)
+
+
 
         if self.data_file:
             try:
@@ -1061,11 +1186,159 @@ class HySprint_JVmeasurement(JVMeasurement, EntryData):
 
         super().normalize(archive, logger)
 
+class HySprint_AbsPLMeasurement(AbsPLMeasurement, EntryData):
+    m_def = Section(
+        label='Absolute PL Measurement',
+        categories=[NOMADMeasurementsCategory],
+        a_eln=ELNAnnotation(
+            lane_width='800px',
+        ),
+    )
+
+    def normalize(self, archive, logger):  # noqa: PLR0912, PLR0915
+        logger.debug('Starting AbsPLMeasurement.normalize', data_file=self.data_file)
+        if self.settings is None:
+            self.settings = AbsPLSettings()
+
+        if self.data_file:
+            try:
+                # Call the new parser function
+                (
+                    settings_vals,
+                    result_vals,
+                    wavelengths,
+                    lum_flux,
+                    raw_counts,
+                    dark_counts,
+                ) = parse_abspl_data(self.data_file, archive, logger)
+
+                # Set settings
+                for key, val in settings_vals.items():
+                    setattr(self.settings, key, val)
+
+                # Set results header values
+                if not self.results:
+                    self.results = [AbsPLResult()]
+                for key, val in result_vals.items():
+                    setattr(self.results[0], key, val)
+
+                # Set spectral array data
+                self.results[0].wavelength = np.array(wavelengths, dtype=float)
+                self.results[0].luminescence_flux_density = np.array(
+                    lum_flux, dtype=float
+                )
+                self.results[0].raw_spectrum_counts = np.array(raw_counts, dtype=float)
+                self.results[0].dark_spectrum_counts = np.array(
+                    dark_counts, dtype=float
+                )
+
+            except Exception as e:
+                logger.warning(f'Could not parse the data file "{self.data_file}": {e}')
+        super().normalize(archive, logger)    
+
+class HySprint_LuminescenceMeasurement(AbsPLMeasurement, EntryData):
+    """
+    Parser for HySprint Absolute Photoluminescence (PL) measurements.
+    Inherits from AbsPLMeasurement to reuse its structure and functionality.
+    """
+
+    m_def = Section(
+        label='HySprint Absolute PL Measurement',
+        categories=[NOMADMeasurementsCategory],
+        a_eln=ELNAnnotation(
+            lane_width='800px',
+        ),
+    )
+
+    def normalize(self, archive, logger):
+        """
+        Normalizes the HySprint Absolute PL measurement file by parsing metadata
+        and spectral data, and integrates with the AbsPLMeasurement structure.
+        """
+        logger.debug('Starting HySprint_LuminescenceMeasurement.normalize', data_file=self.data_file)
+
+        # Call the parent class's normalize method
+        super().normalize(archive, logger)
+
+        # Additional normalization logic specific to HySprint measurements
+        if self.data_file:
+            with archive.m_context.raw_file(self.data_file, 'tr', encoding='latin-1') as f:
+                lines = f.readlines()
+
+            # Extract timestamps
+            timestamp_parts = re.split(r'\t+', lines[0].strip())
+            date_part = timestamp_parts[0]
+            time_parts = timestamp_parts[1:]
+            timestamps = [f'{date_part} {t}' for t in time_parts]
+
+            # Find where spectral data starts
+            spectral_start_idx = next(
+                i for i, line in enumerate(lines) if line.strip().startswith('Wavelength')
+            )
+            meta_lines = lines[1:spectral_start_idx]
+
+            # Parse metadata
+            meta_records = []
+            for line in meta_lines:
+                parts = re.split(r'\t+', line.strip())
+                if len(parts) < 2:
+                    continue
+                param = parts[0].strip()
+                values = parts[1:]
+                for i, val in enumerate(values):
+                    val_clean = val.strip().replace('--', '')
+                    if val_clean and i < len(timestamps):
+                        try:
+                            val_clean = float(val_clean)
+                        except ValueError:
+                            continue
+                        unit_match = re.search(r'\((.*?)\)', param)
+                        unit = unit_match.group(1) if unit_match else ''
+                        param_name = re.sub(r'\(.*?\)', '', param).strip()
+                        meta_records.append(
+                            {
+                                'measurement_id': i + 1,
+                                'timestamp': timestamps[i],
+                                'parameter': param_name,
+                                'value': val_clean,
+                                'unit': unit,
+                            }
+                        )
+
+            # Parse spectral data
+            spectral_lines = lines[spectral_start_idx + 2 :]  # skip header and blank line
+            spectral_data = []
+            for line in spectral_lines:
+                parts = re.split(r'\t+', line.strip())
+                if len(parts) < 2:
+                    continue
+                try:
+                    wl = float(parts[0])
+                    for i in range(len(timestamps)):
+                        flux = parts[i + 1].strip().replace('--', '')
+                        if flux:
+                            try:
+                                flux_val = float(flux)
+                            except ValueError:
+                                continue
+                            spectral_data.append(
+                                {'measurement_id': i + 1, 'wavelength_nm': wl, 'flux_density': flux_val}
+                            )
+                except (ValueError, IndexError):
+                    continue
+
+            # Convert to DataFrames and assign as class attributes
+            self.meta_data = pd.DataFrame(meta_records)
+            self.spectral_data = pd.DataFrame(spectral_data)
+
+            logger.info(f'Parsed metadata records: {len(self.meta_data)}')
+            logger.info(f'Parsed spectral data points: {len(self.spectral_data)}')
 
 class HySprint_SimpleMPPTracking(MPPTracking, EntryData):
     m_def = Section(
         a_eln=dict(
             hide=[
+
                 'lab_id',
                 'users',
                 'location',
