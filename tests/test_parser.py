@@ -650,3 +650,95 @@ def test_hy_batch_parser_ink_recycling(monkeypatch):
             assert m.data.recycling_results.yield_ == 84
     assert count_samples_batches == 5
     delete_json()
+
+
+def test_hy_batch_parser_ml_project_new_columns(monkeypatch):
+    file = '20260121_ml_project_test.xlsx'
+    file_name = os.path.join('tests', 'data', file)
+    file_archive = parse(file_name)[0]
+    assert len(file_archive.data.processed_archive) == 5
+
+    measurement_archives = []
+    for file in os.listdir(os.path.join('tests/data')):
+        if 'archive.json' not in file:
+            continue
+        measurement = os.path.join('tests', 'data', file)
+        measurement_archives.append(parse(measurement)[0])
+    measurement_archives.sort(key=lambda x: x.metadata.mainfile)
+
+    for m in measurement_archives:
+        if 'Sample' in str(type(m.data)) or 'Batch' in str(type(m.data)):
+            if 'Sample' in str(type(m.data)):
+                assert m.data.datetime.isoformat() == '2025-02-26T00:00:00+00:00'
+                assert m.data.description == '1000 rpm'
+                assert m.data.number_of_junctions == 1
+        elif 'Substrate' in str(type(m.data)):
+            assert m.data.solar_cell_area == 0.16 * ureg('cm**2')
+            assert m.data.pixel_area == 0.16 * ureg('cm**2')
+            assert m.data.number_of_pixels == 6
+            assert m.data.substrate == 'Soda Lime Glass'
+            assert m.data.conducting_material[0] == 'ITO'
+            assert m.data.description == 'Test excel'
+
+        # Step 1: Slot Die Coating
+        elif m.data.positon_in_experimental_plan == 1:
+            assert 'SlotDieCoating' in str(type(m.data))
+            assert m.data.layer[0].layer_type == 'Absorber'
+            assert m.data.layer[0].layer_material_name == 'Cs0.05(MA0.17FA0.83)0.95Pb(I0.83Br0.17)3'
+            assert m.data.location == 'HZB-HySprintBox'
+            assert m.data.operator == 'MaxMustermann'
+            assert m.data.datetime.isoformat() == '2026-01-09T10:19:00+00:00'
+            assert m.data.solution[0].solution_volume == 100 * ureg('ul').to('ml')
+            assert m.data.solution[0].solution_details.solvent[0].chemical_2.name == 'DMF'
+            assert m.data.solution[0].solution_details.solvent[0].chemical_volume == 10 * ureg('uL').to('ml')
+            assert m.data.solution[0].solution_details.solvent[0].amount_relative == 1.5
+            assert m.data.solution[0].solution_details.solute[0].chemical_2.name == 'PbI2'
+            assert m.data.solution[0].solution_details.solute[0].concentration_mol == 1.42 * ureg('mM').to(
+                'mole / milliliter'
+            )
+            assert m.data.properties.flow_rate == 25 * ureg('ul/minute').to('ml/minute')
+            assert m.data.properties.slot_die_head_distance_to_thinfilm == 0.3 * ureg('mm')
+            assert m.data.properties.slot_die_head_speed == 15 * ureg('mm/s')
+            assert m.data.properties.temperature == ureg.Quantity(25, ureg('°C'))
+            assert m.data.quenching.air_knife_angle == 45 * ureg('°')
+            assert m.data.quenching.air_knife_distance_to_thin_film == 0.5 * ureg('cm').to('um')
+            assert m.data.quenching.bead_volume == 2 * ureg('mm/s')
+            assert m.data.quenching.drying_speed == 30 * ureg('cm/minute')
+            assert m.data.annealing.time == 30 * ureg('minute')
+            assert m.data.annealing.temperature == ureg.Quantity(120, ureg('°C'))
+            assert m.data.annealing.atmosphere == 'Nitrogen'
+            assert m.data.description == 'Process notes'
+            # Atmosphere monitoring
+            assert m.data.atmosphere.start_oxygen_level_ppm == 0.1
+            assert m.data.atmosphere.end_oxygen_level_ppm == 0.1
+            assert m.data.atmosphere.start_water_level_ppm == 0.1
+            assert m.data.atmosphere.end_water_level_ppm == 0.1
+            assert m.data.atmosphere.temperature == ureg.Quantity(21, ureg('°C'))
+            assert m.data.atmosphere.relative_humidity == 30
+
+        # Step 2: Evaporation
+        elif m.data.positon_in_experimental_plan == 2:
+            assert 'Evaporation' in str(type(m.data))
+            assert m.data.layer[0].layer_type == 'Electron Transport Layer'
+            assert m.data.layer[0].layer_material_name == 'PCBM'
+            assert m.data.location == 'Hysprint Evap'
+            assert m.data.operator == 'MaxMustermann'
+            assert m.data.datetime.isoformat() == '2026-01-09T10:19:00+00:00'
+            assert m.data.organic_evaporation
+            assert m.data.organic_evaporation[0].pressure == 0.000001 * ureg('bar')
+            assert m.data.organic_evaporation[0].pressure_start == 0.000005 * ureg('bar').to('mbar')
+            assert m.data.organic_evaporation[0].pressure_end == 0.000003 * ureg('bar').to('mbar')
+            assert m.data.organic_evaporation[0].temparature[0] == ureg.Quantity(150, ureg('°C'))
+            assert m.data.organic_evaporation[0].temparature[1] == ureg.Quantity(160, ureg('°C'))
+            assert m.data.organic_evaporation[0].substrate_temparature == ureg.Quantity(25, ureg('°C'))
+            assert m.data.organic_evaporation[0].thickness == 100 * ureg('nm')
+            assert m.data.organic_evaporation[0].start_rate == 0.5 * ureg('angstrom/s')
+            assert m.data.organic_evaporation[0].target_rate == 1 * ureg('angstrom/s')
+            assert m.data.organic_evaporation[0].tooling_factor == '1.5'
+            assert m.data.organic_evaporation[0].sample_holder == 25 * ureg('mm')
+            assert m.data.description == 'Test note'
+
+        else:
+            assert False
+
+    delete_json()
