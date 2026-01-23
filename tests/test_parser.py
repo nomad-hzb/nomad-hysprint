@@ -653,7 +653,6 @@ def test_hy_batch_parser_ink_recycling(monkeypatch):
 
 
 def test_hy_batch_parser_ml_project_new_columns(monkeypatch):
-    delete_json()
     file = '20260121_ml_project_test.xlsx'
     file_name = os.path.join('tests', 'data', file)
     file_archive = parse(file_name)[0]
