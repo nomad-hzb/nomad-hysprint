@@ -599,6 +599,7 @@ def test_hy_batch_parser_new_cols(monkeypatch):  # noqa: PLR0915
 #     assert count_samples_batches == 5
 #     delete_json()
 
+
 def test_hy_batch_parser_ink_recycling(monkeypatch):
     """Test the ink recycling parser integration"""
 
@@ -666,7 +667,6 @@ def test_hy_batch_parser_ml_project_new_columns(monkeypatch):
         measurement_archives.append(parse(measurement)[0])
     measurement_archives.sort(key=lambda x: x.metadata.mainfile)
 
-
     for m in measurement_archives:
         if 'Sample' in str(type(m.data)) or 'Batch' in str(type(m.data)):
             if 'Sample' in str(type(m.data)):
@@ -687,7 +687,7 @@ def test_hy_batch_parser_ml_project_new_columns(monkeypatch):
             assert m.data.layer[0].layer_type == 'Absorber'
             assert m.data.layer[0].layer_material_name == 'Cs0.05(MA0.17FA0.83)0.95Pb(I0.83Br0.17)3'
             assert m.data.location == 'HZB-HySprintBox'
-            assert m.data.operator ==  'MaxMustermann'
+            assert m.data.operator == 'MaxMustermann'
             assert m.data.datetime.isoformat() == '2026-01-09T10:19:00+00:00'
             assert m.data.solution[0].solution_volume == 100 * ureg('ul').to('ml')
             assert m.data.solution[0].solution_details.solvent[0].chemical_2.name == 'DMF'
@@ -710,10 +710,10 @@ def test_hy_batch_parser_ml_project_new_columns(monkeypatch):
             assert m.data.annealing.atmosphere == 'Nitrogen'
             assert m.data.description == 'Process notes'
             # Atmosphere monitoring
-            assert m.data.atmosphere.start_oxygen_level_ppm == 0.1 
-            assert m.data.atmosphere.end_oxygen_level_ppm == 0.1 
-            assert m.data.atmosphere.start_water_level_ppm == 0.1 
-            assert m.data.atmosphere.end_water_level_ppm == 0.1 
+            assert m.data.atmosphere.start_oxygen_level_ppm == 0.1
+            assert m.data.atmosphere.end_oxygen_level_ppm == 0.1
+            assert m.data.atmosphere.start_water_level_ppm == 0.1
+            assert m.data.atmosphere.end_water_level_ppm == 0.1
             assert m.data.atmosphere.temperature == ureg.Quantity(21, ureg('°C'))
             assert m.data.atmosphere.relative_humidity == 30
 
@@ -723,7 +723,7 @@ def test_hy_batch_parser_ml_project_new_columns(monkeypatch):
             assert m.data.layer[0].layer_type == 'Electron Transport Layer'
             assert m.data.layer[0].layer_material_name == 'PCBM'
             assert m.data.location == 'Hysprint Evap'
-            assert m.data.operator ==  'MaxMustermann'
+            assert m.data.operator == 'MaxMustermann'
             assert m.data.datetime.isoformat() == '2026-01-09T10:19:00+00:00'
             assert m.data.organic_evaporation
             assert m.data.organic_evaporation[0].pressure == 0.000001 * ureg('bar')
@@ -738,7 +738,6 @@ def test_hy_batch_parser_ml_project_new_columns(monkeypatch):
             assert m.data.organic_evaporation[0].tooling_factor == '1.5'
             assert m.data.organic_evaporation[0].sample_holder == 25 * ureg('mm')
             assert m.data.description == 'Test note'
-
 
         else:
             assert False
