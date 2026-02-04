@@ -37,8 +37,7 @@ def test_normalize_all(parsed_archive, monkeypatch):
 
 
 @pytest.mark.parametrize(
-    'excel_file', ['20250114_experiment_file.xlsx',
-                   '20250114_prefix_format_sample_ids_test.xlsx']
+    'excel_file', ['20250114_experiment_file.xlsx', '20250114_prefix_format_sample_ids_test.xlsx']
 )
 def test_hy_batch_parser(excel_file, monkeypatch):  # noqa: PLR0915
     file_name = os.path.join('tests', 'data', excel_file)
@@ -92,12 +91,10 @@ def test_hy_batch_parser(excel_file, monkeypatch):  # noqa: PLR0915
             assert m.data.annealing.time == 10 * ureg('minute')
             assert m.data.solution[0].solution_volume == (1 * ureg('uL')).to('ml')
             assert m.data.solution[0].solution_details.solvent[0].chemical_2.name == 'Ethanol'
-            assert m.data.solution[0].solution_details.solvent[0].chemical_volume == (
-                1 * ureg('uL')).to('ml')
+            assert m.data.solution[0].solution_details.solvent[0].chemical_volume == (1 * ureg('uL')).to('ml')
             assert m.data.solution[0].solution_details.solvent[0].amount_relative == 1
             assert m.data.solution[0].solution_details.solute[0].chemical_2.name == 'PbI2'
-            assert m.data.solution[0].solution_details.solute[0].concentration_mass == 2 * ureg(
-                'mg/ml')
+            assert m.data.solution[0].solution_details.solute[0].concentration_mass == 2 * ureg('mg/ml')
             assert m.data.solution[0].solution_details.solute[0].amount_relative == 0.5
             assert m.data.recipe_steps[0].speed == 100 * ureg('rpm')
             assert m.data.recipe_steps[0].time == 10 * ureg('s')
@@ -108,8 +105,7 @@ def test_hy_batch_parser(excel_file, monkeypatch):  # noqa: PLR0915
             assert m.data.quenching.anti_solvent_volume == 10 * ureg('ml')
             assert m.data.quenching.anti_solvent_dropping_time == 15 * ureg('s')
             assert m.data.quenching.anti_solvent_dropping_height == 10 * ureg('mm')
-            assert m.data.quenching.anti_solvent_dropping_flow_rate == 100 * \
-                ureg('uL/s')
+            assert m.data.quenching.anti_solvent_dropping_flow_rate == 100 * ureg('uL/s')
             assert m.data.quenching.anti_solvent_2.name == 'Ethanol'
 
         elif m.data.positon_in_experimental_plan == 3:
@@ -121,18 +117,14 @@ def test_hy_batch_parser(excel_file, monkeypatch):  # noqa: PLR0915
             assert m.data.annealing.atmosphere == 'N2'
             assert m.data.annealing.time == 100 * ureg('minute')
             assert m.data.properties.print_head_properties.number_of_active_print_nozzles == 10
-            assert m.data.properties.print_head_properties.print_nozzle_drop_frequency == 10 * \
-                ureg('1/s')
-            assert m.data.properties.print_head_properties.print_nozzle_drop_volume == 10 * \
-                ureg('pL')
+            assert m.data.properties.print_head_properties.print_nozzle_drop_frequency == 10 * ureg('1/s')
+            assert m.data.properties.print_head_properties.print_nozzle_drop_volume == 10 * ureg('pL')
             assert m.data.properties.print_head_properties.print_head_temperature == ureg.Quantity(
                 10, ureg('°C')
             )
             assert m.data.properties.print_head_properties.print_head_name == 'abc'
-            assert m.data.properties.cartridge_pressure == ureg.Quantity(
-                1, ureg('bar')).to('mbar')
-            assert m.data.properties.substrate_temperature == ureg.Quantity(
-                500, ureg('°C'))
+            assert m.data.properties.cartridge_pressure == ureg.Quantity(1, ureg('bar')).to('mbar')
+            assert m.data.properties.substrate_temperature == ureg.Quantity(500, ureg('°C'))
             assert m.data.properties.drop_density == 1 * ureg('1/in')
             assert m.data.properties.printed_area == 5 * ureg('mm**2')
             assert m.data.print_head_path.quality_factor == 'QF3'
@@ -151,14 +143,11 @@ def test_hy_batch_parser(excel_file, monkeypatch):  # noqa: PLR0915
             assert m.data.properties.number_of_cycles == 10
             assert m.data.properties.material.material.name == '1'
             assert m.data.properties.material.pulse_duration == 12 * ureg('s')
-            assert m.data.properties.material.manifold_temperature == ureg.Quantity(
-                12, ureg('°C'))
-            assert m.data.properties.material.bottle_temperature == ureg.Quantity(
-                12, ureg('°C'))
+            assert m.data.properties.material.manifold_temperature == ureg.Quantity(12, ureg('°C'))
+            assert m.data.properties.material.bottle_temperature == ureg.Quantity(12, ureg('°C'))
             assert m.data.properties.oxidizer_reducer.material.name == '2'
             assert m.data.properties.oxidizer_reducer.pulse_duration == 2 * ureg('s')
-            assert m.data.properties.oxidizer_reducer.manifold_temperature == ureg.Quantity(
-                3, ureg('°C'))
+            assert m.data.properties.oxidizer_reducer.manifold_temperature == ureg.Quantity(3, ureg('°C'))
 
         elif m.data.positon_in_experimental_plan == 5:
             assert 'Laser' in str(type(m.data))
@@ -180,17 +169,14 @@ def test_hy_batch_parser(excel_file, monkeypatch):  # noqa: PLR0915
             assert m.data.annealing.temperature == ureg.Quantity(5, ureg('°C'))
             assert m.data.annealing.atmosphere == 'N2'
             assert m.data.annealing.time == 2 * ureg('minute')
-            assert m.data.properties.flow_rate == (
-                12 * ureg('uL/minute')).to('ml/minute')
-            assert m.data.properties.slot_die_head_distance_to_thinfilm == 4 * \
-                ureg('mm')
+            assert m.data.properties.flow_rate == (12 * ureg('uL/minute')).to('ml/minute')
+            assert m.data.properties.slot_die_head_distance_to_thinfilm == 4 * ureg('mm')
             assert m.data.properties.slot_die_head_speed == 2 * ureg('mm/s')
             assert m.data.properties.temperature == ureg.Quantity(25, ureg('°C'))
             assert m.data.quenching.air_knife_angle == 1 * ureg('°')
             assert m.data.quenching.bead_volume == 12 * ureg('mm/s')
             assert m.data.quenching.drying_speed == 12 * ureg('cm/minute')
-            assert m.data.quenching.air_knife_distance_to_thin_film == (
-                1 * ureg('cm')).to('um')
+            assert m.data.quenching.air_knife_distance_to_thin_film == (1 * ureg('cm')).to('um')
 
         elif m.data.positon_in_experimental_plan == 7:
             assert 'Evaporation' in str(type(m.data))
@@ -198,21 +184,15 @@ def test_hy_batch_parser(excel_file, monkeypatch):  # noqa: PLR0915
             assert m.data.layer[0].layer_material_name == 'Ar'
             assert m.data.inorganic_evaporation
             assert m.data.inorganic_evaporation[0].thickness == 10 * ureg('nm')
-            assert m.data.inorganic_evaporation[0].pressure == (
-                10 * ureg('bar')).to('mbar')
+            assert m.data.inorganic_evaporation[0].pressure == (10 * ureg('bar')).to('mbar')
             assert m.data.inorganic_evaporation[0].pressure_start == 1 * ureg('mbar')
             assert m.data.inorganic_evaporation[0].pressure_end == 2 * ureg('mbar')
             assert m.data.inorganic_evaporation[0].tooling_factor is None
-            assert m.data.inorganic_evaporation[0].substrate_temparature == ureg.Quantity(
-                50, ureg('°C'))
-            assert m.data.inorganic_evaporation[0].start_rate == 0.1 * \
-                ureg('angstrom/s')
-            assert m.data.inorganic_evaporation[0].target_rate == 1.5 * \
-                ureg('angstrom/s')
-            assert m.data.inorganic_evaporation[0].temparature[0] == ureg.Quantity(
-                100, ureg('°C'))
-            assert m.data.inorganic_evaporation[0].temparature[1] == ureg.Quantity(
-                120, ureg('°C'))
+            assert m.data.inorganic_evaporation[0].substrate_temparature == ureg.Quantity(50, ureg('°C'))
+            assert m.data.inorganic_evaporation[0].start_rate == 0.1 * ureg('angstrom/s')
+            assert m.data.inorganic_evaporation[0].target_rate == 1.5 * ureg('angstrom/s')
+            assert m.data.inorganic_evaporation[0].temparature[0] == ureg.Quantity(100, ureg('°C'))
+            assert m.data.inorganic_evaporation[0].temparature[1] == ureg.Quantity(120, ureg('°C'))
         elif m.data.positon_in_experimental_plan == 8:
             assert 'Sputtering' in str(type(m.data))
             assert m.data.layer[0].layer_type == 'HTL'
@@ -281,10 +261,10 @@ def test_hy_batch_parser_new_cols(monkeypatch):  # noqa: PLR0915
                 assert m.data.datetime.isoformat() == '2025-02-26T00:00:00+00:00'
                 assert m.data.description == '1000 rpm'
                 assert m.data.number_of_junctions == 1
-                if m.data.lab_id == "hzb_TestP_AA_2_c-8":
+                if m.data.lab_id == 'hzb_TestP_AA_2_c-8':
                     assert m.data.parent
                     assert m.data.parent.reference
-                    assert m.data.parent.lab_id == "hzb_TestP_AA_2_c-7"
+                    assert m.data.parent.lab_id == 'hzb_TestP_AA_2_c-7'
         elif 'Substrate' in str(type(m.data)):
             assert m.data.solar_cell_area == 0.16 * ureg('cm**2')
             assert m.data.pixel_area == 0.16 * ureg('cm**2')
@@ -327,8 +307,7 @@ def test_hy_batch_parser_new_cols(monkeypatch):  # noqa: PLR0915
             # assert m.data.instruments.name == 'HyprintBox' # instrument name
             assert m.data.solution[0].solution_volume == 100 * ureg('ul').to('ml')
             assert m.data.solution[0].solution_details.solvent[0].chemical_2.name == 'DMF'
-            assert m.data.solution[0].solution_details.solvent[0].chemical_volume == 10 * \
-                ureg('uL').to('ml')
+            assert m.data.solution[0].solution_details.solvent[0].chemical_volume == 10 * ureg('uL').to('ml')
             assert m.data.solution[0].solution_details.solvent[0].amount_relative == 1.5
             assert m.data.solution[0].solution_details.solute[0].chemical_2.name == 'Lead Iodide'
 
@@ -388,8 +367,7 @@ def test_hy_batch_parser_new_cols(monkeypatch):  # noqa: PLR0915
             assert m.data.location == 'HyprintBox'
             assert m.data.solution[0].solution_volume == 100 * ureg('ul').to('ml')
             assert m.data.solution[0].solution_details.solvent[0].chemical_2.name == 'DMF'
-            assert m.data.solution[0].solution_details.solvent[0].chemical_volume == 10 * \
-                ureg('uL').to('ml')
+            assert m.data.solution[0].solution_details.solvent[0].chemical_volume == 10 * ureg('uL').to('ml')
             assert m.data.solution[0].solution_details.solvent[0].amount_relative == 1.5
             assert m.data.solution[0].solution_details.solute[0].chemical_2.name == 'Lead Iodide'
 
@@ -400,20 +378,15 @@ def test_hy_batch_parser_new_cols(monkeypatch):  # noqa: PLR0915
             assert m.data.solution[0].solution_details.solute[1].concentration_mol == 1.42 * ureg('mM').to(
                 'mole / milliliter'
             )
-            assert m.data.properties.flow_rate == 25 * \
-                ureg('ul/minute').to('ml/minute')
-            assert m.data.properties.slot_die_head_distance_to_thinfilm == 0.3 * \
-                ureg('mm')
+            assert m.data.properties.flow_rate == 25 * ureg('ul/minute').to('ml/minute')
+            assert m.data.properties.slot_die_head_distance_to_thinfilm == 0.3 * ureg('mm')
             assert m.data.properties.slot_die_head_speed == 15 * ureg('mm/s')
-            assert m.data.quenching.air_knife_angle == 45 * \
-                ureg('°')  # needs to be added to schema
+            assert m.data.quenching.air_knife_angle == 45 * ureg('°')  # needs to be added to schema
             assert m.data.quenching.air_knife_distance_to_thin_film == 0.5 * ureg('cm').to(
                 'um'
             )  # needs to be added to schema
-            assert m.data.quenching.bead_volume == 2 * \
-                ureg('mm/s')  # needs to be added to schema
-            assert m.data.quenching.drying_speed == 30 * \
-                ureg('cm/minute')  # needs to be added to schema
+            assert m.data.quenching.bead_volume == 2 * ureg('mm/s')  # needs to be added to schema
+            assert m.data.quenching.drying_speed == 30 * ureg('cm/minute')  # needs to be added to schema
             assert m.data.annealing.time == 30 * ureg('minute')
             assert m.data.annealing.temperature == ureg.Quantity(120, ureg('°C'))
             assert m.data.annealing.atmosphere == 'Nitrogen'
@@ -426,8 +399,7 @@ def test_hy_batch_parser_new_cols(monkeypatch):  # noqa: PLR0915
             assert m.data.layer[0].layer_material_name == 'Perovskite'
             assert m.data.location == 'HyprintBox'
             assert m.data.solution[0].solution_details.solvent[0].chemical_2.name == 'DMF'
-            assert m.data.solution[0].solution_details.solvent[0].chemical_volume == 10 * \
-                ureg('uL').to('ml')
+            assert m.data.solution[0].solution_details.solvent[0].chemical_volume == 10 * ureg('uL').to('ml')
             assert m.data.solution[0].solution_details.solvent[0].amount_relative == 1.5
             assert m.data.solution[0].solution_details.solute[0].chemical_2.name == 'Lead Iodide'
 
@@ -444,13 +416,10 @@ def test_hy_batch_parser_new_cols(monkeypatch):  # noqa: PLR0915
             assert m.data.print_head_path.quality_factor == '3'
             assert m.data.print_head_path.step_size == '10'
             assert m.data.properties.printed_area == 100 * ureg('mm**2')
-            assert m.data.properties.print_head_properties.print_nozzle_drop_frequency == 5000 * \
-                ureg('1/s')
-            assert m.data.properties.print_head_properties.print_nozzle_drop_volume == 10 * \
-                ureg('pl')
+            assert m.data.properties.print_head_properties.print_nozzle_drop_frequency == 5000 * ureg('1/s')
+            assert m.data.properties.print_head_properties.print_nozzle_drop_volume == 10 * ureg('pl')
             assert m.data.properties.cartridge_pressure == 0.3 * ureg('bar')
-            assert m.data.properties.substrate_temperature == ureg.Quantity(
-                40, ureg('°C'))
+            assert m.data.properties.substrate_temperature == ureg.Quantity(40, ureg('°C'))
             assert m.data.properties.print_head_properties.print_head_temperature == ureg.Quantity(
                 35, ureg('°C')
             )
@@ -469,16 +438,11 @@ def test_hy_batch_parser_new_cols(monkeypatch):  # noqa: PLR0915
             assert m.data.organic_evaporation
             assert m.data.organic_evaporation[0].pressure == 0.000001 * ureg('bar')
 
-            assert m.data.organic_evaporation[0].pressure_start == 0.000005 * \
-                ureg('bar').to('mbar')
-            assert m.data.organic_evaporation[0].pressure_end == 0.000003 * \
-                ureg('bar').to('mbar')
-            assert m.data.organic_evaporation[0].temparature[0] == ureg.Quantity(
-                150, ureg('°C'))
-            assert m.data.organic_evaporation[0].temparature[1] == ureg.Quantity(
-                160, ureg('°C'))
-            assert m.data.organic_evaporation[0].substrate_temparature == ureg.Quantity(
-                25, ureg('°C'))
+            assert m.data.organic_evaporation[0].pressure_start == 0.000005 * ureg('bar').to('mbar')
+            assert m.data.organic_evaporation[0].pressure_end == 0.000003 * ureg('bar').to('mbar')
+            assert m.data.organic_evaporation[0].temparature[0] == ureg.Quantity(150, ureg('°C'))
+            assert m.data.organic_evaporation[0].temparature[1] == ureg.Quantity(160, ureg('°C'))
+            assert m.data.organic_evaporation[0].substrate_temparature == ureg.Quantity(25, ureg('°C'))
             assert m.data.organic_evaporation[0].thickness == 100 * ureg('nm')
             assert m.data.organic_evaporation[0].start_rate == 0.5 * ureg('angstrom/s')
             assert m.data.organic_evaporation[0].target_rate == 1 * ureg('angstrom/s')
@@ -533,20 +497,14 @@ def test_hy_batch_parser_new_cols(monkeypatch):  # noqa: PLR0915
             assert m.data.perovskite_evaporation[0].pressure == 0.000001 * ureg('bar')
             assert m.data.perovskite_evaporation[0].chemical_2.name == 'Cupper'
             assert m.data.perovskite_evaporation[0].tooling_factor == '2.1'
-            assert m.data.perovskite_evaporation[0].temparature[0] == ureg.Quantity(
-                111, ureg('°C'))
-            assert m.data.perovskite_evaporation[0].temparature[1] == ureg.Quantity(
-                121, ureg('°C'))
+            assert m.data.perovskite_evaporation[0].temparature[0] == ureg.Quantity(111, ureg('°C'))
+            assert m.data.perovskite_evaporation[0].temparature[1] == ureg.Quantity(121, ureg('°C'))
             assert m.data.perovskite_evaporation[0].thickness == 21 * ureg('nm')
-            assert m.data.perovskite_evaporation[0].target_rate == 1.5 * \
-                ureg('angstrom/s')
+            assert m.data.perovskite_evaporation[0].target_rate == 1.5 * ureg('angstrom/s')
             assert m.data.perovskite_evaporation[0].pressure == 0.000001 * ureg('bar')
-            assert m.data.perovskite_evaporation[0].pressure_start == 0.000005 * ureg(
-                'bar').to('mbar')
-            assert m.data.perovskite_evaporation[0].pressure_end == 0.000003 * ureg(
-                'bar').to('mbar')
-            assert m.data.perovskite_evaporation[0].substrate_temparature == ureg.Quantity(
-                25, ureg('°C'))
+            assert m.data.perovskite_evaporation[0].pressure_start == 0.000005 * ureg('bar').to('mbar')
+            assert m.data.perovskite_evaporation[0].pressure_end == 0.000003 * ureg('bar').to('mbar')
+            assert m.data.perovskite_evaporation[0].substrate_temparature == ureg.Quantity(25, ureg('°C'))
 
         # Step 11: Sputtering
         elif m.data.positon_in_experimental_plan == 11:
@@ -590,14 +548,11 @@ def test_hy_batch_parser_new_cols(monkeypatch):  # noqa: PLR0915
             assert m.data.properties.number_of_cycles == 250
             assert m.data.properties.material.material.name == 'TMA'
             assert m.data.properties.material.pulse_duration == 0.2 * ureg('s')
-            assert m.data.properties.material.manifold_temperature == ureg.Quantity(
-                80, ureg('°C'))
-            assert m.data.properties.material.bottle_temperature == ureg.Quantity(
-                25, ureg('°C'))
+            assert m.data.properties.material.manifold_temperature == ureg.Quantity(80, ureg('°C'))
+            assert m.data.properties.material.bottle_temperature == ureg.Quantity(25, ureg('°C'))
             assert m.data.properties.oxidizer_reducer.material.name == 'H2O'
             assert m.data.properties.oxidizer_reducer.pulse_duration == 0.1 * ureg('s')
-            assert m.data.properties.oxidizer_reducer.manifold_temperature == ureg.Quantity(
-                70, ureg('°C'))
+            assert m.data.properties.oxidizer_reducer.manifold_temperature == ureg.Quantity(70, ureg('°C'))
 
         # Step 14: Annealing
         # elif m.data.positon_in_experimental_plan == 14:
@@ -677,8 +632,7 @@ def test_hy_batch_parser_ink_recycling(monkeypatch):
 
             # ink
             assert m.data.ink.solute[0].chemical_mass == 5000 * ureg('mg')
-            assert m.data.ink.solute[0].concentration_mol == 1.5 * \
-                ureg('M').to('mol / milliliter')
+            assert m.data.ink.solute[0].concentration_mol == 1.5 * ureg('M').to('mol / milliliter')
             assert m.data.ink.solute[0].chemical_2.name == 'PbI2 1'
             assert m.data.ink.solute[0].amount_mol == 0.02 * ureg('mol')
 
@@ -740,22 +694,18 @@ def test_hy_batch_parser_ml_project_new_columns(monkeypatch):
             assert m.data.datetime.isoformat() == '2026-01-09T10:19:00+00:00'
             assert m.data.solution[0].solution_volume == 100 * ureg('ul').to('ml')
             assert m.data.solution[0].solution_details.solvent[0].chemical_2.name == 'DMF'
-            assert m.data.solution[0].solution_details.solvent[0].chemical_volume == 10 * \
-                ureg('uL').to('ml')
+            assert m.data.solution[0].solution_details.solvent[0].chemical_volume == 10 * ureg('uL').to('ml')
             assert m.data.solution[0].solution_details.solvent[0].amount_relative == 1.5
             assert m.data.solution[0].solution_details.solute[0].chemical_2.name == 'PbI2'
             assert m.data.solution[0].solution_details.solute[0].concentration_mol == 1.42 * ureg('mM').to(
                 'mole / milliliter'
             )
-            assert m.data.properties.flow_rate == 25 * \
-                ureg('ul/minute').to('ml/minute')
-            assert m.data.properties.slot_die_head_distance_to_thinfilm == 0.3 * \
-                ureg('mm')
+            assert m.data.properties.flow_rate == 25 * ureg('ul/minute').to('ml/minute')
+            assert m.data.properties.slot_die_head_distance_to_thinfilm == 0.3 * ureg('mm')
             assert m.data.properties.slot_die_head_speed == 15 * ureg('mm/s')
             assert m.data.properties.temperature == ureg.Quantity(25, ureg('°C'))
             assert m.data.quenching.air_knife_angle == 45 * ureg('°')
-            assert m.data.quenching.air_knife_distance_to_thin_film == 0.5 * \
-                ureg('cm').to('um')
+            assert m.data.quenching.air_knife_distance_to_thin_film == 0.5 * ureg('cm').to('um')
             assert m.data.quenching.bead_volume == 2 * ureg('mm/s')
             assert m.data.quenching.drying_speed == 30 * ureg('cm/minute')
             assert m.data.annealing.time == 30 * ureg('minute')
@@ -780,16 +730,11 @@ def test_hy_batch_parser_ml_project_new_columns(monkeypatch):
             assert m.data.datetime.isoformat() == '2026-01-09T10:19:00+00:00'
             assert m.data.organic_evaporation
             assert m.data.organic_evaporation[0].pressure == 0.000001 * ureg('bar')
-            assert m.data.organic_evaporation[0].pressure_start == 0.000005 * \
-                ureg('bar').to('mbar')
-            assert m.data.organic_evaporation[0].pressure_end == 0.000003 * \
-                ureg('bar').to('mbar')
-            assert m.data.organic_evaporation[0].temparature[0] == ureg.Quantity(
-                150, ureg('°C'))
-            assert m.data.organic_evaporation[0].temparature[1] == ureg.Quantity(
-                160, ureg('°C'))
-            assert m.data.organic_evaporation[0].substrate_temparature == ureg.Quantity(
-                25, ureg('°C'))
+            assert m.data.organic_evaporation[0].pressure_start == 0.000005 * ureg('bar').to('mbar')
+            assert m.data.organic_evaporation[0].pressure_end == 0.000003 * ureg('bar').to('mbar')
+            assert m.data.organic_evaporation[0].temparature[0] == ureg.Quantity(150, ureg('°C'))
+            assert m.data.organic_evaporation[0].temparature[1] == ureg.Quantity(160, ureg('°C'))
+            assert m.data.organic_evaporation[0].substrate_temparature == ureg.Quantity(25, ureg('°C'))
             assert m.data.organic_evaporation[0].thickness == 100 * ureg('nm')
             assert m.data.organic_evaporation[0].start_rate == 0.5 * ureg('angstrom/s')
             assert m.data.organic_evaporation[0].target_rate == 1 * ureg('angstrom/s')
