@@ -261,6 +261,10 @@ def test_hy_batch_parser_new_cols(monkeypatch):  # noqa: PLR0915
                 assert m.data.datetime.isoformat() == '2025-02-26T00:00:00+00:00'
                 assert m.data.description == '1000 rpm'
                 assert m.data.number_of_junctions == 1
+                if m.data.lab_id == 'hzb_TestP_AA_2_c-8':
+                    assert m.data.parent
+                    assert m.data.parent.reference
+                    assert m.data.parent.lab_id == 'hzb_TestP_AA_2_c-7'
         elif 'Substrate' in str(type(m.data)):
             assert m.data.solar_cell_area == 0.16 * ureg('cm**2')
             assert m.data.pixel_area == 0.16 * ureg('cm**2')
