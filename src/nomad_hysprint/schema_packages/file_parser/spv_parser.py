@@ -24,13 +24,14 @@ def find_footer(file_lines):
     for num, line in enumerate(file_lines, 1):
         if 'BEGIN_METADATA' in line:
             return num - 5
+    return num
 
 
 def get_spv_data(filedata):
     file_lines = filedata.split('\n')
     nrows = find_footer(file_lines)
     if nrows is None:
-        return
+        return None, None
     data = pd.read_csv(StringIO(filedata), sep='\t', nrows=nrows)
 
     md_dict = {}
