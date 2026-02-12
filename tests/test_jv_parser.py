@@ -280,7 +280,7 @@ def test_iris_jv_parser(monkeypatch):
 
 
 def test_iris_jv_json_parser(monkeypatch):
-    file = 'hzb_TestP_AA_1_c-1.1_JM261.jv.txt'
+    file = 'JM436.jv.json'
     archive = get_archive(file, monkeypatch)
     normalize_all(archive)
 
@@ -291,7 +291,7 @@ def test_iris_jv_json_parser(monkeypatch):
     # Test first JV curve (index 0): a_Forward_Dark
     curve0 = archive.data.jv_curve[0]
     assert curve0['cell_name'] == 'A FWD'
-    assert round(curve0['open_circuit_voltage'], 5) == -0.00173 * ureg('V')
+    assert round(curve0['open_circuit_voltage'], 5) == 0.88877 * ureg('V')
     assert round(curve0['voltage'][0], 3) == -0.20 * ureg('V')
 
     # Clean up
