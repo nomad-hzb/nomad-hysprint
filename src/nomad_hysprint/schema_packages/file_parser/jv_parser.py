@@ -246,19 +246,19 @@ def get_jv_data_iris_json(filedata):
     for c in ['J_sc', 'V_oc', 'Fill_factor', 'Efficiency', 'P_MPP', 'J_MPP', 'U_MPP', 'R_ser', 'R_par']:
         jv_dict[c] = []
     for m in data['data']:
-        jv_dict['J_sc'].append(m['parameters']['J_sc'])
-        jv_dict['V_oc'].append(m['parameters']['V_oc'])
-        jv_dict['Fill_factor'].append(m['parameters']['FF'] * 100)
-        jv_dict['Efficiency'].append(m['parameters']['Eff'] * 100)
-        jv_dict['J_MPP'].append(m['parameters']['J_Mpp'])
-        jv_dict['U_MPP'].append(m['parameters']['V_Mpp'])
-        jv_dict['R_ser'].append(m['parameters']['R_s'])
-        jv_dict['R_par'].append(m['parameters']['R_p'])
+        jv_dict['J_sc'].append(m['measurements'][0]['Jsc [mA/cm2]'])
+        jv_dict['V_oc'].append(m['measurements'][0]['Voc [V]'])
+        jv_dict['Fill_factor'].append(m['measurements'][0]['FF [%]'])
+        jv_dict['Efficiency'].append(m['measurements'][0]['Eff_1000 [%]'])
+        jv_dict['J_MPP'].append(m['measurements'][0]['J_mpp [mA/cm2]'])
+        jv_dict['U_MPP'].append(m['measurements'][0]['V_mpp [V]'])
+        jv_dict['R_ser'].append(m['measurements'][0]['Rs [\u2126cm2]'])
+        jv_dict['R_par'].append(m['measurements'][0]['Rp [\u2126cm2]'])
         jv_dict['jv_curve'].append(
             {
-                'name': m['pin'] + ' ' + m['direction'],
-                'voltage': [v['voltage'] for v in m['measurements']],
-                'current_density': [c['current_density'] for c in m['measurements']],
+                'name': m['cell'] + ' ' + m['direction'],
+                'voltage': [v['V_meas [V]'] for v in m['measurements']],
+                'current_density': [c['J [mA/cm2]'] for c in m['measurements']],
             }
         )
 
