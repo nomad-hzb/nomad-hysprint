@@ -112,7 +112,6 @@ class HySprintExperimentParser(MatchingParser):
         return True
 
     def parse(self, mainfile: str, archive: EntryArchive, logger):
-        print('parser started!')
         upload_id = archive.metadata.upload_id
         # xls = pd.ExcelFile(mainfile)
         df = pd.read_excel(mainfile, header=[0, 1])
@@ -155,7 +154,6 @@ class HySprintExperimentParser(MatchingParser):
             substrate_name = find_substrate(row[substrates_col]) + '.archive.json' if substrates_col else None
             archives.append(map_basic_sample(row, substrate_name, upload_id, HySprint_Sample))
 
-        print('outside loop blade coating working!')
         for i, col in enumerate(df.columns.get_level_values(0).unique()):
             if col == 'Experiment Info':
                 continue
@@ -215,10 +213,8 @@ class HySprintExperimentParser(MatchingParser):
                         map_atomic_layer_deposition(i, j, lab_ids, row, upload_id, IRIS_AtomicLayerDeposition)
                     )
 
-                print('outside blade coating working!')
                 if 'blade coating' in col.lower():
                     # Use the generalized function to enrich row with product data
-                    print('blade coating working!')
 
                     archives.append(
                         map_blade_coating(
