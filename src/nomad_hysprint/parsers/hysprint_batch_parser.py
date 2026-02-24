@@ -29,6 +29,7 @@ from baseclasses.helper.solar_cell_batch_mapping import (
     map_atomic_layer_deposition,
     map_basic_sample,
     map_batch,
+    map_blade_coating,
     map_cleaning,
     map_evaporation,
     map_generic,
@@ -49,6 +50,7 @@ from nomad.parsing import MatchingParser
 from nomad_hysprint.parsers.file_parser.ink_recycling_mappers import map_ink_recycling
 from nomad_hysprint.schema_packages.hysprint_package import (
     HySprint_Batch,
+    HySprint_BladeCoating,
     HySprint_Cleaning,
     HySprint_Evaporation,
     HySprint_Inkjet_Printing,
@@ -110,6 +112,7 @@ class HySprintExperimentParser(MatchingParser):
         return True
 
     def parse(self, mainfile: str, archive: EntryArchive, logger):
+        print('parser started!')
         upload_id = archive.metadata.upload_id
         # xls = pd.ExcelFile(mainfile)
         df = pd.read_excel(mainfile, header=[0, 1])
@@ -152,6 +155,7 @@ class HySprintExperimentParser(MatchingParser):
             substrate_name = find_substrate(row[substrates_col]) + '.archive.json' if substrates_col else None
             archives.append(map_basic_sample(row, substrate_name, upload_id, HySprint_Sample))
 
+        print('outside loop blade coating working!')
         for i, col in enumerate(df.columns.get_level_values(0).unique()):
             if col == 'Experiment Info':
                 continue
@@ -209,6 +213,22 @@ class HySprintExperimentParser(MatchingParser):
                 if 'ald' in col.lower():
                     archives.append(
                         map_atomic_layer_deposition(i, j, lab_ids, row, upload_id, IRIS_AtomicLayerDeposition)
+                    )
+
+                print('outside blade coating working!')
+                if 'blade coating' in col.lower():
+                    # Use the generalized function to enrich row with product data
+                    print('blade coating working!')
+
+                    archives.append(
+                        map_blade_coating(
+                            i,
+                            j,
+                            lab_ids,
+                            row,
+                            upload_id,
+                            HySprint_BladeCoating,
+                        )
                     )
 
         refs = []

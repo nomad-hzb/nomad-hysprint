@@ -591,25 +591,39 @@ class HySprint_DipCoating(DipCoating, EntryData):
     )
 
 
+# %% ### Blade Coating
+
+
 class HySprint_BladeCoating(BladeCoating, EntryData):
     m_def = Section(
         a_eln=dict(
-            hide=['lab_id', 'users', 'end_time', 'steps', 'instruments', 'results'],
+            hide=[
+                'lab_id',
+                'users',
+                'author',
+                'end_time',
+                'steps',
+                'instruments',
+                'results',
+            ],
             properties=dict(
                 order=[
                     'name',
                     'location',
                     'present',
                     'datetime',
+                    'previous_process',
                     'batch',
                     'samples',
                     'solution',
                     'layer',
+                    'properties',
                     'quenching',
                     'annealing',
+                    'atmosphere',
                 ]
             ),
-        )
+        ),
     )
 
 
