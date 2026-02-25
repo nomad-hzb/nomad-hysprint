@@ -41,7 +41,7 @@ O2_LEVEL = 0.1
 SOLVENT = 'DMF'
 SOLVENT_VOL = 10 * ureg('ul')
 SOLUTE = 'PbI2'
-SOLUTE_MOL = 1.42 * ureg('mmol/l')
+SOLUTE_MOL = 1.42 * ureg('mole / milliliter')
 SOLUTION_VOLUME = 10 * ureg('ul')
 
 
