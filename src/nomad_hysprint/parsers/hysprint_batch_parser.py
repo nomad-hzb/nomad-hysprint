@@ -29,6 +29,7 @@ from baseclasses.helper.solar_cell_batch_mapping import (
     map_atomic_layer_deposition,
     map_basic_sample,
     map_batch,
+    map_blade_coating,
     map_cleaning,
     map_evaporation,
     map_generic,
@@ -39,7 +40,7 @@ from baseclasses.helper.solar_cell_batch_mapping import (
     map_sputtering,
     map_substrate,
 )
-from baseclasses.helper.utilities import create_archive
+from baseclasses.helper.utilities import convert_datetime, create_archive
 from nomad.datamodel import EntryArchive
 from nomad.datamodel.data import EntryData
 from nomad.datamodel.metainfo.basesections import Entity
@@ -49,6 +50,7 @@ from nomad.parsing import MatchingParser
 from nomad_hysprint.parsers.file_parser.ink_recycling_mappers import map_ink_recycling
 from nomad_hysprint.schema_packages.hysprint_package import (
     HySprint_Batch,
+    HySprint_BladeCoating,
     HySprint_Cleaning,
     HySprint_Evaporation,
     HySprint_Inkjet_Printing,
@@ -139,7 +141,19 @@ class HySprintExperimentParser(MatchingParser):
         for i, sub in df['Experiment Info'][substrates_col].drop_duplicates().iterrows():
             if pd.isna(sub).all():
                 continue
-            substrates.append((f'{i}_substrate', sub, map_substrate(sub, HySprint_Substrate)))
+            sub_entry = map_substrate(sub, HySprint_Substrate)
+            date_val = (
+                df['Experiment Info']['Date'].iloc[i] if 'Date' in df['Experiment Info'].columns else None
+            )
+            if date_val is not None and not pd.isna(date_val):
+                date_str = str(date_val).split(' ')[0]
+                for fmt in ('%d-%m-%Y', '%Y-%m-%d', '%d.%m.%Y', '%Y.%m.%d'):
+                    try:
+                        sub_entry.datetime = convert_datetime(date_str, datetime_format=fmt, utc=True)
+                        break
+                    except ValueError:
+                        continue
+            substrates.append((f'{i}_substrate', sub, sub_entry))
 
         def find_substrate(d):
             for s in substrates:
@@ -209,6 +223,20 @@ class HySprintExperimentParser(MatchingParser):
                 if 'ald' in col.lower():
                     archives.append(
                         map_atomic_layer_deposition(i, j, lab_ids, row, upload_id, IRIS_AtomicLayerDeposition)
+                    )
+
+                if 'blade coating' in col.lower():
+                    # Use the generalized function to enrich row with product data
+
+                    archives.append(
+                        map_blade_coating(
+                            i,
+                            j,
+                            lab_ids,
+                            row,
+                            upload_id,
+                            HySprint_BladeCoating,
+                        )
                     )
 
         refs = []
