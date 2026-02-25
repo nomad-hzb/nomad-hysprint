@@ -142,8 +142,15 @@ class HySprintExperimentParser(MatchingParser):
             if pd.isna(sub).all():
                 continue
             sub_entry = map_substrate(sub, HySprint_Substrate)
-            date_val = df['Experiment Info']['Date'].iloc[i]
-            sub_entry.datetime = convert_datetime(str(date_val), datetime_format='%d-%m-%Y', utc=True)
+            date_val = df['Experiment Info']['Date'].iloc[i] if 'Date' in df['Experiment Info'].columns else None
+            if date_val is not None and not pd.isna(date_val):
+                date_str = str(date_val).split(' ')[0]
+                for fmt in ('%d-%m-%Y', '%Y-%m-%d', '%d.%m.%Y', '%Y.%m.%d'):
+                    try:
+                        sub_entry.datetime = convert_datetime(date_str, datetime_format=fmt, utc=True)
+                        break
+                    except ValueError:
+                        continue
             substrates.append((f'{i}_substrate', sub, sub_entry))
 
         def find_substrate(d):
