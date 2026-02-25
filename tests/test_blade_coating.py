@@ -44,6 +44,7 @@ SOLUTE = 'PbI2'
 SOLUTE_MOL = 1.42 * ureg('mmol/l')
 SOLUTION_VOLUME = 10 * ureg('ul')
 
+
 def test_hysprint_batch_parser(monkeypatch):
     file = 'test_hysprint_blade_coating.xlsx'
     file_name = os.path.join('tests', 'data', file)
@@ -59,10 +60,10 @@ def test_hysprint_batch_parser(monkeypatch):
     measurement_archives.sort(key=lambda x: x.metadata.mainfile)
 
     PROCESS_CHECKS = {
-        # # Exact name matches for batch, sample, substrate (lowercased)
-        # 'HZB_FiNa_1_1': check_batch,
-        # 'HZB_FiNa_1_1_C-1': check_sample,
-        # 'substrate 1 cm x 1 cm soda lime glass ito': check_substrate,
+        # Exact name matches for batch, sample, substrate (lowercased)
+        'hzb_fina_1_1': check_batch,
+        'hzb_fina_1_1_c-1': check_sample,
+        'substrate 1 cm x 1 cm soda lime glass ito': check_substrate,
         # Step-specific process checks
         ('blade coating', 1.0): check_blade_coating,
     }
@@ -102,27 +103,28 @@ def test_hysprint_batch_parser(monkeypatch):
             print(f'No check function for process: {name} at step {step}')
     delete_json()
 
+
 # Helper functions for each process type
 
-""" 
+
 def check_sample(m):
-    assert m.data.name in ['SAU_GeSo_1_1_C-1', 'SAU_GeSo_1_1_C-2']
-    assert m.data.lab_id in ['SAU_GeSo_1_1_C-1', 'SAU_GeSo_1_1_C-2']
-    assert m.data.datetime.isoformat() == '2025-08-05T00:00:00+00:00'
+    assert m.data.name in ['HZB_FiNa_1_1_C-1', 'HZB_FiNa_1_1_C-2']
+    assert m.data.lab_id in ['HZB_FiNa_1_1_C-1', 'HZB_FiNa_1_1_C-2']
+    assert m.data.datetime.isoformat() == '2025-02-26T00:00:00+00:00'
     assert m.data.description == '1000 rpm'
-    assert m.data.number_of_junctions == 1
+    # assert m.data.number_of_junctions == 1
 
 
 def check_batch(m):
-    assert m.data.name == 'SAU_GeSo_1_1'
-    assert m.data.lab_id == 'SAU_GeSo_1_1'
+    assert m.data.name == 'HZB_FiNa_1_1'
+    assert m.data.lab_id == 'HZB_FiNa_1_1'
     assert len(m.data.entities) == 1
-    assert m.data.entities[0].lab_id == 'SAU_GeSo_1_1_C-1'
+    assert m.data.entities[0].lab_id == 'HZB_FiNa_1_1_C-1'
 
 
 def check_substrate(m):
-    assert m.data.datetime.isoformat() == '2025-08-05T00:00:00+00:00'
-    assert m.data.name == 'Substrate 1 cm x 1 cm Soda Lime Glass ITO'
+    assert m.data.datetime.isoformat() == '2025-02-26T00:00:00+00:00'
+    # assert m.data.name == 'Soda Lime Glass'
     assert m.data.solar_cell_area == 0.16 * ureg('cm**2')
     assert m.data.number_of_pixels == 6.0
     assert m.data.pixel_area == 0.16 * ureg('cm**2')
@@ -130,17 +132,17 @@ def check_substrate(m):
     assert m.data.conducting_material == ['ITO']
     assert m.data.substrate_properties[0]['layer_type'] == 'Substrate Conductive Layer'
     assert m.data.substrate_properties[0]['layer_material_name'] == 'ITO'
-    assert m.data.substrate_properties[0]['layer_thickness'] == 150.0 * ureg('nm')
-    assert m.data.substrate_properties[0]['layer_transmission'] == 90.0
-    assert m.data.substrate_properties[0]['layer_sheet_resistance'] == 10.0 * ureg('ohm')
- """
+    # assert m.data.substrate_properties[0]['layer_thickness'] == 150.0 * ureg('nm')
+    # assert m.data.substrate_properties[0]['layer_transmission'] == 90.0
+    # assert m.data.substrate_properties[0]['layer_sheet_resistance'] == 10.0 * ureg('ohm')
+
 
 def check_blade_coating(m):
     assert m.data.name.startswith('blade coating')
     assert m.data.layer[0]['layer_type'] == LAYER_TYPE
     assert m.data.layer[0]['layer_material_name'] == MATERIAL_NAME
     assert m.data.layer[0]['layer_thickness'] == 100 * ureg('nm')
-    #assert m.data.layer[0]['layer_morphology'] == MORPHOLOGY
+    # assert m.data.layer[0]['layer_morphology'] == MORPHOLOGY
     assert m.data.solution[0]['solution_details']['solute'][0]['chemical_2']['name'] == SOLUTE
     assert m.data.solution[0]['solution_details']['solute'][0]['concentration_mol'] == SOLUTE_MOL
     assert m.data.solution[0]['solution_details']['solvent'][0]['chemical_2']['name'] == SOLVENT
