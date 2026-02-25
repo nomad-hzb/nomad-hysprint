@@ -612,7 +612,6 @@ class HySprint_BladeCoating(BladeCoating, EntryData):
                     'location',
                     'present',
                     'datetime',
-                    'previous_process',
                     'batch',
                     'samples',
                     'solution',
