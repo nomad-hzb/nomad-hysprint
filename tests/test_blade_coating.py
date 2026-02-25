@@ -39,10 +39,10 @@ ROOM_TEMP = ureg.Quantity(21, ureg('°C'))
 ROOM_HUM = 30
 O2_LEVEL = 0.1
 SOLVENT = 'DMF'
-SOLVENT_VOL = 10 * ureg('ul')
+SOLVENT_VOL = 0.01 * ureg('ml')
 SOLUTE = 'PbI2'
 SOLUTE_MOL = 1.42e-6 * ureg('mole / milliliter')
-SOLUTION_VOLUME = 10 * ureg('ul')
+SOLUTION_VOLUME = 0.01 * ureg('ml')
 
 
 def test_hysprint_batch_parser(monkeypatch):
