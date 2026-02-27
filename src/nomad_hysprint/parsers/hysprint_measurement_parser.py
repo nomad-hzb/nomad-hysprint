@@ -96,7 +96,7 @@ def update_general_process_entries(entry, entry_id, archive, logger):
 class HySprintParser(MatchingParser):
     def parse(self, mainfile: str, archive: EntryArchive, logger):
         # Log a hello world, just to get us started. TODO remove from an actual parser.
-
+        file = mainfile.rsplit('raw/', maxsplit=1)[-1]
         mainfile_split = os.path.basename(mainfile).split('.')
         notes = ''
         if len(mainfile_split) > 2:
@@ -144,7 +144,7 @@ class HySprintParser(MatchingParser):
             entry = HySprint_EQEmeasurement()
         if mainfile_split[-1].lower() in ['tif', 'tiff'] and measurment_type.lower() == 'sem':
             entry = HySprint_SEM()
-            entry.detector_data = [os.path.basename(mainfile)]
+            entry.detector_data = [file]
         if measurment_type.lower() == 'pl':
             entry = HySprint_PLmeasurement()
         if measurment_type.lower() == 'pli':
@@ -157,14 +157,14 @@ class HySprintParser(MatchingParser):
             entry = HySprint_PES()
         if measurment_type == 'uvvis':
             entry = HySprint_UVvismeasurement()
-            entry.data_file = [os.path.basename(mainfile)]
+            entry.data_file = [file]
         if mainfile_split[-1].lower() in ['txt'] and measurment_type.lower() == 'env':
             entry = HZB_EnvironmentMeasurement()
         if mainfile_split[-1].lower() in ['nk']:
             entry = HZB_NKData()
         if mainfile_split[-1].lower() in ['txt', 'csv'] and measurment_type.lower() == 'mppt':
             entry = HySprint_SimpleMPPTracking()
-        archive.metadata.entry_name = os.path.basename(mainfile)
+        archive.metadata.entry_name = file
 
         if mainfile_split[-1].lower() not in ['nk']:
             search_id = mainfile_split[0]
@@ -174,10 +174,10 @@ class HySprintParser(MatchingParser):
             entry.description = f'Notes from file name: {notes}'
 
         if measurment_type not in ['uvvis', 'sem', 'SEM']:
-            entry.data_file = os.path.basename(mainfile)
+            entry.data_file = file
         entry.datetime = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
 
-        file_name = f'{os.path.basename(mainfile)}.archive.json'
+        file_name = f'{file}.archive.json'
         eid = get_entry_id_from_file_name(file_name, archive)
         archive.data = RawFileHZB(processed_archive=get_reference(archive.metadata.upload_id, eid))
         new_entry_created = create_archive(entry, archive, file_name)
