@@ -5,6 +5,10 @@ Created on Fri Jun  6 19:44:15 2025
 @author: a2853
 """
 
+import re
+from datetime import datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
+
 from baseclasses.characterizations import (
     PESSpecsLabProdigyAnalyzerParameters,
     PESSpecsLabProdigySettings,
@@ -131,6 +135,87 @@ def map_specs_lab_prodigy_data(res):
         method = 'He-UPS'
 
     return section, method
+
+
+def _parse_datetime_from_json(
+    time_str: str,
+    local_tz: str = 'Europe/Berlin',
+) -> datetime | None:
+    """
+    Parse JSON timestamp string to timezone-aware datetime.
+
+    JSON files from SpectraPENGUIN store timestamps in the measurement
+    machine's **local time** (no timezone indicator in the string).
+    The parsed datetime is tagged with the correct local timezone
+    (CET/CEST by default) so that comparisons with Prodigy XY timestamps
+    (which carry explicit UTC / UTC+N suffixes) work correctly.
+
+    Supports two formats:
+    - Old: "20251211112654"      (YYYYMMDDHHmmss)
+    - New: "28.01.2026_08:32:50" (DD.MM.YYYY_HH:MM:SS)
+
+    Parameters
+    ----------
+    time_str : str
+        Timestamp string in one of the two formats above.
+    local_tz : str
+        IANA timezone name of the measurement machine (default: "Europe/Berlin").
+
+    Returns
+    -------
+    datetime or None
+        Timezone-aware datetime in the machine's local timezone,
+        or None if parsing fails.
+    """
+    if not time_str or time_str == '0':
+        return None
+
+    try:
+        tz = ZoneInfo(local_tz)
+
+        # Try new format first: DD.MM.YYYY_HH:MM:SS
+        if '.' in time_str and '_' in time_str:
+            dt = datetime.strptime(time_str, '%d.%m.%Y_%H:%M:%S')
+            return dt.replace(tzinfo=tz)
+
+        # Fall back to old format: YYYYMMDDHHmmss
+        dt = datetime.strptime(time_str, '%Y%m%d%H%M%S')
+        return dt.replace(tzinfo=tz)
+    except (ValueError, TypeError):
+        return None
+
+
+# Get relevant time stamp from .xy prodigy
+def _parse_utc_datetime(text: str) -> datetime:
+    """
+    Parse a Prodigy-style datetime string with timezone suffix.
+
+    Supported formats:
+        "2025-11-17 09:56:48 UTC"       -> UTC  (offset +0)
+        "2025-11-17 10:56:48 UTC+1"     -> CET  (offset +1)
+        "2025-11-17 11:56:48 UTC+2"     -> CEST (offset +2)
+
+    Returns a timezone-aware datetime with the correct UTC offset.
+    """
+    text = text.strip()
+
+    # Match "YYYY-MM-DD HH:MM:SS" followed by a timezone suffix
+    m = re.match(
+        r'^(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})\s+UTC([+-]\d+)?$',
+        text,
+    )
+    if not m:
+        raise ValueError(f'Cannot parse datetime string: {text!r}')
+
+    dt_str, offset_str = m.group(1), m.group(2)
+    dt = datetime.strptime(dt_str, '%Y-%m-%d %H:%M:%S')
+
+    if offset_str:
+        offset_hours = int(offset_str)
+    else:
+        offset_hours = 0  # plain "UTC"
+
+    return dt.replace(tzinfo=timezone(timedelta(hours=offset_hours)))
 
 
 # folder = '/home/a2853/Downloads/1File_Per_Scan/'

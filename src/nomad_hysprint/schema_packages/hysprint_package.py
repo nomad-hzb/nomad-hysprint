@@ -16,7 +16,6 @@
 # limitations under the License.
 #
 
-import datetime
 import json
 import os
 import random
@@ -1564,6 +1563,8 @@ class HySprint_PES(PES, EntryData):
     def get_json_file(
         self, archive, time_diff=30, json_time_format='%d.%m.%Y_%H:%M:%S', json_time_key='ending time'
     ):
+        from nomad_hysprint.schema_packages.file_parser.pes_parser import _parse_datetime_from_json
+
         for item in archive.m_context.upload_files.raw_directory_list(recursive=True, files_only=True):
             file = item.path
             if not file.endswith('.json') or file.endswith('.archive.json'):
@@ -1572,15 +1573,7 @@ class HySprint_PES(PES, EntryData):
                 with archive.m_context.raw_file(file, 'tr') as f:
                     data = json.load(f)
                     json_timestamp = data.get(json_time_key, '0')
-                    print(json_timestamp)
-                    if not json_timestamp or json_timestamp == '0':
-                        continue
-                    import pytz
-
-                    json_date_obj = pytz.utc.localize(
-                        datetime.datetime.strptime(json_timestamp, json_time_format)
-                        - datetime.timedelta(hours=1)
-                    )
+                    json_date_obj = _parse_datetime_from_json(json_timestamp)
                     if abs((json_date_obj - self.datetime).total_seconds()) > time_diff:
                         continue
                     return file
@@ -1595,20 +1588,14 @@ class HySprint_PES(PES, EntryData):
         if self.data_file:
             with archive.m_context.raw_file(self.data_file, 'tr') as f:
                 from nomad_hysprint.schema_packages.file_parser.pes_parser import (
+                    _parse_utc_datetime,
                     map_specs_lab_prodigy_data,
                     parse_pes_xy_file,
                 )
 
                 results = parse_pes_xy_file(f.read())
                 self.specs_lab_prodigy_metadata, method = map_specs_lab_prodigy_data(results)
-                if 'UTC+1' in results.get('Acquisition Date', ''):
-                    self.datetime = convert_datetime(
-                        results['Acquisition Date'], datetime_format='%Y-%m-%d %H:%M:%S UTC+1', utc=False
-                    )
-                else:
-                    self.datetime = convert_datetime(
-                        results['Acquisition Date'], datetime_format='%Y-%m-%d %H:%M:%S UTC', utc=True
-                    )
+                self.datetime = _parse_utc_datetime(results.get('Acquisition Date', ''))
                 self.description = (
                     results.get('Experiment Description') if results.get('Experiment Description') else None
                 )
