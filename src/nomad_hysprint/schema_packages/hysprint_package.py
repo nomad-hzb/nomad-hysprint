@@ -16,6 +16,8 @@
 # limitations under the License.
 #
 
+import datetime
+import json
 import os
 import random
 import string
@@ -1550,8 +1552,40 @@ class HySprint_PES(PES, EntryData):
         )
     )
 
+    data_file_json = Quantity(
+        type=str,
+        a_eln=dict(component='FileEditQuantity'),
+        a_browser=dict(adaptor='RawFileAdaptor'),
+    )
+
     nxs_file = Quantity(type=HDF5Reference)
     specs_lab_prodigy_metadata = SubSection(section_def=PESSpecsLabProdigySettings)
+
+    def get_json_file(
+        self, archive, time_diff=30, json_time_format='%d.%m.%Y_%H:%M:%S', json_time_key='ending time'
+    ):
+        for item in archive.m_context.upload_files.raw_directory_list(recursive=True, files_only=True):
+            file = item.path
+            if not file.endswith('.json') or file.endswith('.archive.json'):
+                continue
+            try:
+                with archive.m_context.raw_file(file, 'tr') as f:
+                    data = json.load(f)
+                    json_timestamp = data.get(json_time_key, '0')
+                    print(json_timestamp)
+                    if not json_timestamp or json_timestamp == '0':
+                        continue
+                    import pytz
+
+                    json_date_obj = pytz.utc.localize(
+                        datetime.datetime.strptime(json_timestamp, json_time_format)
+                        - datetime.timedelta(hours=1)
+                    )
+                    if abs((json_date_obj - self.datetime).total_seconds()) > time_diff:
+                        continue
+                    return file
+            except Exception:
+                continue
 
     def normalize(self, archive, logger):
         if not self.samples and self.data_file:
@@ -1567,10 +1601,17 @@ class HySprint_PES(PES, EntryData):
 
                 results = parse_pes_xy_file(f.read())
                 self.specs_lab_prodigy_metadata, method = map_specs_lab_prodigy_data(results)
-                self.datetime = convert_datetime(
-                    results['Acquisition Date'], datetime_format='%Y-%m-%d %H:%M:%S UTC', utc=True
+                if 'UTC+1' in results.get('Acquisition Date', ''):
+                    self.datetime = convert_datetime(
+                        results['Acquisition Date'], datetime_format='%Y-%m-%d %H:%M:%S UTC+1', utc=False
+                    )
+                else:
+                    self.datetime = convert_datetime(
+                        results['Acquisition Date'], datetime_format='%Y-%m-%d %H:%M:%S UTC', utc=True
+                    )
+                self.description = (
+                    results.get('Experiment Description') if results.get('Experiment Description') else None
                 )
-                self.description = results.get('Experiment Description')
 
                 output_file = archive.metadata.mainfile.replace('archive.json', 'nxs').replace(' ', '')
                 with archive.m_context.raw_file(output_file, 'w') as outfile:
@@ -1583,7 +1624,10 @@ class HySprint_PES(PES, EntryData):
                             skip_verify=True,
                         )  # TODO only call if upload not published
                     self.nxs_file = f'/uploads/{archive.metadata.upload_id}/raw/{output_file}#/'
-        self.method = method
+            self.method = method
+        if self.method in ['NUBS', 'CFSYS']:
+            self.data_file_json = self.get_json_file(archive)
+
         super().normalize(archive, logger)
 
 
