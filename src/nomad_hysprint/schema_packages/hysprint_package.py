@@ -16,11 +16,13 @@
 # limitations under the License.
 #
 
+import io
 import json
 import os
 import random
 import string
 
+import h5py
 import numpy as np
 from baseclasses import BaseMeasurement, BaseProcess, Batch, LayerDeposition, ReadableIdentifiersCustom
 from baseclasses.assays import EnvironmentMeasurement
@@ -1611,6 +1613,18 @@ class HySprint_PES(PES, EntryData):
                             skip_verify=True,
                         )  # TODO only call if upload not published
                     self.nxs_file = f'/uploads/{archive.metadata.upload_id}/raw/{output_file}#/'
+                if self.specs_lab_prodigy_metadata and self.nxs_file:
+                    with archive.m_context.raw_file(output_file, 'br') as nxsfile:
+                        h5_stream = io.BytesIO(nxsfile.read())
+                        with h5py.File(h5_stream, 'r') as h5_file:
+                            key = list(h5_file.keys())[0]
+                            self.specs_lab_prodigy_metadata.energy_minimum = np.min(
+                                h5_file[f'/{key}/data/energy'][...]
+                            )
+                            self.specs_lab_prodigy_metadata.energy_maximum = np.max(
+                                h5_file[f'/{key}/data/energy'][...]
+                            )
+
             self.method = method
         if self.method in ['NUBS', 'CFSYS']:
             self.data_file_json = self.get_json_file(archive)
