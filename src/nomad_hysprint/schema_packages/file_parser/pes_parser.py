@@ -11,6 +11,7 @@ from zoneinfo import ZoneInfo
 
 from baseclasses.characterizations import (
     PESSpecsLabProdigyAnalyzerParameters,
+    PESSpecsLabProdigyInstrumentSettings,
     PESSpecsLabProdigySettings,
     PESSpecsLabProdigySourceParameters,
 )
@@ -77,7 +78,7 @@ def map_specs_lab_prodigy_data(res):
         azimuth_angle=map_value(res['Source Parameters'].get('Azimuth Angle'), True, True),
         excitation_energy=map_value(res['Source Parameters'].get('Excitation Energy'), True, True),
         device_state=map_value(res['Source Parameters'].get('device_state'), False, False),
-        preset_name=map_value(res['Source Parameters'].get('preset_name'), False, False),
+        preset_name=map_value(res['Source Parameters'].get('preset_name', ''), False, False),
         anode=map_value(res['Source Parameters'].get('anode'), False, False),
         anode_voltage=map_value(res['Source Parameters'].get('anode_voltage'), True, False),
         anode_current=map_value(res['Source Parameters'].get('anode_current'), True, False),
@@ -91,23 +92,48 @@ def map_specs_lab_prodigy_data(res):
         focused=map_value(res['Source Parameters'].get('focused'), False, False),
         settings_summary=map_value(res['Source Parameters'].get('Settings Summary'), False, False),
     )
+
+    instrument_settings = PESSpecsLabProdigyInstrumentSettings(
+        count_rate=map_value(res['XY-Serializer Export Settings'].get('Count Rate', ''), False, False),
+        separate_scan_data=map_value(
+            res['XY-Serializer Export Settings'].get('Separate Scan Data', ''), False, False
+        ),
+        separate_channel_data=map_value(
+            res['XY-Serializer Export Settings'].get('Separate Channel Data', ''), False, False
+        ),
+        separate_non_energy_channels=map_value(
+            res['XY-Serializer Export Settings'].get('Separate Non-Energy Channels', ''), False, False
+        ),
+        external_channel_data=map_value(
+            res['XY-Serializer Export Settings'].get('External Channel Data', ''), False, False
+        ),
+        transmission_function=map_value(
+            res['XY-Serializer Export Settings'].get('Transmission Function', ''), False, False
+        ),
+        error_bar=map_value(res['XY-Serializer Export Settings'].get('Error Bar', ''), False, False),
+        operation_results=map_value(
+            res['XY-Serializer Export Settings'].get('Operation Results', ''), False, False
+        ),
+    )
+
     section = PESSpecsLabProdigySettings(
-        region=map_value(res.get('Region'), False, False),
-        calibration_file=map_value(res.get('Calibration File'), False, False),
-        analyzer_lens_mode=map_value(res.get('Analyzer Lens Mode'), False, False),
-        scan_variable=map_value(res.get('Scan Variable'), False, False),
+        region=map_value(res.get('Region', ''), False, False),
+        spectrum_id=map_value(res.get('Spectrum ID', ''), False, False),
+        calibration_file=map_value(res.get('Calibration File', ''), False, False),
+        transmission_file=map_value(res.get('Transmission File', ''), False, False),
+        analyzer_lens_mode=map_value(res.get('Analyzer Lens Mode', ''), False, False),
+        scan_variable=map_value(res.get('Scan Variable', ''), False, False),
         step_size=map_value(res.get('Step Size'), True, False),
         dwell_time=map_value(res.get('Dwell Time'), True, False),
         excitation_energy=map_value(res.get('Excitation Energy'), True, False),
         kinetic_energy=map_value(res.get('Kinetic Energy'), True, False),
         binding_energy=map_value(res.get('Binding Energy'), True, False),
         pass_energy=map_value(res.get('Pass Energy'), True, False),
-        bias_voltage=map_value(res.get('Bias Voltage'), True, False),
-        detector_voltage=map_value(res.get('Detector Voltage'), True, False),
-        effective_work_function=map_value(res.get('Eff. Workfunction'), True, False),
         iris_diameter=map_value(res.get('Iris Diameter'), True, False),
         analyzer_slit=map_value(res.get('Analyzer Slit'), False, False),
         analyzer_lens_voltage=map_value(res.get('Analyzer Lens Voltage'), False, False),
+        comment=map_value(res.get('Comment', ''), False, False) if res.get('Comment') else None,
+        instrument_settings=instrument_settings,
         analyzer_parameters=analyzer_parameters,
         source_parameters=source_parameters,
     )
