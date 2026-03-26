@@ -1075,22 +1075,19 @@ class HySprint_JVmeasurement(JVMeasurement, EntryData):
                     self.location = location
                     get_jv_archive(jv_dict, self.data_file, self)
 
-            # Normalize to 4th quadrant (positive V, negative J)
             if self.jv_curve:
                 for curve in self.jv_curve:
                     if curve.voltage is None or curve.current_density is None:
                         continue
 
+                    # Skip dark curves using the dark flag if available
+                    is_dark = getattr(curve, 'dark', False)
+                    if is_dark:
+                        continue
+
                     voltage = np.array(curve.voltage)
                     current_density = np.array(curve.current_density)
 
-                    # Light curves have a Voc, i.e. a zero crossing in current density
-                    # Dark curves stay on one side — skip them
-                    has_voc = np.any(current_density[:-1] * current_density[1:] < 0)
-                    if not has_voc:
-                        continue
-
-                    # Normalize to 4th quadrant
                     if np.mean(voltage) < 0:
                         voltage = -voltage
                     if np.mean(current_density) > 0:
