@@ -21,6 +21,7 @@ import json
 import os
 import random
 import string
+from io import StringIO
 
 import h5py
 import numpy as np
@@ -1527,14 +1528,28 @@ class HySprint_XRD_XY(XRD, EntryData):
         if self.data_file:
             with archive.m_context.raw_file(self.data_file, 'tr') as f:
                 if os.path.splitext(self.data_file)[-1].lower() == '.xy' and self.data is None:
-                    if 'Id' in f.readline():
-                        skiprows = 1
-                        data = pd.read_csv(f, sep=' |\t', header=None, skiprows=skiprows)
-                    else:
-                        skiprows = 0
-                        data = pd.read_csv(f, sep=' |\t', header=None, skiprows=skiprows)
-                    print(data)
-                    self.data = XRDData(angle=data[0], intensity=data[1])
+                    file_content = f.read()
+                    lines = [li.strip() for li in file_content.splitlines() if li.strip()]
+                    skiprows = 1 if lines and 'Id' in lines[0] else 0
+
+                    # Detect decimal marker from first data line
+                    sample_line = lines[skiprows] if skiprows < len(lines) else lines[0]
+                    decimal = ',' if ',' in sample_line else '.'
+
+                    data = pd.read_csv(
+                        StringIO(file_content),
+                        sep=r' |\t',
+                        decimal=decimal,
+                        header=None,
+                        skiprows=skiprows,
+                        engine='python',
+                    )
+                    data = data.dropna(subset=[0, 1])
+                    data[0] = pd.to_numeric(data[0], errors='coerce')
+                    data[1] = pd.to_numeric(data[1], errors='coerce')
+                    data = data.dropna(subset=[0, 1])
+                    if not data.empty:
+                        self.data = XRDData(angle=data[0].values, intensity=data[1].values)
         super().normalize(archive, logger)
 
 
