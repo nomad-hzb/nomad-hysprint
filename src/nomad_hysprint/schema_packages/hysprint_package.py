@@ -1088,8 +1088,11 @@ class HySprint_JVmeasurement(JVMeasurement, EntryData):
                     first_v_neg_j_neg = voltage[0] < 0 and current_density[0] < 0
                     last_v_pos_j_pos = voltage[-1] > 0 and current_density[-1] > 0
                     mid_v_neg_j_pos = voltage[mid] < 0 and current_density[mid] > 0
+                    steep_at_start = abs(current_density[1] - current_density[0]) > abs(
+                        current_density[-1] - current_density[-2]
+                    )
 
-                    if first_v_neg_j_neg and last_v_pos_j_pos and mid_v_neg_j_pos:
+                    if first_v_neg_j_neg and last_v_pos_j_pos and mid_v_neg_j_pos and steep_at_start:
                         curve.current_density = -current_density
                         curve.voltage = -voltage
 
