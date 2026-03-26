@@ -22,10 +22,12 @@ from io import StringIO
 
 import numpy as np
 import pandas as pd
+import re
+from datetime import datetime
 from baseclasses.helper.utilities import convert_datetime
 
 
-def get_jv_data_hysprint(filedata):
+def get_jv_data_hysprint(filedata, filename=None):
     # Block to clean up some bad characters found in the file which gives
     # trouble reading.
 
@@ -92,6 +94,15 @@ def get_jv_data_hysprint(filedata):
                 'current_density': df_curves[df_curves.columns[column]].values,
             }
         )
+    
+    # Add Last Modified Date from filename if possible
+    match = re.search(r'\.(\d{10})_', filename)
+    if match:
+        epoch = int(match.group(1))
+        dt = datetime.fromtimestamp(epoch)
+        formatted = dt.strftime('%d.%m.%Y %H:%M:%S')
+        print(formatted)
+        jv_dict['datetime'] = formatted
 
     return jv_dict
 
@@ -265,9 +276,9 @@ def get_jv_data_iris_json(filedata):
     return jv_dict
 
 
-def get_jv_data(filedata):
+def get_jv_data(filedata, filename=None):
     if filedata.startswith('Keithley'):
-        return get_jv_data_hysprint(filedata), 'HySprint HyVap'
+        return get_jv_data_hysprint(filedata, filename), 'HySprint HyVap'
     if 'SoSim PVcomB' in filedata:
         return get_jv_data_pvcomb_1(filedata), 'PVcomB'
     if filedata.startswith('{') and 'parameters' in filedata[:50]:
