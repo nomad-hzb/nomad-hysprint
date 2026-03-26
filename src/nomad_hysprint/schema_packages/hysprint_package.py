@@ -21,6 +21,7 @@ import json
 import os
 import random
 import string
+from io import StringIO
 
 import h5py
 import numpy as np
@@ -1529,41 +1530,24 @@ class HySprint_XRD_XY(XRD, EntryData):
                 if os.path.splitext(self.data_file)[-1].lower() == '.xy' and self.data is None:
                     file_content = f.read()
                     lines = [l.strip() for l in file_content.splitlines() if l.strip()]
-                    if not lines:
-                        return
+                    skiprows = 1 if lines and 'Id' in lines[0] else 0
 
-                    header_line = lines[0]
-                    skiprows = 1 if 'Id' in header_line else 0
-                    data_line_idx = skiprows if skiprows < len(lines) else 0
-                    if data_line_idx >= len(lines):
-                        return
+                    # Detect decimal marker from first data line
+                    sample_line = lines[skiprows] if skiprows < len(lines) else lines[0]
+                    decimal = ',' if ',' in sample_line else '.'
 
-                    sample_line = lines[data_line_idx]
-
-                    if '\t' in sample_line:
-                        sep = '\\t'
-                    elif ',' in sample_line and sample_line.count(',') > 1:
-                        sep = ','
-                    else:
-                        sep = r'\\s+'
-
-                    decimal = ',' if sep in ('\\t', r'\\s+') and ',' in sample_line and sample_line.count(',') == 2 and '.' not in sample_line else '.'
-
-                    from io import StringIO
                     data = pd.read_csv(
                         StringIO(file_content),
-                        sep=sep,
+                        sep=r' |\t',
                         decimal=decimal,
                         header=None,
                         skiprows=skiprows,
                         engine='python',
                     )
-
-                    data = data.dropna(axis=0, subset=[0, 1])
+                    data = data.dropna(subset=[0, 1])
                     data[0] = pd.to_numeric(data[0], errors='coerce')
                     data[1] = pd.to_numeric(data[1], errors='coerce')
-                    data = data.dropna(axis=0, subset=[0, 1])
-
+                    data = data.dropna(subset=[0, 1])
                     if not data.empty:
                         self.data = XRDData(angle=data[0].values, intensity=data[1].values)
         super().normalize(archive, logger)
