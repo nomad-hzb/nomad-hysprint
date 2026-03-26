@@ -18,12 +18,12 @@
 
 import ast
 import json
+import re
+from datetime import datetime
 from io import StringIO
 
 import numpy as np
 import pandas as pd
-import re
-from datetime import datetime
 from baseclasses.helper.utilities import convert_datetime
 
 
@@ -94,7 +94,7 @@ def get_jv_data_hysprint(filedata, filename=None):
                 'current_density': df_curves[df_curves.columns[column]].values,
             }
         )
-    
+
     # Add Last Modified Date from filename if possible
     match = re.search(r'\.(\d{10})_', filename)
     if match:
