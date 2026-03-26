@@ -1074,22 +1074,22 @@ class HySprint_JVmeasurement(JVMeasurement, EntryData):
                 if jv_dict:
                     self.location = location
                     get_jv_archive(jv_dict, self.data_file, self)
-            
+
             # Normalize to 4th quadrant (positive V, negative J)
             if self.jv_curve:
                 for curve in self.jv_curve:
                     if curve.voltage is not None and curve.current_density is not None:
                         voltage = np.array(curve.voltage)
                         current_density = np.array(curve.current_density)
-                        
+
                         # If Voc is negative, flip voltage axis
                         if np.mean(voltage) < 0:
                             voltage = -voltage
-                        
+
                         # If Jsc is positive, flip current axis
                         if np.mean(current_density) > 0:
                             current_density = -current_density
-                        
+
                         curve.voltage = voltage
                         curve.current_density = current_density
 
