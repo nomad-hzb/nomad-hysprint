@@ -1529,7 +1529,7 @@ class HySprint_XRD_XY(XRD, EntryData):
             with archive.m_context.raw_file(self.data_file, 'tr') as f:
                 if os.path.splitext(self.data_file)[-1].lower() == '.xy' and self.data is None:
                     file_content = f.read()
-                    lines = [l.strip() for l in file_content.splitlines() if l.strip()]
+                    lines = [li.strip() for li in file_content.splitlines() if li.strip()]
                     skiprows = 1 if lines and 'Id' in lines[0] else 0
 
                     # Detect decimal marker from first data line
