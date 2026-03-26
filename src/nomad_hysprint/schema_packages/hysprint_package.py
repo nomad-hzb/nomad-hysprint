@@ -1084,13 +1084,13 @@ class HySprint_JVmeasurement(JVMeasurement, EntryData):
                     voltage = np.array(curve.voltage)
                     current_density = np.array(curve.current_density)
 
-                    power = voltage * current_density
-                    mpp = np.min(power)  # should be negative in 4th quadrant
-
-                    if mpp >= 0:  # no power generation detected, skip (dark curve or already correct)
+                    # Light curves have a Voc, i.e. a zero crossing in current density
+                    # Dark curves stay on one side — skip them
+                    has_voc = np.any(current_density[:-1] * current_density[1:] < 0)
+                    if not has_voc:
                         continue
 
-                    # Curve has power generation, normalize to 4th quadrant
+                    # Normalize to 4th quadrant
                     if np.mean(voltage) < 0:
                         voltage = -voltage
                     if np.mean(current_density) > 0:
