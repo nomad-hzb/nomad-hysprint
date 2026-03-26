@@ -1078,20 +1078,26 @@ class HySprint_JVmeasurement(JVMeasurement, EntryData):
             # Normalize to 4th quadrant (positive V, negative J)
             if self.jv_curve:
                 for curve in self.jv_curve:
-                    if curve.voltage is not None and curve.current_density is not None:
-                        voltage = np.array(curve.voltage)
-                        current_density = np.array(curve.current_density)
+                    if curve.voltage is None or curve.current_density is None:
+                        continue
 
-                        # If Voc is negative, flip voltage axis
-                        if np.mean(voltage) < 0:
-                            voltage = -voltage
+                    voltage = np.array(curve.voltage)
+                    current_density = np.array(curve.current_density)
 
-                        # If Jsc is positive, flip current axis
-                        if np.mean(current_density) > 0:
-                            current_density = -current_density
+                    power = voltage * current_density
+                    mpp = np.min(power)  # should be negative in 4th quadrant
 
-                        curve.voltage = voltage
-                        curve.current_density = current_density
+                    if mpp >= 0:  # no power generation detected, skip (dark curve or already correct)
+                        continue
+
+                    # Curve has power generation, normalize to 4th quadrant
+                    if np.mean(voltage) < 0:
+                        voltage = -voltage
+                    if np.mean(current_density) > 0:
+                        current_density = -current_density
+
+                    curve.voltage = voltage
+                    curve.current_density = current_density
 
         super().normalize(archive, logger)
 
