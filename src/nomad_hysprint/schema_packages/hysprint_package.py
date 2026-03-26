@@ -1080,21 +1080,18 @@ class HySprint_JVmeasurement(JVMeasurement, EntryData):
                     if curve.voltage is None or curve.current_density is None:
                         continue
 
-                    # Skip dark curves using the dark flag if available
-                    is_dark = getattr(curve, 'dark', False)
-                    if is_dark:
-                        continue
-
                     voltage = np.array(curve.voltage)
                     current_density = np.array(curve.current_density)
 
-                    if np.mean(voltage) < 0:
-                        voltage = -voltage
-                    if np.mean(current_density) > 0:
-                        current_density = -current_density
+                    mid = len(voltage) // 2
 
-                    curve.voltage = voltage
-                    curve.current_density = current_density
+                    first_v_neg_j_neg = voltage[0] < 0 and current_density[0] < 0
+                    last_v_pos_j_pos = voltage[-1] > 0 and current_density[-1] > 0
+                    mid_v_neg_j_pos = voltage[mid] < 0 and current_density[mid] > 0
+
+                    if first_v_neg_j_neg and last_v_pos_j_pos and mid_v_neg_j_pos:
+                        curve.current_density = -current_density
+                        curve.voltage = -voltage
 
         super().normalize(archive, logger)
 
