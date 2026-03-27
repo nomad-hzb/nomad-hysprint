@@ -1076,6 +1076,27 @@ class HySprint_JVmeasurement(JVMeasurement, EntryData):
                     self.location = location
                     get_jv_archive(jv_dict, self.data_file, self)
 
+            if self.jv_curve:
+                for curve in self.jv_curve:
+                    if curve.voltage is None or curve.current_density is None:
+                        continue
+
+                    voltage = np.array(curve.voltage)
+                    current_density = np.array(curve.current_density)
+
+                    mid = len(voltage) // 2
+
+                    first_v_neg_j_neg = voltage[0] < 0 and current_density[0] < 0
+                    last_v_pos_j_pos = voltage[-1] > 0 and current_density[-1] > 0
+                    mid_v_neg_j_pos = voltage[mid] < 0 and current_density[mid] > 0
+                    steep_at_start = abs(current_density[1] - current_density[0]) > abs(
+                        current_density[-1] - current_density[-2]
+                    )
+
+                    if first_v_neg_j_neg and last_v_pos_j_pos and mid_v_neg_j_pos and steep_at_start:
+                        curve.current_density = -current_density
+                        curve.voltage = -voltage
+
         super().normalize(archive, logger)
 
 
