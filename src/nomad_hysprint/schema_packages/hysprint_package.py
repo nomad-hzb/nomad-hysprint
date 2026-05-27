@@ -396,6 +396,13 @@ class HySprint_Cleaning(Cleaning, EntryData):
 
     cleaning_plasma = SubSection(section_def=PlasmaCleaning, repeats=True)
 
+    def normalize(self, archive, logger):
+        from nomad_hysprint.schema_packages.location_normalizer import location_normalizer
+
+        if self.location is not None:
+            self.location = location_normalizer.normalize(self.location)
+        super().normalize(archive, logger)
+
 
 # %% ##################### Layer Deposition
 class HySprint_SprayPyrolysis(SprayPyrolysis, EntryData):
@@ -428,6 +435,13 @@ class HySprint_SprayPyrolysis(SprayPyrolysis, EntryData):
             props=dict(suggestions=['HySprint HTFumeHood']),
         ),
     )
+
+    def normalize(self, archive, logger):
+        from nomad_hysprint.schema_packages.location_normalizer import location_normalizer
+
+        if self.location is not None:
+            self.location = location_normalizer.normalize(self.location)
+        super().normalize(archive, logger)
 
 
 # %% ### Dropcasting
@@ -509,6 +523,13 @@ class HySprint_Inkjet_Printing(LP50InkjetPrinting, EntryData):
         ),
     )
 
+    def normalize(self, archive, logger):
+        from nomad_hysprint.schema_packages.location_normalizer import location_normalizer
+
+        if self.location is not None:
+            self.location = location_normalizer.normalize(self.location)
+        super().normalize(archive, logger)
+
 
 # %% ### Spin Coating
 class HySprint_SpinCoating(SpinCoating, EntryData):
@@ -561,6 +582,13 @@ class HySprint_SpinCoating(SpinCoating, EntryData):
         ),
     )
 
+    def normalize(self, archive, logger):
+        from nomad_hysprint.schema_packages.location_normalizer import location_normalizer
+
+        if self.location is not None:
+            self.location = location_normalizer.normalize(self.location)
+        super().normalize(archive, logger)
+
 
 # %% ### Dip Coating
 
@@ -593,6 +621,13 @@ class HySprint_DipCoating(DipCoating, EntryData):
         type=str,
         a_eln=dict(component='EnumEditQuantity', props=dict(suggestions=['HySprint'])),
     )
+
+    def normalize(self, archive, logger):
+        from nomad_hysprint.schema_packages.location_normalizer import location_normalizer
+
+        if self.location is not None:
+            self.location = location_normalizer.normalize(self.location)
+        super().normalize(archive, logger)
 
 
 # %% ### Blade Coating
@@ -670,6 +705,13 @@ class HySprint_SlotDieCoating(SlotDieCoating, EntryData):
         a_eln=dict(component='EnumEditQuantity', props=dict(suggestions=['HySprint HySDC'])),
     )
 
+    def normalize(self, archive, logger):
+        from nomad_hysprint.schema_packages.location_normalizer import location_normalizer
+
+        if self.location is not None:
+            self.location = location_normalizer.normalize(self.location)
+        super().normalize(archive, logger)
+
 
 # %% ### Sputterring
 class HySprint_Sputtering(Sputtering, EntryData):
@@ -694,6 +736,13 @@ class HySprint_Sputtering(Sputtering, EntryData):
         type=str,
         a_eln=dict(component='EnumEditQuantity', props=dict(suggestions=['IRIS', 'HySprint'])),
     )
+
+    def normalize(self, archive, logger):
+        from nomad_hysprint.schema_packages.location_normalizer import location_normalizer
+
+        if self.location is not None:
+            self.location = location_normalizer.normalize(self.location)
+        super().normalize(archive, logger)
 
 
 # %% ### AtomicLayerDepositio
@@ -720,6 +769,13 @@ class HySprint_AtomicLayerDeposition(AtomicLayerDeposition, EntryData):
         a_eln=dict(component='EnumEditQuantity', props=dict(suggestions=['IRIS', 'HySprint'])),
     )
 
+    def normalize(self, archive, logger):
+        from nomad_hysprint.schema_packages.location_normalizer import location_normalizer
+
+        if self.location is not None:
+            self.location = location_normalizer.normalize(self.location)
+        super().normalize(archive, logger)
+
 
 class IRIS_AtomicLayerDeposition(AtomicLayerDeposition, EntryData):
     m_def = Section(
@@ -745,6 +801,13 @@ class IRIS_AtomicLayerDeposition(AtomicLayerDeposition, EntryData):
     )
 
     properties = SubSection(section_def=ALDPropertiesIris)
+
+    def normalize(self, archive, logger):
+        from nomad_hysprint.schema_packages.location_normalizer import location_normalizer
+
+        if self.location is not None:
+            self.location = location_normalizer.normalize(self.location)
+        super().normalize(archive, logger)
 
 
 # %% ### Evaporation
@@ -780,6 +843,13 @@ class HySprint_Evaporation(Evaporations, EntryData):
             ),
         ),
     )
+
+    def normalize(self, archive, logger):
+        from nomad_hysprint.schema_packages.location_normalizer import location_normalizer
+
+        if self.location is not None:
+            self.location = location_normalizer.normalize(self.location)
+        super().normalize(archive, logger)
 
 
 # %% ## Laser Scribing
