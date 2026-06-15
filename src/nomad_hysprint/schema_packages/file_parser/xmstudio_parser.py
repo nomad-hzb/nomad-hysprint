@@ -59,6 +59,160 @@ def _first_existing_numeric_column(df, columns, scale=1.0):
 
 
 # ---------------------------------------------------------------------------
+# Binary reader helpers (module-level so they don't inflate statement counts)
+# ---------------------------------------------------------------------------
+
+_TIMESERIES_DTYPE = np.dtype(
+    [
+        ('time_ns', '<u8'),
+        ('potential_V', '<f4'),
+        ('current_A', '<f4'),
+        ('aux_1', '<f4'),
+        ('status', '<u4'),
+    ]
+)
+_DPV_DTYPE = np.dtype([('time_ns', '<u8')] + [(f'channel_{i:02d}', '<f4') for i in range(1, 11)])
+_IMPEDANCE_DTYPE = np.dtype(
+    [('time_ns', '<u8')]
+    + [(f'channel_{i:02d}', '<f4') for i in range(10)]
+    + [('frequency_Hz_raw', '<f8')]
+    + [(f'channel_{i:02d}', '<f4') for i in range(12, 35)]
+)
+
+
+def _find_u16_marker(blob: bytes, text: str) -> list:
+    marker = text.encode('utf-16le') + b'\x00\x00'
+    positions = []
+    start = 0
+    while True:
+        pos = blob.find(marker, start)
+        if pos == -1:
+            break
+        positions.append(pos)
+        start = pos + 1
+    return positions
+
+
+def _extract_u16_strings(chunk: bytes) -> list:
+    decoded = chunk.decode('utf-16le', errors='ignore')
+    strings = []
+    current = []
+    for char in decoded:
+        if char.isprintable():
+            current.append(char)
+        elif current:
+            strings.append(''.join(current))
+            current = []
+    if current:
+        strings.append(''.join(current))
+    return strings
+
+
+def _strings_to_fields(strings: list) -> dict:
+    return {key: value for key, value in zip(strings[0::2], strings[1::2])}
+
+
+def _add_impedance_columns(df: pd.DataFrame) -> pd.DataFrame:
+    df['potential_V'] = df['channel_00']
+    df['current_A'] = df['channel_01']
+    df['frequency_Hz'] = pd.to_numeric(df['frequency_Hz_raw'], errors='coerce')
+    df.loc[~np.isfinite(df['frequency_Hz']) | (df['frequency_Hz'] <= 0), 'frequency_Hz'] = np.nan
+    with np.errstate(divide='ignore', invalid='ignore', over='ignore'):
+        df['log_omega'] = np.log(2 * np.pi * df['frequency_Hz'])
+        current_complex = df['channel_15'].to_numpy() + 1j * df['channel_16'].to_numpy()
+        voltage_complex = df['channel_17'].to_numpy() + 1j * df['channel_18'].to_numpy()
+        impedance = voltage_complex / current_complex
+    df['ac_amplitude_V'] = df['channel_12']
+    df['dc_potential_V'] = df['channel_13']
+    df['current_real_A'] = df['channel_15']
+    df['current_imag_A'] = df['channel_16']
+    df['voltage_real_V'] = df['channel_17']
+    df['voltage_imag_V'] = df['channel_18']
+    df['Z_real_ohm'] = np.real(impedance)
+    df['Z_imag_ohm'] = np.imag(impedance)
+    df['Z_abs_ohm'] = np.abs(impedance)
+    df['phase_deg'] = np.angle(impedance, deg=True)
+    df['valid_impedance'] = df['frequency_Hz'].notna() & np.isfinite(df['Z_real_ohm'])
+    return df
+
+
+def _decode_binary_record(blob: bytes, av_pos: int, start_offset: int, n_points: int,
+                           record_type: str, row_size: int) -> pd.DataFrame:
+    data_bytes = blob[av_pos + start_offset : av_pos + start_offset + n_points * row_size]
+    if record_type == 'timeseries':
+        return pd.DataFrame(np.frombuffer(data_bytes, dtype=_TIMESERIES_DTYPE, count=n_points))
+    if record_type == 'dpv':
+        df = pd.DataFrame(np.frombuffer(data_bytes, dtype=_DPV_DTYPE, count=n_points))
+        return df.rename(columns={
+            'channel_01': 'potential_V',
+            'channel_02': 'current_A',
+            'channel_03': 'aux_1',
+            'channel_04': 'aux_2',
+            'channel_05': 'pulse_current_A',
+        })
+    df = pd.DataFrame(np.frombuffer(data_bytes, dtype=_IMPEDANCE_DTYPE, count=n_points))
+    return _add_impedance_columns(df)
+
+
+def _choose_layout(blob: bytes, fields: dict, av_pos: int, next_st: int, n_points: int):
+    name = fields.get('NM', '')
+
+    def valid_footer(start_offset, row_size):
+        footer_size = next_st - (av_pos + start_offset) - n_points * row_size
+        return footer_size if 0 <= footer_size <= 256 else None
+
+    def timeseries_score(start_offset):
+        footer_size = valid_footer(start_offset, 24)
+        if footer_size is None:
+            return -1, None
+        sample_count = min(n_points, 12)
+        data_start = av_pos + start_offset
+        sample = np.frombuffer(
+            blob[data_start : data_start + sample_count * 24],
+            dtype=_TIMESERIES_DTYPE,
+            count=sample_count,
+        )
+        plausible = (
+            (sample['time_ns'] >= 0)
+            & (sample['time_ns'] <= 20_000_000_000)
+            & np.isfinite(sample['potential_V'])
+            & (np.abs(sample['potential_V']) <= 2)
+            & np.isfinite(sample['current_A'])
+            & (np.abs(sample['current_A']) <= 0.02)
+            & np.isfinite(sample['aux_1'])
+            & (np.abs(sample['aux_1']) <= 1)
+        )
+        return int(plausible.sum()), footer_size
+
+    if 'Impedance' in name or 'NZ' in fields:
+        footer_size = valid_footer(152, 148)
+        if footer_size is not None:
+            return 'impedance', 152, 148, footer_size
+
+    if 'Differential Pulse' in name or 'Polarography' in name:
+        footer_size = valid_footer(142, 48)
+        if footer_size is not None:
+            return 'dpv', 142, 48, footer_size
+
+    candidates = []
+    for start_offset in (140, 142):
+        score, footer_size = timeseries_score(start_offset)
+        if score >= 0:
+            candidates.append((score, start_offset, footer_size))
+    if candidates:
+        score, start_offset, footer_size = max(candidates, key=lambda item: item[0])
+        if score > 0:
+            return 'timeseries', start_offset, 24, footer_size
+
+    for record_type, start_offset, row_size in (('dpv', 142, 48), ('impedance', 152, 148)):
+        footer_size = valid_footer(start_offset, row_size)
+        if footer_size is not None:
+            return record_type, start_offset, row_size, footer_size
+
+    raise ValueError(f'Could not infer binary layout for {fields}')
+
+
+# ---------------------------------------------------------------------------
 # Binary reader
 # ---------------------------------------------------------------------------
 
@@ -73,197 +227,36 @@ def import_xmstudio_binary_data(blob: bytes, strict: bool = False) -> pd.DataFra
     strict:
         If True, raise on undecodable blocks; otherwise skip them.
     """
-    timeseries_dtype = np.dtype(
-        [
-            ('time_ns', '<u8'),
-            ('potential_V', '<f4'),
-            ('current_A', '<f4'),
-            ('aux_1', '<f4'),
-            ('status', '<u4'),
-        ]
-    )
-    dpv_dtype = np.dtype([('time_ns', '<u8')] + [(f'channel_{i:02d}', '<f4') for i in range(1, 11)])
-    impedance_dtype = np.dtype(
-        [('time_ns', '<u8')]
-        + [(f'channel_{i:02d}', '<f4') for i in range(10)]
-        + [('frequency_Hz_raw', '<f8')]
-        + [(f'channel_{i:02d}', '<f4') for i in range(12, 35)]
-    )
-
-    def find_u16_marker(text):
-        marker = text.encode('utf-16le') + b'\x00\x00'
-        positions = []
-        start = 0
-        while True:
-            pos = blob.find(marker, start)
-            if pos == -1:
-                break
-            positions.append(pos)
-            start = pos + 1
-        return positions
-
-    def extract_u16_strings(chunk):
-        decoded = chunk.decode('utf-16le', errors='ignore')
-        strings = []
-        current = []
-        for char in decoded:
-            if char.isprintable():
-                current.append(char)
-            elif current:
-                strings.append(''.join(current))
-                current = []
-        if current:
-            strings.append(''.join(current))
-        return strings
-
-    def strings_to_fields(strings):
-        return {key: value for key, value in zip(strings[0::2], strings[1::2])}
-
-    def as_number(value):
-        try:
-            return float(value)
-        except (TypeError, ValueError):
-            return np.nan
-
-    def choose_layout(fields, av_pos, next_st, n_points):
-        name = fields.get('NM', '')
-
-        def valid_footer(start_offset, row_size):
-            footer_size = next_st - (av_pos + start_offset) - n_points * row_size
-            return footer_size if 0 <= footer_size <= 256 else None
-
-        def timeseries_score(start_offset):
-            footer_size = valid_footer(start_offset, 24)
-            if footer_size is None:
-                return -1, None
-            sample_count = min(n_points, 12)
-            data_start = av_pos + start_offset
-            sample = np.frombuffer(
-                blob[data_start : data_start + sample_count * 24],
-                dtype=timeseries_dtype,
-                count=sample_count,
-            )
-            plausible = (
-                (sample['time_ns'] >= 0)
-                & (sample['time_ns'] <= 20_000_000_000)
-                & np.isfinite(sample['potential_V'])
-                & (np.abs(sample['potential_V']) <= 2)
-                & np.isfinite(sample['current_A'])
-                & (np.abs(sample['current_A']) <= 0.02)
-                & np.isfinite(sample['aux_1'])
-                & (np.abs(sample['aux_1']) <= 1)
-            )
-            return int(plausible.sum()), footer_size
-
-        if 'Impedance' in name or 'NZ' in fields:
-            footer_size = valid_footer(152, 148)
-            if footer_size is not None:
-                return 'impedance', 152, 148, footer_size
-
-        if 'Differential Pulse' in name or 'Polarography' in name:
-            footer_size = valid_footer(142, 48)
-            if footer_size is not None:
-                return 'dpv', 142, 48, footer_size
-
-        candidates = []
-        for start_offset in (140, 142):
-            score, footer_size = timeseries_score(start_offset)
-            if score >= 0:
-                candidates.append((score, start_offset, footer_size))
-        if candidates:
-            score, start_offset, footer_size = max(candidates, key=lambda item: item[0])
-            if score > 0:
-                return 'timeseries', start_offset, 24, footer_size
-
-        for record_type, start_offset, row_size in (
-            ('dpv', 142, 48),
-            ('impedance', 152, 148),
-        ):
-            footer_size = valid_footer(start_offset, row_size)
-            if footer_size is not None:
-                return record_type, start_offset, row_size, footer_size
-
-        raise ValueError(f'Could not infer binary layout for {fields}')
-
-    st_positions = np.asarray(find_u16_marker('ST'), dtype=np.int64)
-    av_positions = find_u16_marker('AV')
+    st_positions = np.asarray(_find_u16_marker(blob, 'ST'), dtype=np.int64)
+    av_positions = _find_u16_marker(blob, 'AV')
     frames = []
 
     for record_index, av_pos in enumerate(av_positions):
         st_insert_at = np.searchsorted(st_positions, av_pos, side='left')
         if st_insert_at == 0:
             continue
-
         st_pos = int(st_positions[st_insert_at - 1])
         next_st = int(st_positions[st_insert_at]) if st_insert_at < len(st_positions) else len(blob)
-        strings = extract_u16_strings(blob[st_pos : av_pos + 6])
-        fields = strings_to_fields(strings)
+        fields = _strings_to_fields(_extract_u16_strings(blob[st_pos : av_pos + 6]))
         n_points = int(fields.get('NP', '0'))
         if n_points <= 0:
             continue
-
         try:
-            record_type, start_offset, row_size, footer_size = choose_layout(
-                fields,
-                av_pos,
-                next_st,
-                n_points,
+            record_type, start_offset, row_size, footer_size = _choose_layout(
+                blob, fields, av_pos, next_st, n_points
             )
         except ValueError:
             if strict:
                 raise
             continue
-
-        data_start = av_pos + start_offset
-        data_bytes = blob[data_start : data_start + n_points * row_size]
-
-        if record_type == 'timeseries':
-            df = pd.DataFrame(np.frombuffer(data_bytes, dtype=timeseries_dtype, count=n_points))
-        elif record_type == 'dpv':
-            df = pd.DataFrame(np.frombuffer(data_bytes, dtype=dpv_dtype, count=n_points))
-            df = df.rename(
-                columns={
-                    'channel_01': 'potential_V',
-                    'channel_02': 'current_A',
-                    'channel_03': 'aux_1',
-                    'channel_04': 'aux_2',
-                    'channel_05': 'pulse_current_A',
-                }
-            )
-        else:
-            df = pd.DataFrame(np.frombuffer(data_bytes, dtype=impedance_dtype, count=n_points))
-            df['potential_V'] = df['channel_00']
-            df['current_A'] = df['channel_01']
-            df['frequency_Hz'] = pd.to_numeric(df['frequency_Hz_raw'], errors='coerce')
-            df.loc[
-                ~np.isfinite(df['frequency_Hz']) | (df['frequency_Hz'] <= 0),
-                'frequency_Hz',
-            ] = np.nan
-            with np.errstate(divide='ignore', invalid='ignore', over='ignore'):
-                df['log_omega'] = np.log(2 * np.pi * df['frequency_Hz'])
-                current_complex = df['channel_15'].to_numpy() + 1j * df['channel_16'].to_numpy()
-                voltage_complex = df['channel_17'].to_numpy() + 1j * df['channel_18'].to_numpy()
-                impedance = voltage_complex / current_complex
-
-            df['ac_amplitude_V'] = df['channel_12']
-            df['dc_potential_V'] = df['channel_13']
-            df['current_real_A'] = df['channel_15']
-            df['current_imag_A'] = df['channel_16']
-            df['voltage_real_V'] = df['channel_17']
-            df['voltage_imag_V'] = df['channel_18']
-            df['Z_real_ohm'] = np.real(impedance)
-            df['Z_imag_ohm'] = np.imag(impedance)
-            df['Z_abs_ohm'] = np.abs(impedance)
-            df['phase_deg'] = np.angle(impedance, deg=True)
-            df['valid_impedance'] = df['frequency_Hz'].notna() & np.isfinite(df['Z_real_ohm'])
-
+        df = _decode_binary_record(blob, av_pos, start_offset, n_points, record_type, row_size)
         df.insert(0, 'record_index', record_index)
         df.insert(1, 'step_number', fields.get('SN'))
         df.insert(2, 'step_name', fields.get('NM'))
         df.insert(3, 'record_type', record_type)
         df['time_s'] = df['time_ns'] / 1e9
         df['n_points_declared'] = n_points
-        df['scan_rate'] = as_number(fields.get('SR'))
+        df['scan_rate'] = _to_number(fields.get('SR'))
         df['binary_start_offset_bytes'] = start_offset
         df['footer_size_bytes'] = footer_size
         frames.append(df)
