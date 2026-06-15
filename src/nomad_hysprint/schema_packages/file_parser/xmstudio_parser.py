@@ -136,20 +136,23 @@ def _add_impedance_columns(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def _decode_binary_record(blob: bytes, av_pos: int, start_offset: int, n_points: int,
-                           record_type: str, row_size: int) -> pd.DataFrame:
+def _decode_binary_record(
+    blob: bytes, av_pos: int, start_offset: int, n_points: int, record_type: str, row_size: int
+) -> pd.DataFrame:
     data_bytes = blob[av_pos + start_offset : av_pos + start_offset + n_points * row_size]
     if record_type == 'timeseries':
         return pd.DataFrame(np.frombuffer(data_bytes, dtype=_TIMESERIES_DTYPE, count=n_points))
     if record_type == 'dpv':
         df = pd.DataFrame(np.frombuffer(data_bytes, dtype=_DPV_DTYPE, count=n_points))
-        return df.rename(columns={
-            'channel_01': 'potential_V',
-            'channel_02': 'current_A',
-            'channel_03': 'aux_1',
-            'channel_04': 'aux_2',
-            'channel_05': 'pulse_current_A',
-        })
+        return df.rename(
+            columns={
+                'channel_01': 'potential_V',
+                'channel_02': 'current_A',
+                'channel_03': 'aux_1',
+                'channel_04': 'aux_2',
+                'channel_05': 'pulse_current_A',
+            }
+        )
     df = pd.DataFrame(np.frombuffer(data_bytes, dtype=_IMPEDANCE_DTYPE, count=n_points))
     return _add_impedance_columns(df)
 
