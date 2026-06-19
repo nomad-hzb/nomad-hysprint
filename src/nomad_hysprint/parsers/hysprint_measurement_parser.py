@@ -211,6 +211,7 @@ class HySprintParser(MatchingParser):
         eis_df = extract_impedance_data(raw_df)
         if not eis_df.empty:
             eis_entry = HySprint_ElectrochemicalImpedanceSpectroscopy()
+            eis_entry.data_file = f'{search_id}.eis.archive.json'
             eis_entry.name = f'{search_id} EIS'
             eis_entry.time = eis_df['time'].to_numpy() * ureg('s')
             eis_entry.frequency = eis_df['frequency'].to_numpy() * ureg('Hz')
@@ -224,6 +225,7 @@ class HySprintParser(MatchingParser):
         dpv_df = extract_dpv_data(raw_df)
         if not dpv_df.empty:
             dpv_entry = HySprint_DifferentialPulseVoltammetry()
+            dpv_entry.data_file = f'{search_id}.dpv.archive.json'
             dpv_entry.name = f'{search_id} DPV'
             dpv_entry.time = dpv_df['time'].to_numpy() * ureg('s')
             dpv_entry.voltage = dpv_df['voltage'].to_numpy() * ureg('V')
@@ -234,6 +236,7 @@ class HySprintParser(MatchingParser):
         ocp_df = extract_ocp_data(raw_df)
         if not ocp_df.empty:
             ocp_entry = HySprint_OpenCircuitVoltage()
+            ocp_entry.data_file = f'{search_id}.ocv.archive.json'
             ocp_entry.name = f'{search_id} OCV'
             ocp_entry.time = ocp_df['time'].to_numpy() * ureg('s')
             ocp_entry.voltage = ocp_df['voltage'].to_numpy() * ureg('V')
