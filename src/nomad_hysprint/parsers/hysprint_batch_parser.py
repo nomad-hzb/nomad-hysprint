@@ -136,6 +136,8 @@ class HySprintExperimentParser(MatchingParser):
             'Notes',
             'Substrate material',
             'Substrate conductive layer',
+            'Sheet Resistance [Ohms/square]',
+            'Transmission [%]',
         ]
         substrates_col = [s for s in substrates_col if s in df['Experiment Info'].columns]
         for i, sub in df['Experiment Info'][substrates_col].drop_duplicates().iterrows():

@@ -231,6 +231,9 @@ class HySprint_Substrate(Substrate, EntryData):
                     'solar_cell_area',
                     'pixel_area',
                     'number_of_pixels',
+                    'layer_thickness',
+                    'layer_sheet_resistance',
+                    'layer_transmission',
                 ]
             ),
         )
