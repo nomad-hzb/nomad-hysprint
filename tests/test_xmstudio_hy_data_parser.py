@@ -42,7 +42,6 @@ def test_step_names(raw_df):
         'Cycle 4',
     }
     assert set(raw_df['step_name'].unique()) == expected
-    
 
 
 def test_eis_extraction(raw_df):
@@ -102,7 +101,8 @@ def test_cv_cycles(raw_df):
     cv = extract_cv_data_by_scan_rate(raw_df)
     assert sorted(cv[0.05]['cycle_number'].dropna().unique().tolist()) == [1, 2, 3]
     assert sorted(cv[0.1]['cycle_number'].dropna().unique().tolist()) == [1, 2, 3, 4]
-    
+
+
 def test_cv_columns(raw_df):
     from nomad_hysprint.schema_packages.file_parser.xmstudio_parser import extract_cv_data_by_scan_rate
 
