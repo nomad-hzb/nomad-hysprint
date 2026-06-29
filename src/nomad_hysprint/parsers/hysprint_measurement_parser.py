@@ -19,6 +19,7 @@
 import datetime
 import os
 import sys
+from pathlib import Path
 
 from baseclasses.helper.utilities import (
     create_archive,
@@ -35,6 +36,7 @@ from nomad.parsing import MatchingParser
 from nomad_hysprint.schema_packages.hysprint_package import (
     HySprint_AbsPLMeasurement,
     HySprint_CyclicVoltammetry,
+    HySprint_DifferentialPulseVoltammetry,
     HySprint_ElectrochemicalImpedanceSpectroscopy,
     HySprint_EQEmeasurement,
     HySprint_JVmeasurement,
@@ -130,6 +132,10 @@ class HySprintParser(MatchingParser):
                 and 'Aux A (V)' in file_content
             ):
                 entry = HySprint_OpenCircuitVoltage()
+        if mainfile_split[-1].lower() == 'data' and measurment_type.lower() == 'hy':
+            self._parse_xmstudio_hy_data(mainfile, file, archive, mainfile_split[0])
+            return
+
         if mainfile_split[-1].lower() in ['txt', 'json'] and measurment_type.lower() == 'jv':
             entry = HySprint_JVmeasurement()
         if mainfile_split[-1].lower() == 'txt' and measurment_type.lower() == 'abspl':
@@ -185,3 +191,81 @@ class HySprintParser(MatchingParser):
             new_entry = update_general_process_entries(entry, eid, archive, logger)
             if new_entry is not None:
                 create_archive(new_entry, archive, file_name, overwrite=True)
+
+    def _parse_xmstudio_hy_data(self, mainfile, file, archive, search_id):
+        from baseclasses.chemical_energy.cyclicvoltammetry import CVProperties
+        from baseclasses.chemical_energy.voltammetry import VoltammetryCycleWithPlot
+        from nomad.units import ureg
+
+        from nomad_hysprint.schema_packages.file_parser.xmstudio_parser import (
+            add_experiment_step_columns,
+            extract_cv_data_by_scan_rate,
+            extract_dpv_data,
+            extract_impedance_data,
+            extract_ocp_data,
+            import_xmstudio_binary_data,
+        )
+
+        raw_df = add_experiment_step_columns(import_xmstudio_binary_data(Path(mainfile).read_bytes()))
+
+        eis_df = extract_impedance_data(raw_df)
+        if not eis_df.empty:
+            eis_entry = HySprint_ElectrochemicalImpedanceSpectroscopy()
+            eis_entry.data_file = f'{search_id}.eis.archive.json'
+            eis_entry.name = f'{search_id} EIS'
+            eis_entry.time = eis_df['time'].to_numpy() * ureg('s')
+            eis_entry.frequency = eis_df['frequency'].to_numpy() * ureg('Hz')
+            eis_entry.z_real = eis_df['z_real'].to_numpy() * ureg('ohm')
+            eis_entry.z_imaginary = eis_df['z_imaginary'].to_numpy() * ureg('ohm')
+            eis_entry.z_modulus = eis_df['z_modulus'].to_numpy() * ureg('ohm')
+            eis_entry.z_angle = eis_df['z_angle'].to_numpy() * ureg('degree')
+            set_sample_reference(archive, eis_entry, search_id, upload_id=archive.metadata.upload_id)
+            create_archive(eis_entry, archive, f'{search_id}.eis.archive.json')
+
+        dpv_df = extract_dpv_data(raw_df)
+        if not dpv_df.empty:
+            dpv_entry = HySprint_DifferentialPulseVoltammetry()
+            dpv_entry.data_file = f'{search_id}.dpv.archive.json'
+            dpv_entry.name = f'{search_id} DPV'
+            dpv_entry.time = dpv_df['time'].to_numpy() * ureg('s')
+            dpv_entry.voltage = dpv_df['voltage'].to_numpy() * ureg('V')
+            dpv_entry.current = dpv_df['current'].to_numpy() * ureg('A')
+            set_sample_reference(archive, dpv_entry, search_id, upload_id=archive.metadata.upload_id)
+            create_archive(dpv_entry, archive, f'{search_id}.dpv.archive.json')
+
+        ocp_df = extract_ocp_data(raw_df)
+        if not ocp_df.empty:
+            ocp_entry = HySprint_OpenCircuitVoltage()
+            ocp_entry.data_file = f'{search_id}.ocv.archive.json'
+            ocp_entry.name = f'{search_id} OCV'
+            ocp_entry.time = ocp_df['time'].to_numpy() * ureg('s')
+            ocp_entry.voltage = ocp_df['voltage'].to_numpy() * ureg('V')
+            ocp_entry.current = ocp_df['current'].to_numpy() * ureg('A')
+            set_sample_reference(archive, ocp_entry, search_id, upload_id=archive.metadata.upload_id)
+            create_archive(ocp_entry, archive, f'{search_id}.ocv.archive.json')
+
+        cv_by_rate = extract_cv_data_by_scan_rate(raw_df)
+        if cv_by_rate:
+            cv_entry = HySprint_CyclicVoltammetry()
+            cv_entry.data_file = f'{search_id}.cv.archive.json'
+            cv_entry.name = f'{search_id} CV'
+            scan_rates = [sr for sr in cv_by_rate if isinstance(sr, float)]
+            if len(scan_rates) == 1:
+                cv_entry.properties = CVProperties()
+                cv_entry.properties.scan_rate = scan_rates[0] * 1000 * ureg('mV/s')
+            cycles = []
+            for cv_group in cv_by_rate.values():
+                for _, cyc in cv_group.groupby('cycle_number', dropna=True, sort=True):
+                    cycles.append(
+                        VoltammetryCycleWithPlot(
+                            time=cyc['time'].to_numpy() * ureg('s'),
+                            voltage=cyc['voltage'].to_numpy() * ureg('V'),
+                            current=cyc['current'].to_numpy() * ureg('A'),
+                        )
+                    )
+            cv_entry.cycles = cycles
+            set_sample_reference(archive, cv_entry, search_id, upload_id=archive.metadata.upload_id)
+            create_archive(cv_entry, archive, f'{search_id}.cv.archive.json')
+
+        archive.metadata.entry_name = file
+        archive.data = RawFileHZB()
