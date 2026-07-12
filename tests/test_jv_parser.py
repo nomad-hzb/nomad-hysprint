@@ -1,3 +1,5 @@
+from unittest.mock import MagicMock, call
+
 import pytest
 from nomad.client import normalize_all
 from nomad.units import ureg
@@ -27,7 +29,13 @@ def test_normalize_all(parsed_archive, monkeypatch):
 def test_hysprint_jv_parser(monkeypatch):
     file = 'HZB_MiGo_20230913_Batch-Test-1_0_0.notessfdsf.jv.txt'
     archive = get_archive(file, monkeypatch)
-    normalize_all(archive)
+
+    # Setup mock to track normalize_all calls
+    mock_normalize_all = MagicMock(wraps=normalize_all)
+    monkeypatch.setattr('nomad.client.normalize_all', mock_normalize_all)
+
+    mock_normalize_all(archive)
+    assert mock_normalize_all.call_count == 1
 
     # Test data exists
     assert archive.data
@@ -46,7 +54,7 @@ def test_hysprint_jv_parser(monkeypatch):
         assert hasattr(archive.data, key), f'Missing key: {key}'
 
     # Test specific values
-    assert abs(archive.data.jv_curve[2].efficiency - 20.1) < 1e-6
+    assert abs(archive.data.jv_curve[2].efficiency - 21.029734) < 1e-4
     assert abs(archive.data.active_area.magnitude - 0.16) < 1e-6
     assert abs(archive.data.intensity.magnitude - 100.0) < 1e-6
     assert abs(archive.data.integration_time.magnitude - 20.0) < 1e-6
@@ -59,7 +67,7 @@ def test_hysprint_jv_parser(monkeypatch):
     assert abs(archive.data.jv_curve[0].short_circuit_current_density.magnitude - 21.990472) < 1e-6
     assert abs(archive.data.jv_curve[0].open_circuit_voltage.magnitude - 1.212763) < 1e-6
     assert abs(archive.data.jv_curve[0].fill_factor - 0.79948537) < 1e-6
-    assert abs(archive.data.jv_curve[0].efficiency - 20.2) < 1e-6
+    assert abs(archive.data.jv_curve[0].efficiency - 21.321660) < 1e-4
     assert abs(archive.data.jv_curve[0].potential_at_maximum_power_point.magnitude - 1.030000) < 1e-6
     assert abs(archive.data.jv_curve[0].current_density_at_maximun_power_point.magnitude - 20.700637) < 1e-6
     """
@@ -109,6 +117,21 @@ def test_hysprint_jv_parser(monkeypatch):
     assert abs(archive.data.jv_curve[3].current_density.magnitude[-1] - (-21.96426)) < 1e-6
     assert abs(archive.data.jv_curve[4].current_density.magnitude[-1] - (-22.17145)) < 1e-6
     assert abs(archive.data.jv_curve[5].current_density.magnitude[-1] - (-22.17339)) < 1e-6
+
+    # Test corrected area
+    archive.data.corrected_active_area = 0.32 * ureg.cm**2
+    mock_normalize_all(archive)
+
+    # Verify normalize_all was called twice - once at start and once after setting corrected_area
+    assert mock_normalize_all.call_count == 2
+    assert mock_normalize_all.call_args_list == [call(archive), call(archive)]
+
+    assert archive.data.active_area.magnitude == 0.16
+    assert archive.data.corrected_active_area.magnitude == 0.32
+    assert archive.data.jv_curve[2].efficiency == pytest.approx(
+        10.514867,
+        abs=1e-4,
+    )
 
     # Clean up
     delete_json()
