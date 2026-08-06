@@ -257,7 +257,9 @@ def get_jv_data_iris_json(filedata):
     for c in ['J_sc', 'V_oc', 'Fill_factor', 'Efficiency', 'P_MPP', 'J_MPP', 'U_MPP', 'R_ser', 'R_par']:
         jv_dict[c] = []
     for m in data['data']:
-        curve_parameters = m['curve_parameters']
+        # 'curve_parameters' holds the summary values in the current format;
+        # older files instead carried them on the first measurement point.
+        curve_parameters = m.get('curve_parameters', m['measurements'][0])
         jv_dict['J_sc'].append(curve_parameters['Jsc [mA/cm2]'])
         jv_dict['V_oc'].append(curve_parameters['Voc [V]'])
         jv_dict['Fill_factor'].append(curve_parameters['FF [%]'])
@@ -269,7 +271,8 @@ def get_jv_data_iris_json(filedata):
         jv_dict['jv_curve'].append(
             {
                 'name': m['cell'] + ' ' + m['direction'],
-                'voltage': [v['V_corr [V]'] for v in m['measurements']],
+                # 'V_corr [V]' is the current key; 'V_meas [V]' is the legacy one.
+                'voltage': [v.get('V_corr [V]', v.get('V_meas [V]')) for v in m['measurements']],
                 'current_density': [c['J [mA/cm2]'] for c in m['measurements']],
             }
         )
