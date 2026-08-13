@@ -296,3 +296,39 @@ def test_iris_jv_json_parser(monkeypatch):
 
     # Clean up
     delete_json()
+
+
+def test_iris_jv_json_new_format_parser(monkeypatch):
+    """
+    Added 2026-08-13. Same IRIS instrument, but a newer JSON layout:
+    per-curve summary values (Jsc, Voc, FF, ...) live under
+    'curve_parameters' instead of 'measurements[0]', and curve voltage
+    points use 'V_corr [V]' instead of the legacy 'V_meas [V]'.
+    """
+    file = 'VP114_new_format.jv.json'
+    archive = get_archive(file, monkeypatch)
+    normalize_all(archive)
+
+    # Test data exists
+    assert archive.data
+    assert len(archive.data.jv_curve) == 2
+
+    # Test first JV curve (index 0): A FWD
+    curve0 = archive.data.jv_curve[0]
+    assert curve0['cell_name'] == 'A FWD'
+    assert round(curve0['open_circuit_voltage'], 5) == 0.03076 * ureg('V')
+    assert round(curve0['short_circuit_current_density'], 5) == -8.09426 * ureg('mA/cm^2')
+    assert round(curve0['fill_factor'], 5) == 0.22242
+    assert round(curve0['efficiency'], 5) == 0.05539
+    assert round(curve0['series_resistance'], 5) == 4.06463 * ureg('ohm*cm^2')
+    assert round(curve0['shunt_resistance'], 5) == 3.66636 * ureg('ohm*cm^2')
+    assert round(curve0['voltage'][0], 5) == -0.09213 * ureg('V')
+    assert round(curve0['current_density'][0], 5) == -33.19784 * ureg('mA/cm^2')
+
+    # Test second JV curve (index 1): A REV
+    curve1 = archive.data.jv_curve[1]
+    assert curve1['cell_name'] == 'A REV'
+    assert round(curve1['open_circuit_voltage'], 5) == 0.03091 * ureg('V')
+
+    # Clean up
+    delete_json()
