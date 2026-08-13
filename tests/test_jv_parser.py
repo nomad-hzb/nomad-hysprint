@@ -317,9 +317,7 @@ def test_iris_jv_json_new_format_parser(monkeypatch):
     curve0 = archive.data.jv_curve[0]
     assert curve0['cell_name'] == 'A FWD'
     assert round(curve0['open_circuit_voltage'], 5) == 0.03076 * ureg('V')
-    assert round(curve0['short_circuit_current_density'], 5) == -8.09426 * ureg(
-        'mA/cm^2'
-    )
+    assert round(curve0['short_circuit_current_density'], 5) == -8.09426 * ureg('mA/cm^2')
     assert round(curve0['fill_factor'], 5) == 0.22242
     assert round(curve0['efficiency'], 5) == 0.05539
     assert round(curve0['series_resistance'], 5) == 4.06463 * ureg('ohm*cm^2')
