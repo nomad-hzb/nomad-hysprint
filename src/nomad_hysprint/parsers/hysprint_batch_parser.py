@@ -35,6 +35,7 @@ from baseclasses.helper.solar_cell_batch_mapping import (
     map_generic,
     map_inkjet_printing,
     map_laser_scribing,
+    map_screen_printing,
     map_sdc,
     map_spin_coating,
     map_sputtering,
@@ -57,6 +58,7 @@ from nomad_hysprint.schema_packages.hysprint_package import (
     HySprint_LaserScribing,
     HySprint_Process,
     HySprint_Sample,
+    HySprint_ScreenPrinting,
     HySprint_SlotDieCoating,
     HySprint_SpinCoating,
     HySprint_Sputtering,
@@ -238,6 +240,20 @@ class HySprintExperimentParser(MatchingParser):
                             row,
                             upload_id,
                             HySprint_BladeCoating,
+                        )
+                    )
+
+                if 'screen printing' in col.lower():
+                    # Use the generalized function to enrich row with product data
+
+                    archives.append(
+                        map_screen_printing(
+                            i,
+                            j,
+                            lab_ids,
+                            row,
+                            upload_id,
+                            HySprint_ScreenPrinting,
                         )
                     )
 
