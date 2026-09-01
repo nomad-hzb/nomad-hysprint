@@ -26,6 +26,7 @@ Created on Fri Sep 27 09:08:03 2024
 import pandas as pd
 from baseclasses.helper.solar_cell_batch_mapping import (
     get_reference,
+    map_annealing_class,
     map_atomic_layer_deposition,
     map_basic_sample,
     map_batch,
@@ -49,6 +50,7 @@ from nomad.parsing import MatchingParser
 
 from nomad_hysprint.parsers.file_parser.ink_recycling_mappers import map_ink_recycling
 from nomad_hysprint.schema_packages.hysprint_package import (
+    HySprint_Annealing,
     HySprint_Batch,
     HySprint_BladeCoating,
     HySprint_Cleaning,
@@ -196,6 +198,9 @@ class HySprintExperimentParser(MatchingParser):
                     generic_process = map_generic(i, j, lab_ids, row, upload_id, HySprint_Process)
                     map_generic_parameters(generic_process[1], row)
                     archives.append(generic_process)
+
+                if 'annealing' in col.lower():
+                    archives.append(map_annealing_class(i, j, lab_ids, row, upload_id, HySprint_Annealing))
 
                 if pd.isna(row.get('Material name')):
                     continue
