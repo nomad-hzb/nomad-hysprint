@@ -15,7 +15,7 @@ classifiers = [
 ]
 name = "nomad-hysprint"
 description = "A schema package plugin for hysprint lab at hzb."
-version = "1.1.0"
+version = "1.0.0"
 readme = "README.rst"
 requires-python = ">=3.10"
 authors = [
