@@ -78,8 +78,34 @@ def read_mppt_file_2(filedata):
     return mppt_dict
 
 
+def read_mppt_file_3(filedata):
+    # semicolon separated, decimal comma, units in the column names
+    df_curve = pd.read_csv(
+        StringIO(filedata),
+        header=0,
+        sep=';',
+        decimal=',',
+        encoding='unicode_escape',
+        engine='python',
+    )
+    df_curve = df_curve.dropna(how='any', axis=0)
+
+    mppt_dict = {}
+    # Duration_h is the measurement time; the timestamps can jump over pauses
+    mppt_dict['time_data'] = np.array(df_curve['Duration_h'], dtype=np.float64) * 3600
+    mppt_dict['total_time'] = get_value(mppt_dict['time_data'][-1])
+    mppt_dict['voltage_data'] = np.abs(np.array(df_curve['Umpp_mV'], dtype=np.float64)) / 1000
+    mppt_dict['current_density_data'] = -1 * np.abs(np.array(df_curve['Jmpp_mApcm2'], dtype=np.float64))
+    mppt_dict['power_data'] = mppt_dict['voltage_data'] * mppt_dict['current_density_data']
+    mppt_dict['efficiency_data'] = np.array(df_curve['PCE_percent'], dtype=np.float64)
+
+    return mppt_dict
+
+
 def read_mppt_file(filedata):
     if 'time\tvoltage\tcurrent density\tpower\n' in filedata:
         return read_mppt_file_1(filedata)
+    if 'Duration_h' in filedata and 'Umpp_mV' in filedata and 'Jmpp_mApcm2' in filedata:
+        return read_mppt_file_3(filedata)
     if 'MPPT_J' in filedata and 'MPPT_V' in filedata and 'MPPT_EFF' in filedata:
         return read_mppt_file_2(filedata)
