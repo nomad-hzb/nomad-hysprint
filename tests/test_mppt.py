@@ -115,3 +115,54 @@ def test_mppt_simple_parser_2(file2, monkeypatch):
 
     # Clean up
     delete_json()
+
+
+@pytest.fixture
+def file3():
+    return 'file_7-10-2026.mppt.csv'
+
+
+def test_mppt_simple_parser_3(file3, monkeypatch):
+    archive = get_archive(file3, monkeypatch)
+    normalize_all(archive)
+    assert archive.data
+    assert archive.metadata
+
+    # # Test properties
+    assert hasattr(archive.data, 'properties')
+
+    # Test properties with proper unit handling
+    assert np.isclose(archive.data.properties.time.magnitude, 306.515 * 3600)
+    assert str(archive.data.properties.time.units) == 'second'
+
+    # # Test data arrays
+    assert hasattr(archive.data, 'time')
+    assert hasattr(archive.data, 'voltage')
+    assert hasattr(archive.data, 'current_density')
+    assert hasattr(archive.data, 'power_density')
+    assert hasattr(archive.data, 'efficiency')
+
+    # Test array lengths
+    assert len(archive.data.time) == 17786
+    assert len(archive.data.voltage) == len(archive.data.time)
+    assert len(archive.data.current_density) == len(archive.data.time)
+    assert len(archive.data.power_density) == len(archive.data.time)
+    assert len(archive.data.efficiency) == len(archive.data.time)
+
+    # Test specific values from the sample data
+    # First value tests
+    assert np.isclose(archive.data.time[0].magnitude, 0.008 * 3600)
+    assert np.isclose(archive.data.time[1].magnitude, 0.025 * 3600)
+    assert np.isclose(archive.data.voltage[0].magnitude, 0.25269)
+    assert np.isclose(archive.data.current_density[0].magnitude, -6.488)
+    assert np.isclose(archive.data.power_density[0].magnitude, -6.488 * 0.25269)
+    assert np.isclose(archive.data.efficiency[0], 1.639)
+
+    # Check units
+    assert str(archive.data.time[0].units) == 'second'
+    assert str(archive.data.voltage[0].units) == 'volt'
+    assert str(archive.data.current_density[0].units) == 'milliampere / centimeter ** 2'
+    assert str(archive.data.power_density[0].units) == 'milliwatt / centimeter ** 2'
+
+    # Clean up
+    delete_json()
