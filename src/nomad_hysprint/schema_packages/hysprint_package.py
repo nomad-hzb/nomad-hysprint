@@ -1158,7 +1158,7 @@ class HySprint_JVmeasurement(JVMeasurement, EntryData):
                 jv_dict, location = get_jv_data(f.read(), self.data_file)
                 if jv_dict:
                     self.location = location
-                    get_jv_archive(jv_dict, self.data_file, self)
+                    get_jv_archive(jv_dict, self.data_file, self, archive, logger)
 
             if self.jv_curve:
                 for curve in self.jv_curve:
