@@ -1,0 +1,97 @@
+experiment_defaults:
+  Date: '2026-01-01'
+  Project_Name: DEFAULT
+  Batch: '0'
+  Sample dimension: 2.5 cm x 2.5 cm
+  Sample area [cm^2]: 0.18
+  Pixel area [cm^2]: 0.18
+  Substrate material: Soda Lime Glass
+nomad_id_template: HZB_{Project_Name}_{Batch}_{Subbatch}_C-{Sample}
+common_steps:
+  cleaning: cleaning_uv_ozone
+cell_types:
+  single_junction:
+    alias: S
+    display_name: single junction
+    sample_properties:
+      Number of pixels: 6
+      Substrate conductive layer: ITO
+      Number of junctions: 1
+    steps:
+      transport layer 1: htl_a
+      absorber 1: absorber_a
+      recombination layer 1: sputtered_layer
+      contact layer 1: contact_ag
+components:
+  cleaning_uv_ozone:
+    display_name: cleaning uv ozone
+    method: Cleaning UV-Ozone
+    section: '1: Cleaning UV-Ozone'
+    values:
+      Solvent 1: IPA
+      Time 1 [s]: 600
+      UV-Ozone Time [s]: 900
+  htl_a:
+    display_name: HTL A
+    method: Spin Coating
+    section: '2: Spin Coating'
+    values:
+      Material name: HTL-A
+      Layer type: Hole transport layer
+      Solvent 1 name: Ethanol
+      Solute 1 name: HTL-A
+      Solute 1 Concentration [mM]: 1
+      Rotation speed [rpm]: 3000
+      Rotation time [s]: 30
+  htl_b:
+    display_name: HTL B
+    method: Spin Coating
+    section: '2: Spin Coating'
+    values:
+      Material name: HTL-B
+      Layer type: Hole transport layer
+      Solvent 1 name: Ethanol
+      Solute 1 name: HTL-B
+      Solute 1 Concentration [mM]: 2
+      Rotation speed [rpm]: 4000
+      Rotation time [s]: 30
+  absorber_a:
+    display_name: absorber A
+    method: Spin Coating
+    section: '3: Spin Coating'
+    values:
+      Material name: Absorber-A
+      Layer type: Absorber
+      Solvent 1 name: DMF
+      Solute 1 name: PbI2
+      Solute 1 Concentration [mM]: 1200
+      Rotation speed [rpm]: 4000
+      Rotation time [s]: 40
+  sputtered_layer:
+    display_name: sputtered layer
+    method: Sputtering
+    values:
+      Material name: IZO
+      Layer type: Recombination layer
+      Power [W]: 150
+      Thickness [nm]: 40
+  contact_ag:
+    display_name: Ag contact
+    method: Evaporation
+    section: '5: Evaporation'
+    values:
+      Material name: Ag
+      Layer type: Electrode
+      Organic: false
+      Base pressure [bar]: =8*10^-7
+      Thickness [nm]: 100
+  contact_cu:
+    display_name: Cu contact
+    method: Evaporation
+    section: '9: Evaporation'
+    values:
+      Material name: Cu
+      Layer type: Electrode
+      Organic: false
+      Base pressure [bar]: =8*10^-7
+      Thickness [nm]: 100

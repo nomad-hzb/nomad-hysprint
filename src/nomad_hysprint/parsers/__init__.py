@@ -17,6 +17,15 @@ class HySprintExperimentParserEntryPoint(ParserEntryPoint):
         return HySprintExperimentParser(**self.model_dump())
 
 
+class HySprintProcessSnapshotParserEntryPoint(ParserEntryPoint):
+    def load(self):
+        from nomad_hysprint.parsers.hysprint_snapshot_parser import (
+            HySprintProcessSnapshotParser,
+        )
+
+        return HySprintProcessSnapshotParser(**self.model_dump())
+
+
 class SolarTabSimulationParserEntryPoint(ParserEntryPoint):
     def load(self):
         from nomad_hysprint.parsers.solartab_simulation_parser import (
@@ -40,6 +49,17 @@ hysprint_experiment_parser = HySprintExperimentParserEntryPoint(
     mainfile_name_re='^(.+\.xlsx)$',
     # mainfile_contents_re='Experiment Info',
     mainfile_mime_re='(application|text|image)/.*',
+)
+
+
+hysprint_process_snapshot_parser = HySprintProcessSnapshotParserEntryPoint(
+    name='HySprintProcessSnapshotParser',
+    description=(
+        'Parser for HZB process snapshots (YAML or JSON, see contracts/) and for batch notes '
+        'uploaded together with their process library'
+    ),
+    mainfile_name_re=r'^.+\.(ya?ml|json)$',
+    mainfile_contents_re=r'([\'"]?format[\'"]?\s*:\s*[\'"]?hzb-process-snapshot/|sample_numbers[\'"]?\s*:)',
 )
 
 
