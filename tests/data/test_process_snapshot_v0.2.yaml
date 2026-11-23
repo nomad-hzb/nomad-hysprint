@@ -64,7 +64,7 @@ sub_batches:
     Substrate conductive layer: ITO
     Number of junctions: 1
   samples:
-  - {number: 5}
+  - {number: 5, parent_id: HZB_TEST_8_A_C-1}
   steps:
   - {position: 1, name: cleaning, process: cleaning, slot: '1'}
   - {position: 2, name: hole transport layer, process: htl_a_copy, slot: '2'}
@@ -104,6 +104,7 @@ processes:
       Rotation speed [rpm]: 4000
       Rotation time [s]: 30
       Spin Delay [s]: 0.5
+      Datetime: '2026-03-05T10:30:00+01:00'
   izo:
     display_name: IZO
     method: Sputtering

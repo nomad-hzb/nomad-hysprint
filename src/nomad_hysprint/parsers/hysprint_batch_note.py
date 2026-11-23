@@ -22,7 +22,8 @@ Instead of a generated snapshot, a batch can be uploaded as two YAML files:
 * a process library: the default layer stack of every cell type
   (``cell_types``) and the parameters of every process (``components``), and
 * a batch note: the sample groups of one batch (``samples``), their cell type
-  and the steps in which they deviate from the library.
+  and the steps in which they deviate from the library. A group may give the
+  parent sample of its samples as ``parent_ids: {sample number: NOMAD ID}``.
 
 The batch note is the mainfile; the library is looked up in the same upload.
 Both are merged into a snapshot of the latest contract version, which is then
@@ -99,6 +100,18 @@ def not_found_message(kind, name, where, known, list_known=False):
     elif list_known and known:
         message += f' Known: {", ".join(known)}.'
     return message
+
+
+def group_samples(group_id, group):
+    """The samples of a group; optional 'parent_ids' maps sample numbers to the NOMAD ID of their parent."""
+    numbers = parse_sample_numbers(group.get('sample_numbers'))
+    parents = {int(n): str(p) for n, p in (group.get('parent_ids') or {}).items()}
+    unknown = sorted(set(parents) - set(numbers))
+    if unknown:
+        raise ValueError(
+            f'Group {group_id}: parent_ids for samples {unknown}, which are not in its sample_numbers.'
+        )
+    return [dict(number=n, **({'parent_id': parents[n]} if n in parents else {})) for n in numbers]
 
 
 def section_number(section):
@@ -222,7 +235,7 @@ def batch_note_to_snapshot(note, library, provenance, logger=None):
             'sample_properties': {
                 k: to_value(v) for k, v in (cell_type.get('sample_properties') or {}).items()
             },
-            'samples': [{'number': n} for n in parse_sample_numbers(group.get('sample_numbers'))],
+            'samples': group_samples(group_id, group),
             'steps': [],
         }
         for key in ('lab_comment', 'notes'):

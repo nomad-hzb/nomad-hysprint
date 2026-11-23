@@ -2,6 +2,7 @@ import json
 import os
 import shutil
 import sys
+from datetime import datetime, timezone
 
 import pytest
 from nomad.client import normalize_all, parse
@@ -18,13 +19,12 @@ from nomad_hysprint.parsers.hysprint_snapshot_parser import (
 from utils import delete_json, get_archive, set_monkey_patch
 
 DATA_DIR = os.path.join('tests', 'data')
-SNAPSHOT_V01 = 'test_process_snapshot_v0.1.yaml'
-SNAPSHOT_V02 = 'test_process_snapshot_v0.2.yaml'
+SNAPSHOT = 'test_process_snapshot_v0.2.yaml'
 BATCH_NOTE = 'test_batch_note.yaml'  # parsed together with test_process_library.yaml
 LIBRARY = 'test_process_library.yaml'
 
 
-@pytest.fixture(params=[SNAPSHOT_V01, SNAPSHOT_V02, BATCH_NOTE])
+@pytest.fixture(params=[SNAPSHOT, BATCH_NOTE])
 def parsed_archive(request, monkeypatch):
     """Sets up data for testing and cleans up after the test."""
     delete_json()
@@ -36,8 +36,8 @@ def test_normalize_all(parsed_archive):
     normalize_all(parsed_archive)
 
 
-def snapshot(file=SNAPSHOT_V01):
-    return load_snapshot(os.path.join(DATA_DIR, file))
+def snapshot():
+    return load_snapshot(os.path.join(DATA_DIR, SNAPSHOT))
 
 
 def parse_upload(file, monkeypatch):
@@ -63,53 +63,65 @@ def by_type(entries, class_name):
     return {name: sorted(groups) for name, groups in result.items()}
 
 
-def test_snapshot_v01(monkeypatch):
-    archive, entries = parse_upload(SNAPSHOT_V01, monkeypatch)
-    data = archive.data
-    assert data.snapshot_format == 'hzb-process-snapshot/v0.1'
-    assert (data.generator, data.source_commit, data.library_commit) == ('test', 'abc1234', '0123456')
-    assert data.provenance['source_note'] == 'experiments/test/TEST7_batch_note.yaml'
-    assert not data.unread_parameters
-    assert len(data.processed_archive) == len(entries)
-
-    assert sorted(e.lab_id for e in entries['HZB_TEST_7'].entities) == [
-        'HZB_TEST_7_A_C-1',
-        'HZB_TEST_7_A_C-2',
-        'HZB_TEST_7_B_C-3',
-    ]
-    assert entries['HZB_TEST_7_B'].description.endswith('test comment')
-    assert entries['HZB_TEST_7_A_C-2'].architecture == 'single junction'
-    assert by_type(entries, 'HySprint_SpinCoating') == {
-        'spin coating HTL-A': [[1, 2]],
-        'spin coating HTL-B': [[3]],
-        'spin coating Absorber-A': [[1, 2, 3]],
-    }
-    assert by_type(entries, 'HySprint_Evaporation') == {'evaporation Ag': [[1, 2, 3]]}
-    assert by_type(entries, 'HySprint_Sputtering') == {'sputtering IZO': [[3]]}
+def named(entries, name):
+    return [d for d in entries.values() if getattr(d, 'name', None) == name]
 
 
-def test_snapshot_v02(monkeypatch):
-    archive, entries = parse_upload(SNAPSHOT_V02, monkeypatch)
+def test_snapshot(monkeypatch):
+    archive, entries = parse_upload(SNAPSHOT, monkeypatch)
     data = archive.data
     assert data.snapshot_format == 'hzb-process-snapshot/v0.2'
+    assert (data.generator, data.source_commit, data.library_commit) == ('test', 'abc1234', '0123456')
     assert data.provenance['library_version'] == '1.1'  # provenance is kept completely
     # field names NOMAD does not know are kept in the file and reported
     assert data.unread_parameters == ['Nozzle distance [mm] (process contact_ag)']
+    assert len(data.processed_archive) == len(entries)
+
+    assert sorted(e.lab_id for e in entries['HZB_TEST_8'].entities) == [
+        f'HZB_TEST_8_{group}_C-{n}' for group, n in ('A1', 'A2', 'B3', 'B4', 'C5')
+    ]
+    assert entries['HZB_TEST_8_B'].description == 'S: absorber 1 rotation speed 5000 rpm'
+    assert entries['HZB_TEST_8_A_C-2'].architecture == 'single junction'
 
     spin_coatings = by_type(entries, 'HySprint_SpinCoating')
-    # same slot, but a different recipe with identical values: never merged
+    # same slot, different step names, but a different recipe with identical values: never merged
     assert spin_coatings['spin coating HTL-A'] == [[1, 2, 3, 4], [5]]
     # parameter_changes on a step: a changed value is its own entry
     assert spin_coatings['spin coating Absorber-A'] == [[1, 2, 5], [3, 4]]
+    speeds = sorted(
+        d.recipe_steps[0].speed.to('rpm').magnitude for d in named(entries, 'spin coating Absorber-A')
+    )
+    assert speeds == [4000, 5000]
     # parameter_changes of one sample
     assert by_type(entries, 'HySprint_Evaporation') == {'evaporation Ag': [[1, 3, 4, 5], [2]]}
-
-    absorbers = [d for d in entries.values() if getattr(d, 'name', '') == 'spin coating Absorber-A']
-    speeds = sorted(d.recipe_steps[0].speed.to('rpm').magnitude for d in absorbers)
-    assert speeds == [4000, 5000]
-    evaporations = [d for d in entries.values() if type(d).__name__ == 'HySprint_Evaporation']
-    thicknesses = sorted(d.inorganic_evaporation[0].thickness.to('nm').magnitude for d in evaporations)
+    thicknesses = sorted(
+        d.inorganic_evaporation[0].thickness.to('nm').magnitude for d in named(entries, 'evaporation Ag')
+    )
     assert thicknesses == [80, 100]
+    assert by_type(entries, 'HySprint_Sputtering') == {'sputtering IZO': [[3, 4]]}
+
+
+def test_snapshot_parent_id(monkeypatch):
+    _, entries = parse_upload(SNAPSHOT, monkeypatch)
+    assert entries['HZB_TEST_8_C_C-5'].parent.lab_id == 'HZB_TEST_8_A_C-1'
+    assert entries['HZB_TEST_8_A_C-1'].parent is None
+
+
+def test_snapshot_datetimes(monkeypatch):
+    _, entries = parse_upload(SNAPSHOT, monkeypatch)
+    # experiment date on samples and substrates
+    assert entries['HZB_TEST_8_A_C-1'].datetime == datetime(2026, 3, 5, tzinfo=timezone.utc)
+    substrates = [d for d in entries.values() if type(d).__name__ == 'HySprint_Substrate']
+    assert {d.datetime for d in substrates} == {datetime(2026, 3, 5, tzinfo=timezone.utc)}
+    # process Datetime '2026-03-05T10:30:00+01:00' is stored as 09:30 UTC
+    absorbers = named(entries, 'spin coating Absorber-A')
+    assert {d.datetime for d in absorbers} == {datetime(2026, 3, 5, 9, 30, tzinfo=timezone.utc)}
+
+
+def test_spin_delay_stored(monkeypatch):
+    _, entries = parse_upload(SNAPSHOT, monkeypatch)
+    absorbers = named(entries, 'spin coating Absorber-A')
+    assert all(d.recipe_steps[0].spin_delay == 0.5 * ureg('s') for d in absorbers)
 
 
 def test_batch_note_with_library(monkeypatch):
@@ -127,6 +139,8 @@ def test_batch_note_with_library(monkeypatch):
         entries['HZB_TEST_9_C'].description
         == 'single junction; transport layer 1: none; no hole transport layer'
     )
+    assert entries['HZB_TEST_9_D_C-6'].parent.lab_id == 'HZB_TEST_9_A_C-1'
+    assert entries['HZB_TEST_9_A_C-1'].datetime == datetime(2026, 3, 4, tzinfo=timezone.utc)
     assert by_type(entries, 'HySprint_SpinCoating') == {
         'spin coating HTL-A': [[1, 2, 6, 7]],
         'spin coating HTL-B': [[3, 4]],
@@ -137,7 +151,7 @@ def test_batch_note_with_library(monkeypatch):
         'evaporation Cu': [[6, 7]],
     }
     # library formula '=8*10^-7' becomes a number
-    copper = next(d for d in entries.values() if getattr(d, 'name', '') == 'evaporation Cu')
+    copper = named(entries, 'evaporation Cu')[0]
     assert copper.inorganic_evaporation[0].pressure.to('bar').magnitude == pytest.approx(8e-7)
 
 
@@ -148,56 +162,46 @@ def test_batch_note_without_library(tmp_path, monkeypatch):
         parse(str(tmp_path / BATCH_NOTE))
 
 
-def test_batch_note_unknown_process(tmp_path, monkeypatch):
+@pytest.mark.parametrize(
+    'old, new, message',
+    [
+        ('htl_b', 'htl_bb', r'Process "htl_bb" \(group B, step "transport layer 1"\).*Did you mean "htl_b"'),
+        ('sample_type: S\n', 'sample_type: XYZ\n', r'Sample type "XYZ" \(group A\)'),
+        ('{6: HZB_TEST_9_A_C-1}', '{8: HZB_TEST_9_A_C-1}', r'Group D: parent_ids for samples \[8\]'),
+    ],
+)
+def test_batch_note_errors(old, new, message, tmp_path, monkeypatch):
     set_monkey_patch(monkeypatch)
     shutil.copy(os.path.join(DATA_DIR, LIBRARY), tmp_path)
-    note = tmp_path / BATCH_NOTE
-    text = open(os.path.join(DATA_DIR, BATCH_NOTE)).read().replace('htl_b', 'htl_bb')
-    note.write_text(text)
-    with pytest.raises(ValueError, match=r'Process "htl_bb" \(group B, step "transport layer 1"\).*"htl_b"'):
-        parse(str(note))
+    with open(os.path.join(DATA_DIR, BATCH_NOTE), encoding='utf-8') as f:
+        (tmp_path / BATCH_NOTE).write_text(f.read().replace(old, new, 1))
+    with pytest.raises(ValueError, match=message):
+        parse(str(tmp_path / BATCH_NOTE))
 
 
 @pytest.mark.parametrize(
     'change, message',
     [
-        (lambda s: s.update(format='hzb-process-snapshot/v9'), 'Unsupported snapshot format'),
+        (lambda s: s.update(format='hzb-process-snapshot/v0.1'), 'Unsupported snapshot format'),
         (lambda s: s['experiment'].update(project='MY_PROJECT'), 'experiment/project'),
+        (lambda s: s['experiment'].update(date='04.03.2025'), 'experiment/date'),
         (
             lambda s: s['processes']['contact_ag']['parameters'].update({'Base pressure [bar]': '=8*10^-7'}),
             'processes/contact_ag/parameters/Base pressure [bar]',
         ),
         (lambda s: s['processes']['izo'].update(method='Sputter'), 'processes/izo/method'),
-        (
-            lambda s: s['processes']['absorber']['parameters'].update({'Rotaton speed [rpm]': 4000}),
-            'processes/absorber/parameters: unknown field "Rotaton speed [rpm]". '
-            'Did you mean "Rotation speed [rpm]"?',
-        ),
         (lambda s: s['processes']['izo']['parameters'].pop('Material name'), "'Material name' is a required"),
+        (lambda s: s['sub_batches'][0]['steps'][0].pop('slot'), "'slot' is a required property"),
         (
             lambda s: s['sub_batches'][1]['steps'][3].update(process='izo_typo'),
             'refers to process "izo_typo"',
         ),
         (lambda s: s['sub_batches'][1]['samples'].append({'number': 2}), 'sample number 2 is also used'),
         (
-            lambda s: s['sub_batches'][0]['samples'][0].update(nomad_id='HZB_TEST_7_B_C-1'),
-            'should be "HZB_TEST_7_A_C-1"',
+            lambda s: s['sub_batches'][0]['samples'][0].update(nomad_id='HZB_TEST_8_B_C-1'),
+            'should be "HZB_TEST_8_A_C-1"',
         ),
         (lambda s: s['sub_batches'][0]['steps'][1].update(position=1), 'step positions are not unique'),
-    ],
-)
-def test_validation_errors_v01(change, message):
-    data = snapshot()
-    change(data)
-    with pytest.raises(ValueError) as error:
-        validate_snapshot(data)
-    assert message in str(error.value)
-
-
-@pytest.mark.parametrize(
-    'change, message',
-    [
-        (lambda s: s['sub_batches'][0]['steps'][0].pop('slot'), "'slot' is a required property"),
         (
             lambda s: s['sub_batches'][0]['samples'][1]['parameter_changes'].update(
                 {'no such step': {'x': 1}}
@@ -208,46 +212,53 @@ def test_validation_errors_v01(change, message):
             lambda s: s['sub_batches'][1]['steps'][2].update(parameter_changes={}),
             'sub_batches/1/steps/2/parameter_changes',
         ),
+        (
+            lambda s: s['processes']['absorber']['parameters'].update(Datetime='05.03.2026 10:30'),
+            'processes/absorber/parameters/Datetime: "05.03.2026 10:30" is not an ISO 8601 date',
+        ),
+        (
+            lambda s: s['sub_batches'][1]['steps'][2]['parameter_changes'].update(Datetime='yesterday'),
+            'sub_batches/1/steps/2/parameter_changes/Datetime: "yesterday" is not an ISO 8601 date',
+        ),
+        (lambda s: s['provenance'].update(generated_at='today'), 'provenance/generated_at: "today"'),
     ],
 )
-def test_validation_errors_v02(change, message):
-    data = snapshot(SNAPSHOT_V02)
+def test_validation_errors(change, message):
+    data = snapshot()
     change(data)
     with pytest.raises(ValueError) as error:
         validate_snapshot(data)
     assert message in str(error.value)
 
 
-def test_unknown_field_names_v02_accepted():
-    data = snapshot(SNAPSHOT_V02)
+@pytest.mark.parametrize(
+    'value, stored',
+    [
+        ('2026-03-05', '2026-03-05'),
+        ('2026-03-05 10:30', '2026-03-05 10:30:00'),
+        ('2026-03-05T10:30:15', '2026-03-05 10:30:15'),
+        ('2026-03-05T10:30:00+01:00', '2026-03-05 09:30:00'),
+        ('2026-03-05T10:30:00Z', '2026-03-05 10:30:00'),
+    ],
+)
+def test_datetimes_normalized(value, stored):
+    data = snapshot()
+    data['processes']['absorber']['parameters']['Datetime'] = value
+    validate_snapshot(data)
+    assert data['processes']['absorber']['parameters']['Datetime'] == stored
+
+
+def test_unknown_field_names_accepted():
+    data = snapshot()
     data['processes']['htl_a']['parameters']['Rotaton speed [rpm]'] = 1
     assert validate_snapshot(data) == 'v0.2'
     assert unread_parameters(data)['Rotaton speed [rpm]'] == ['process htl_a']
 
 
-def process_headers(df):
-    return [h for h in dict.fromkeys(df.columns.get_level_values(0)) if h != 'Experiment Info']
-
-
-def test_ordering_v01():
-    data = snapshot()
-    assert process_headers(build_snapshot_dataframe(data)) == [
-        '1: Cleaning UV-Ozone',
-        '2: Spin Coating',
-        '3: Spin Coating',
-        '4: Sputtering',
-        '5: Evaporation',
-    ]
-    for sub_batch in data['sub_batches']:  # without excel_section: by step order and name
-        for step in sub_batch['steps']:
-            del step['excel_section']
-    assert len(process_headers(build_snapshot_dataframe(data))) == 5
-    data['sub_batches'][1]['steps'][2]['run'] = 'second session'  # a run label splits
-    assert len(process_headers(build_snapshot_dataframe(data))) == 6
-
-
-def test_ordering_v02():
-    assert process_headers(build_snapshot_dataframe(snapshot(SNAPSHOT_V02))) == [
+def test_entry_order():
+    df = build_snapshot_dataframe(snapshot())
+    headers = [h for h in dict.fromkeys(df.columns.get_level_values(0)) if h != 'Experiment Info']
+    assert headers == [
         '1: Cleaning UV-Ozone',
         '2: Spin Coating',
         '3: Spin Coating',
@@ -259,15 +270,13 @@ def test_ordering_v02():
 def test_is_mainfile(tmp_path):
     parser = entry_point.load()
     json_file = tmp_path / 'snapshot.json'
-    json_file.write_text(json.dumps(snapshot(SNAPSHOT_V02)))
-    contract = supported_versions()['v0.2']
+    json_file.write_text(json.dumps(snapshot()))
     cases = [
-        (os.path.join(DATA_DIR, SNAPSHOT_V01), True),
-        (os.path.join(DATA_DIR, SNAPSHOT_V02), True),
+        (os.path.join(DATA_DIR, SNAPSHOT), True),
         (str(json_file), True),
         (os.path.join(DATA_DIR, BATCH_NOTE), True),
         (os.path.join(DATA_DIR, LIBRARY), False),
-        (contract, False),
+        (supported_versions()['v0.2'], False),
     ]
     for path, expected in cases:
         with open(path, 'rb') as f:
@@ -277,8 +286,8 @@ def test_is_mainfile(tmp_path):
         )
 
 
-def test_contracts_list_excel_template_names():
-    """Every column of the Excel template is a known field name in every contract version.
+def test_contract_lists_excel_template_names():
+    """Every column of the Excel template is a known field name in the contract.
 
     (The names read by the mappers are added by the same generator; they live in
     nomad-baseclasses, so they are not checked here.)
@@ -297,8 +306,7 @@ def test_contracts_list_excel_template_names():
         with open(path, encoding='utf-8') as f:
             definitions = json.load(f)['$defs']
         for method in MAPPERS:
-            definition = definitions[slug(method)]
-            known = definition.get('propertyNames') or definition.get('x-known-field-names')
+            known = definitions[slug(method)].get('x-known-field-names')
             if known is None:  # free-form (Generic Process)
                 continue
             listed = set(known['anyOf'][0]['enum']) | {o['title'] for o in known['anyOf'][1:]}
@@ -306,9 +314,3 @@ def test_contracts_list_excel_template_names():
             if method == EXPERIMENT_INFO:
                 names -= PARSER_OWNED
             assert names <= listed, (version, method, sorted(names - listed))
-
-
-def test_spin_delay_stored(monkeypatch):
-    _, entries = parse_upload(SNAPSHOT_V02, monkeypatch)
-    absorbers = [d for d in entries.values() if getattr(d, 'name', '') == 'spin coating Absorber-A']
-    assert all(d.recipe_steps[0].spin_delay == 0.5 * ureg('s') for d in absorbers)

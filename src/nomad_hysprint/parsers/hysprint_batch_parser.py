@@ -134,154 +134,160 @@ class HySprintExperimentParser(MatchingParser):
             else '_'.join(sample_ids[0].split('_')[:-1])
         )
         archive.data = RawHySprintExperiment(
-            processed_archive=build_experiment_archives(df, archive, sample_ids, batch_id)
+            processed_archive=HySprintExperimentParser.build_experiment_archives(
+                df, archive, sample_ids, batch_id
+            )
         )
 
+    @staticmethod
+    def build_experiment_archives(df, archive, sample_ids, batch_id):
+        """Create batch, substrate, sample and process entries from an experiment table.
 
-def build_experiment_archives(df, archive, sample_ids, batch_id):
-    """Create batch, substrate, sample and process entries from an experiment table.
+        `df` has the two-level header of the experiment Excel file. Also used by the
+        process snapshot parser. Returns the references to all created entries.
+        """
+        upload_id = archive.metadata.upload_id
+        archives = [map_batch(sample_ids, batch_id, upload_id, HySprint_Batch)]
+        substrates = []
+        substrates_col = [
+            'Sample dimension',
+            'Sample area [cm^2]',
+            'Pixel area [cm^2]',
+            'Number of pixels',
+            'Notes',
+            'Substrate material',
+            'Substrate conductive layer',
+            'Sheet Resistance [Ohms/square]',
+            'Transmission [%]',
+        ]
+        substrates_col = [s for s in substrates_col if s in df['Experiment Info'].columns]
+        for i, sub in df['Experiment Info'][substrates_col].drop_duplicates().iterrows():
+            if pd.isna(sub).all():
+                continue
+            sub_entry = map_substrate(sub, HySprint_Substrate)
+            date_val = (
+                df['Experiment Info']['Date'].iloc[i] if 'Date' in df['Experiment Info'].columns else None
+            )
+            if date_val is not None and not pd.isna(date_val):
+                date_str = str(date_val).split(' ')[0]
+                for fmt in ('%d-%m-%Y', '%Y-%m-%d', '%d.%m.%Y', '%Y.%m.%d'):
+                    try:
+                        sub_entry.datetime = convert_datetime(date_str, datetime_format=fmt, utc=True)
+                        break
+                    except ValueError:
+                        continue
+            substrates.append((f'{i}_substrate', sub, sub_entry))
 
-    `df` has the two-level header of the HySprint experiment Excel file: an
-    'Experiment Info' column group with one row per sample, followed by one
-    column group per process step (e.g. '2: Spin Coating'). Returns the
-    references to all created entries.
-    """
-    upload_id = archive.metadata.upload_id
-    archives = [map_batch(sample_ids, batch_id, upload_id, HySprint_Batch)]
-    substrates = []
-    substrates_col = [
-        'Sample dimension',
-        'Sample area [cm^2]',
-        'Pixel area [cm^2]',
-        'Number of pixels',
-        'Notes',
-        'Substrate material',
-        'Substrate conductive layer',
-        'Sheet Resistance [Ohms/square]',
-        'Transmission [%]',
-    ]
-    substrates_col = [s for s in substrates_col if s in df['Experiment Info'].columns]
-    for i, sub in df['Experiment Info'][substrates_col].drop_duplicates().iterrows():
-        if pd.isna(sub).all():
-            continue
-        sub_entry = map_substrate(sub, HySprint_Substrate)
-        date_val = df['Experiment Info']['Date'].iloc[i] if 'Date' in df['Experiment Info'].columns else None
-        if date_val is not None and not pd.isna(date_val):
-            date_str = str(date_val).split(' ')[0]
-            for fmt in ('%d-%m-%Y', '%Y-%m-%d', '%d.%m.%Y', '%Y.%m.%d'):
-                try:
-                    sub_entry.datetime = convert_datetime(date_str, datetime_format=fmt, utc=True)
-                    break
-                except ValueError:
+        def find_substrate(d):
+            for s in substrates:
+                if d.equals(s[1]):
+                    return s[0]
+
+        for i, row in df['Experiment Info'].iterrows():
+            if pd.isna(row).all():
+                continue
+            substrate_name = find_substrate(row[substrates_col]) + '.archive.json' if substrates_col else None
+            archives.append(map_basic_sample(row, substrate_name, upload_id, HySprint_Sample))
+
+        for i, col in enumerate(df.columns.get_level_values(0).unique()):
+            if col == 'Experiment Info':
+                continue
+
+            df_dropped = df[col].drop_duplicates()
+            for j, row in df_dropped.iterrows():
+                if row.dropna().empty:
                     continue
-        substrates.append((f'{i}_substrate', sub, sub_entry))
+                lab_ids = [
+                    x['Experiment Info']['Nomad ID']
+                    for _, x in df[['Experiment Info', col]].iterrows()
+                    if x[col].astype('object').equals(row.astype('object'))
+                ]
+                if 'cleaning' in col.lower():
+                    archives.append(map_cleaning(i, j, lab_ids, row, upload_id, HySprint_Cleaning))
 
-    def find_substrate(d):
-        for s in substrates:
-            if d.equals(s[1]):
-                return s[0]
+                if 'laser' in col.lower() and 'scribing' in col.lower():
+                    archives.append(map_laser_scribing(i, j, lab_ids, row, upload_id, HySprint_LaserScribing))
 
-    for i, row in df['Experiment Info'].iterrows():
-        if pd.isna(row).all():
-            continue
-        substrate_name = find_substrate(row[substrates_col]) + '.archive.json' if substrates_col else None
-        archives.append(map_basic_sample(row, substrate_name, upload_id, HySprint_Sample))
-
-    for i, col in enumerate(df.columns.get_level_values(0).unique()):
-        if col == 'Experiment Info':
-            continue
-
-        df_dropped = df[col].drop_duplicates()
-        for j, row in df_dropped.iterrows():
-            if row.dropna().empty:
-                continue
-            lab_ids = [
-                x['Experiment Info']['Nomad ID']
-                for _, x in df[['Experiment Info', col]].iterrows()
-                if x[col].astype('object').equals(row.astype('object'))
-            ]
-            if 'cleaning' in col.lower():
-                archives.append(map_cleaning(i, j, lab_ids, row, upload_id, HySprint_Cleaning))
-
-            if 'laser' in col.lower() and 'scribing' in col.lower():
-                archives.append(map_laser_scribing(i, j, lab_ids, row, upload_id, HySprint_LaserScribing))
-
-            if 'ink' in col.lower() and 'recycling' in col.lower():
-                archives.append(
-                    map_ink_recycling(i, j, lab_ids, row, upload_id, InkRecycling_RecyclingExperiment)
-                )
-
-            if 'generic' in col.lower() and 'process' in col.lower():  # move up
-                generic_process = map_generic(i, j, lab_ids, row, upload_id, HySprint_Process)
-                map_generic_parameters(generic_process[1], row)
-                archives.append(generic_process)
-
-            if 'annealing' in col.lower():
-                archives.append(map_annealing_class(i, j, lab_ids, row, upload_id, HySprint_Annealing))
-
-            if pd.isna(row.get('Material name')):
-                continue
-
-            if 'evaporation' in col.lower():
-                coevap = False
-                if 'co' in col.lower() and 'evaporation' in col.lower():
-                    coevap = True
-                archives.append(map_evaporation(i, j, lab_ids, row, upload_id, HySprint_Evaporation, coevap))
-
-            if 'spin' in col.lower() and 'coating' in col.lower():
-                archives.append(map_spin_coating(i, j, lab_ids, row, upload_id, HySprint_SpinCoating))
-
-            if 'slot' in col.lower() and 'die' in col.lower() and 'coating' in col.lower():
-                archives.append(map_sdc(i, j, lab_ids, row, upload_id, HySprint_SlotDieCoating))
-
-            if 'sputtering' in col.lower():
-                archives.append(map_sputtering(i, j, lab_ids, row, upload_id, HySprint_Sputtering))
-
-            if 'inkjet' in col.lower() and 'printing' in col.lower():
-                archives.append(map_inkjet_printing(i, j, lab_ids, row, upload_id, HySprint_Inkjet_Printing))
-
-            if 'ald' in col.lower():
-                archives.append(
-                    map_atomic_layer_deposition(i, j, lab_ids, row, upload_id, IRIS_AtomicLayerDeposition)
-                )
-
-            if 'blade coating' in col.lower():
-                # Use the generalized function to enrich row with product data
-
-                archives.append(
-                    map_blade_coating(
-                        i,
-                        j,
-                        lab_ids,
-                        row,
-                        upload_id,
-                        HySprint_BladeCoating,
+                if 'ink' in col.lower() and 'recycling' in col.lower():
+                    archives.append(
+                        map_ink_recycling(i, j, lab_ids, row, upload_id, InkRecycling_RecyclingExperiment)
                     )
-                )
 
-            if 'screen printing' in col.lower():
-                # Use the generalized function to enrich row with product data
+                if 'generic' in col.lower() and 'process' in col.lower():  # move up
+                    generic_process = map_generic(i, j, lab_ids, row, upload_id, HySprint_Process)
+                    map_generic_parameters(generic_process[1], row)
+                    archives.append(generic_process)
 
-                archives.append(
-                    map_screen_printing(
-                        i,
-                        j,
-                        lab_ids,
-                        row,
-                        upload_id,
-                        HySprint_ScreenPrinting,
+                if 'annealing' in col.lower():
+                    archives.append(map_annealing_class(i, j, lab_ids, row, upload_id, HySprint_Annealing))
+
+                if pd.isna(row.get('Material name')):
+                    continue
+
+                if 'evaporation' in col.lower():
+                    coevap = False
+                    if 'co' in col.lower() and 'evaporation' in col.lower():
+                        coevap = True
+                    archives.append(
+                        map_evaporation(i, j, lab_ids, row, upload_id, HySprint_Evaporation, coevap)
                     )
-                )
 
-    refs = []
-    for subs in substrates:
-        file_name = f'{subs[0]}.archive.json'
-        create_archive(subs[2], archive, file_name)
-        refs.append(get_reference(upload_id, file_name))
+                if 'spin' in col.lower() and 'coating' in col.lower():
+                    archives.append(map_spin_coating(i, j, lab_ids, row, upload_id, HySprint_SpinCoating))
 
-    for a in archives:
-        file_name = f'{a[0]}.archive.json'
-        create_archive(a[1], archive, file_name)
-        refs.append(get_reference(upload_id, file_name))
+                if 'slot' in col.lower() and 'die' in col.lower() and 'coating' in col.lower():
+                    archives.append(map_sdc(i, j, lab_ids, row, upload_id, HySprint_SlotDieCoating))
 
-    return refs
+                if 'sputtering' in col.lower():
+                    archives.append(map_sputtering(i, j, lab_ids, row, upload_id, HySprint_Sputtering))
+
+                if 'inkjet' in col.lower() and 'printing' in col.lower():
+                    archives.append(
+                        map_inkjet_printing(i, j, lab_ids, row, upload_id, HySprint_Inkjet_Printing)
+                    )
+
+                if 'ald' in col.lower():
+                    archives.append(
+                        map_atomic_layer_deposition(i, j, lab_ids, row, upload_id, IRIS_AtomicLayerDeposition)
+                    )
+
+                if 'blade coating' in col.lower():
+                    # Use the generalized function to enrich row with product data
+
+                    archives.append(
+                        map_blade_coating(
+                            i,
+                            j,
+                            lab_ids,
+                            row,
+                            upload_id,
+                            HySprint_BladeCoating,
+                        )
+                    )
+
+                if 'screen printing' in col.lower():
+                    # Use the generalized function to enrich row with product data
+
+                    archives.append(
+                        map_screen_printing(
+                            i,
+                            j,
+                            lab_ids,
+                            row,
+                            upload_id,
+                            HySprint_ScreenPrinting,
+                        )
+                    )
+
+        refs = []
+        for subs in substrates:
+            file_name = f'{subs[0]}.archive.json'
+            create_archive(subs[2], archive, file_name)
+            refs.append(get_reference(upload_id, file_name))
+
+        for a in archives:
+            file_name = f'{a[0]}.archive.json'
+            create_archive(a[1], archive, file_name)
+            refs.append(get_reference(upload_id, file_name))
+
+        return refs

@@ -19,6 +19,7 @@ samples:
       transport layer 1: none
   D:
     sample_numbers: 6,7
+    parent_ids: {6: HZB_TEST_9_A_C-1}
     sample_type: S
     steps:
       contact layer 1: contact_cu

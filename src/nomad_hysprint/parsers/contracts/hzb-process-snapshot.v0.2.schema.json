@@ -152,7 +152,7 @@
       "description": "Strings starting with = would be spreadsheet formulas; write the number instead."
     },
     "fieldValues": {
-      "description": "NOMAD field name (with unit in brackets, e.g. 'Rotation speed [rpm]') -> value. The names are the column names of the Excel experiment file. Names NOMAD does not read are listed on the snapshot's entry (unread_parameters) and their values are not stored. Numbers are real numbers, never formulas or strings like '8E-7'.",
+      "description": "NOMAD field name (with unit in brackets, e.g. 'Rotation speed [rpm]') -> value. The names are the column names of the Excel experiment file. Names NOMAD does not read are listed on the snapshot's entry (unread_parameters) and their values are not stored. Numbers are real numbers, never formulas or strings like '8E-7'. Date fields ('Datetime', 'Date' and names ending in ' Date', e.g. 'Solvent 1 Opening Date') are ISO 8601: '2025-03-04' or '2025-03-04 10:30', optionally with a UTC offset ('2025-03-04T10:30:00+01:00'); NOMAD stores them in UTC, and values without an offset are taken as UTC. Other date formats are rejected.",
       "type": "object",
       "additionalProperties": {
         "$ref": "#/$defs/scalar"
@@ -234,6 +234,14 @@
                   "HZB_TPV_14_A_C-1"
                 ]
               },
+              "parent_id": {
+                "type": "string",
+                "pattern": "^[^\\s]+$",
+                "description": "Optional. NOMAD ID of the sample this sample was made from (e.g. a piece cut from it). The sample links to that sample's entry in the same upload, like the 'Parent ID' column of the Excel file.",
+                "examples": [
+                  "HZB_TPV_14_A_C-1"
+                ]
+              },
               "parameter_changes": {
                 "description": "Optional changes for this one sample, on top of its sub-batch: {step name: {field: value}}. Keeps a deviating sample in its sub-batch, so its nomad_id stays the same.",
                 "type": "object",
@@ -293,7 +301,7 @@
               "excel_section": {
                 "type": "string",
                 "pattern": "^\\d+: .+$",
-                "description": "Deprecated (v0.1); accepted and ignored. Use slot."
+                "description": "Accepted and ignored (column group of the Excel workbook). Use slot."
               },
               "slot": {
                 "type": "string",
@@ -2602,7 +2610,6 @@
               "Notes",
               "Number of junctions",
               "Number of pixels",
-              "Parent ID",
               "Pixel area",
               "Pixel area [cm^2]",
               "Pixel/cell connection",
