@@ -1,0 +1,125 @@
+# Minimal process snapshot, contract v0.2, for the parser tests (made-up recipes).
+format: hzb-process-snapshot/v0.2
+provenance:
+  generated_at: '2026-11-22T10:00:00+00:00'
+  generator: test
+  source_note: experiments/test/TEST8_batch_note.yaml
+  source_commit: abc1234
+  library: library/process_library.yaml
+  library_commit: '0123456'
+  library_version: '1.1'
+experiment:
+  lab: HZB
+  project: TEST
+  batch: '8'
+  date: '2026-03-05'
+  properties:
+    Sample dimension: 2.5 cm x 2.5 cm
+    Substrate material: Soda Lime Glass
+sub_batches:
+- id: A
+  cell_type: {id: single_junction, alias: S, display_name: single junction}
+  variation: S
+  sample_properties:
+    Number of pixels: 6
+    Substrate conductive layer: ITO
+    Number of junctions: 1
+  samples:
+  - {number: 1}
+  - number: 2
+    parameter_changes:
+      contact layer 1:
+        Thickness [nm]: 80
+  steps:
+  - {position: 1, name: cleaning, process: cleaning, slot: '1'}
+  - {position: 2, name: transport layer 1, process: htl_a, slot: '2'}
+  - {position: 3, name: absorber 1, process: absorber, slot: '3'}
+  - {position: 4, name: contact layer 1, process: contact_ag, slot: '5'}
+- id: B
+  cell_type: {id: single_junction, alias: S, display_name: single junction}
+  variation: 'S: absorber 1 rotation speed 5000 rpm'
+  sample_properties:
+    Number of pixels: 6
+    Substrate conductive layer: ITO
+    Number of junctions: 1
+  samples:
+  - {number: 3}
+  - {number: 4}
+  steps:
+  - {position: 1, name: cleaning, process: cleaning, slot: '1'}
+  - {position: 2, name: transport layer 1, process: htl_a, slot: '2'}
+  - position: 3
+    name: absorber 1
+    process: absorber
+    slot: '3'
+    parameter_changes:
+      Rotation speed [rpm]: 5000
+  - {position: 4, name: recombination layer 1, process: izo, slot: '4'}
+  - {position: 5, name: contact layer 1, process: contact_ag, slot: '5'}
+- id: C
+  cell_type: {id: single_junction_b, alias: Sb, display_name: single junction b}
+  variation: 'Sb: same values, other recipe'
+  sample_properties:
+    Number of pixels: 6
+    Substrate conductive layer: ITO
+    Number of junctions: 1
+  samples:
+  - {number: 5, parent_id: HZB_TEST_8_A_C-1}
+  steps:
+  - {position: 1, name: cleaning, process: cleaning, slot: '1'}
+  - {position: 2, name: hole transport layer, process: htl_a_copy, slot: '2'}
+  - {position: 3, name: absorber 1, process: absorber, slot: '3'}
+  - {position: 4, name: contact layer 1, process: contact_ag, slot: '5'}
+processes:
+  cleaning:
+    display_name: cleaning uv ozone
+    method: Cleaning UV-Ozone
+    parameters:
+      Solvent 1: IPA
+      Time 1 [s]: 600
+      UV-Ozone Time [s]: 900
+  htl_a:
+    display_name: HTL A
+    method: Spin Coating
+    parameters:
+      Material name: HTL-A
+      Layer type: Hole transport layer
+      Solvent 1 name: Ethanol
+      Rotation speed [rpm]: 3000
+  htl_a_copy:
+    display_name: HTL A (other recipe, identical values)
+    method: Spin Coating
+    parameters:
+      Material name: HTL-A
+      Layer type: Hole transport layer
+      Solvent 1 name: Ethanol
+      Rotation speed [rpm]: 3000
+  absorber:
+    display_name: absorber
+    method: Spin Coating
+    parameters:
+      Material name: Absorber-A
+      Layer type: Absorber
+      Solvent 1 name: DMF
+      Rotation speed [rpm]: 4000
+      Rotation time [s]: 30
+      Spin Delay [s]: 0.5
+      Datetime: '2026-03-05T10:30:00+01:00'
+  izo:
+    display_name: IZO
+    method: Sputtering
+    parameters:
+      Material name: IZO
+      Layer type: Recombination layer
+      Power [W]: 150
+      Thickness [nm]: 40
+  contact_ag:
+    display_name: Ag contact
+    method: Evaporation
+    parameters:
+      Material name: Ag
+      Layer type: Electrode
+      Organic: false
+      Base pressure [bar]: 8.0e-07
+      Thickness [nm]: 100
+      Nozzle distance [mm]: 12

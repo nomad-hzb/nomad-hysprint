@@ -77,6 +77,10 @@ This is a hello world style example for an example parser/converter.
 """
 
 
+# Internal column of the process snapshot parser (the process id of a step); not a parameter.
+RECIPE_COLUMN = 'Snapshot process'
+
+
 class RawHySprintExperiment(EntryData):
     processed_archive = Quantity(type=Entity, shape=['*'])
 
@@ -84,7 +88,7 @@ class RawHySprintExperiment(EntryData):
 def map_generic_parameters(process, data):
     parameters = []
     for col, val in data.items():
-        if col in ['Notes', 'Name']:
+        if col in ['Notes', 'Name', RECIPE_COLUMN]:
             continue
         if pd.isna(val):
             continue
@@ -116,7 +120,6 @@ class HySprintExperimentParser(MatchingParser):
         return True
 
     def parse(self, mainfile: str, archive: EntryArchive, logger):
-        upload_id = archive.metadata.upload_id
         # xls = pd.ExcelFile(mainfile)
         df = pd.read_excel(mainfile, header=[0, 1])
 
@@ -130,6 +133,20 @@ class HySprintExperimentParser(MatchingParser):
             # standard sample ID format HZB_Test_1_1_C-1
             else '_'.join(sample_ids[0].split('_')[:-1])
         )
+        archive.data = RawHySprintExperiment(
+            processed_archive=HySprintExperimentParser.build_experiment_archives(
+                df, archive, sample_ids, batch_id
+            )
+        )
+
+    @staticmethod
+    def build_experiment_archives(df, archive, sample_ids, batch_id):
+        """Create batch, substrate, sample and process entries from an experiment table.
+
+        `df` has the two-level header of the experiment Excel file. Also used by the
+        process snapshot parser. Returns the references to all created entries.
+        """
+        upload_id = archive.metadata.upload_id
         archives = [map_batch(sample_ids, batch_id, upload_id, HySprint_Batch)]
         substrates = []
         substrates_col = [
@@ -273,4 +290,4 @@ class HySprintExperimentParser(MatchingParser):
             create_archive(a[1], archive, file_name)
             refs.append(get_reference(upload_id, file_name))
 
-        archive.data = RawHySprintExperiment(processed_archive=refs)
+        return refs
