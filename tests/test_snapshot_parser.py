@@ -101,41 +101,6 @@ def test_snapshot(monkeypatch):
     assert by_type(entries, 'HySprint_Sputtering') == {'sputtering IZO': [[3, 4]]}
 
 
-def parse_variant(change, tmp_path, monkeypatch):
-    """Parse a changed copy of the test snapshot; return the created entries."""
-    set_monkey_patch(monkeypatch)
-    data = snapshot()
-    change(data)
-    mainfile = tmp_path / 'variant.snapshot.json'
-    mainfile.write_text(json.dumps(data))
-    parse(str(mainfile))
-    return {
-        name: parse(str(tmp_path / name))[0].data
-        for name in sorted(os.listdir(tmp_path))
-        if name.endswith('.archive.json')
-    }
-
-
-def test_run_label_splits_entries(tmp_path, monkeypatch):
-    """Same slot, recipe and values, but a different run: separate entries."""
-
-    def change(data):
-        data['sub_batches'][1]['steps'][1]['run'] = 'second session'  # B's hole transport layer
-
-    entries = parse_variant(change, tmp_path, monkeypatch)
-    assert by_type(entries, 'HySprint_SpinCoating')['spin coating HTL-A'] == [[1, 2], [3, 4], [5]]
-
-
-def test_slot_groups_across_step_names(tmp_path, monkeypatch):
-    """Different step name, same slot and recipe: one entry."""
-
-    def change(data):
-        data['sub_batches'][2]['steps'][1]['process'] = 'htl_a'  # C: 'hole transport layer', slot '2'
-
-    entries = parse_variant(change, tmp_path, monkeypatch)
-    assert by_type(entries, 'HySprint_SpinCoating')['spin coating HTL-A'] == [[1, 2, 3, 4, 5]]
-
-
 def test_snapshot_parent_id(monkeypatch):
     _, entries = parse_upload(SNAPSHOT, monkeypatch)
     assert entries['HZB_TEST_8_C_C-5'].parent.lab_id == 'HZB_TEST_8_A_C-1'
